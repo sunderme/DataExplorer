@@ -1,0 +1,13 @@
+[Desktop Entry]
+Categories=Office;
+Exec=qdia %F
+GenericName=DataExplorer
+Comment=CSV explorer
+Icon=DataExplorer
+Keywords=Diagram;editor;
+MimeType=text/x-tex;
+Name=DataExplorer
+StartupNotify=false
+Terminal=false
+Type=Application
+

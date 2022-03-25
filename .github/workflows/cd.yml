@@ -90,7 +90,7 @@ jobs:
     - name: Build
       run: |
         cd build
-        cmake --build . --target install
+        cmake --build .
       
     - name: Package
       id: package

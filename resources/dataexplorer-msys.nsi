@@ -6,9 +6,9 @@
 !define VERSIONBUILD 0
 # These will be displayed by the "Click here for support information" link in "Add/Remove Programs"
 # It is possible to use "mailto:" links in here to open the email client
-!define HELPURL "https://github.com/sunderme/qdia" # "Support Information" link
-!define UPDATEURL "https://github.com/sunderme/qdia" # "Product Updates" link
-!define ABOUTURL "https://github.com/sunderme/qdia" # "Publisher" link
+!define HELPURL "https://github.com/sunderme/DataExplorer" # "Support Information" link
+!define UPDATEURL "https://github.com/sunderme/DataExplorer" # "Product Updates" link
+!define ABOUTURL "https://github.com/sunderme/DataExplorer" # "Publisher" link
 
 !include "FileAssociation.nsh"
 
@@ -79,7 +79,7 @@ SetShellVarContext all
 SetOutPath $INSTDIR
  
 # define what to install and place it in the output path
-File qdia.exe
+File DataExplorer.exe
 
 File package-zip\*.dll
 
@@ -109,12 +109,12 @@ WriteRegStr HKCU "Software\${APPNAME}" "" $INSTDIR
 WriteUninstaller $INSTDIR\uninstall.exe
 
 # associate .tex
-${registerExtension} $INSTDIR\qdia.exe ".qdia" "QDia File"
+${registerExtension} $INSTDIR\DataExplorer.exe ".csv" "CSV File"
 
 
 # Start Menu
 createShortCut "$SMPROGRAMS\${APPNAME}.lnk" \
-"$INSTDIR\qdia.exe" "" ""
+"$INSTDIR\DataExplorer.exe" "" ""
 
 # Registry information for add/remove programs
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayName" "${APPNAME} - ${DESCRIPTION}"
@@ -122,7 +122,7 @@ createShortCut "$SMPROGRAMS\${APPNAME}.lnk" \
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "QuietUninstallString" "$\"$INSTDIR\uninstall.exe$\" /S"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "InstallLocation" "$\"$INSTDIR$\""
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayIcon" "$\"$INSTDIR\logo.ico$\""
-	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "Publisher" "Benito van der Zander"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "Publisher" "Jan Sundermeyer"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "HelpLink" "$\"${HELPURL}$\""
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "URLUpdateInfo" "$\"${UPDATEURL}$\""
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "URLInfoAbout" "$\"${ABOUTURL}$\""

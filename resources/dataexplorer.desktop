@@ -1,6 +1,6 @@
 [Desktop Entry]
 Categories=Office;
-Exec=qdia %F
+Exec=DataExplorer %F
 GenericName=DataExplorer
 Comment=CSV explorer
 Icon=DataExplorer

@@ -91,10 +91,6 @@ SetOutPath $INSTDIR\imageformats
 
 File package-zip\imageformats\*
 
-SetOutPath $INSTDIR\iconengines
-
-File package-zip\iconengines\*
-
 SetOutPath $INSTDIR\styles
 
 File package-zip\styles\*

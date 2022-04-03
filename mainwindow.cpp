@@ -20,6 +20,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::setupMenus()
 {
+
     fileMenu = menuBar()->addMenu(tr("&File"));
     openAct = new QAction(tr("&Open"), this);
     connect(openAct, &QAction::triggered, this, &MainWindow::openFile);
@@ -28,17 +29,49 @@ void MainWindow::setupMenus()
     connect(exitAct, &QAction::triggered, this, &MainWindow::close);
     fileMenu->addAction(exitAct);
 
+    QToolBar *plotToolBar = addToolBar(tr("Plot"));
     plotMenu = menuBar()->addMenu(tr("&Plot"));
     plotAct = new QAction(tr("&Plot"), this);
+    plotToolBar->addAction(plotAct);
     connect(plotAct, &QAction::triggered, this, &MainWindow::plotSelected);
     plotMenu->addAction(plotAct);
-    QAction *testAction=new QAction("test",this);
-    connect(testAction, &QAction::triggered, this, &MainWindow::test);
-    plotMenu->addAction(testAction);
-    QAction *act=new QAction("delete",this);
+    QAction *act=new QAction(tr("Zoom area"),this);
+    act->setShortcut(Qt::Key_Z);
+    connect(act,&QAction::triggered,this,&MainWindow::zoomAreaMode);
+    plotMenu->addAction(act);
+    plotToolBar->addAction(act);
+    act=new QAction(tr("Zoom X"),this);
+    act->setShortcut(Qt::Key_X);
+    connect(act,&QAction::triggered,this,&MainWindow::zoomX);
+    plotMenu->addAction(act);
+    plotToolBar->addAction(act);
+    act=new QAction(tr("Zoom Y"),this);
+    act->setShortcut(Qt::Key_Y);
+    connect(act,&QAction::triggered,this,&MainWindow::zoomY);
+    plotMenu->addAction(act);
+    plotToolBar->addAction(act);
+    act=new QAction(tr("Zoom in"),this);
+    act->setShortcut(Qt::ShiftModifier|Qt::Key_Z);
+    connect(act,&QAction::triggered,this,&MainWindow::zoomIn);
+    plotMenu->addAction(act);
+    act=new QAction(tr("Zoom out"),this);
+    act->setShortcut(Qt::ControlModifier|Qt::Key_Z);
+    connect(act,&QAction::triggered,this,&MainWindow::zoomOut);
+    plotMenu->addAction(act);
+    act=new QAction(tr("Zoom fit"),this);
+    act->setShortcut(Qt::Key_F);
+    connect(act,&QAction::triggered,this,&MainWindow::zoomReset);
+    plotMenu->addAction(act);
+    plotToolBar->addAction(act);
+
+    act=new QAction("delete",this);
     act->setShortcut(QKeySequence::Delete);
     plotMenu->addAction(act);
     connect(act,&QAction::triggered,this,&MainWindow::deleteVar);
+
+    QAction *testAction=new QAction("test",this);
+    connect(testAction, &QAction::triggered, this, &MainWindow::test);
+    plotMenu->addAction(testAction);
 }
 
 void MainWindow::setupGUI()
@@ -246,6 +279,36 @@ void MainWindow::addPlotVar()
     updateSweepGUI();
 }
 
+void MainWindow::zoomAreaMode()
+{
+    chartView->setRubberBand(QChartView::RectangleRubberBand);
+}
+
+void MainWindow::zoomX()
+{
+    chartView->setRubberBand(QChartView::HorizontalRubberBand);
+}
+
+void MainWindow::zoomY()
+{
+    chartView->setRubberBand(QChartView::VerticalRubberBand);
+}
+
+void MainWindow::zoomIn()
+{
+    chartView->chart()->zoomIn();
+}
+
+void MainWindow::zoomOut()
+{
+    chartView->chart()->zoomOut();
+}
+
+void MainWindow::zoomReset()
+{
+    chartView->chart()->zoomReset();
+}
+
 QDebug operator<< (QDebug d, const QList<loopIteration>& dt) {
     foreach(const loopIteration &lit,dt){
         d << lit.value << '/' << lit.indices;
@@ -359,7 +422,7 @@ QList<loopIteration> MainWindow::groupBy(QStringList sweepVar,QList<int> provide
 /* TODO
 Unit tests
 filter
-add sweeps/plot
+zoom/toolbar
 cursor in plot
 */
 

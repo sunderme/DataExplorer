@@ -32,6 +32,12 @@ protected:
     void addSweepVar();
     void deleteVar();
     void addPlotVar();
+    void zoomAreaMode();
+    void zoomX();
+    void zoomY();
+    void zoomIn();
+    void zoomOut();
+    void zoomReset();
     void test();
     int getIndex(const QString &name);
     QStringList getUniqueValues(const QString &var,const QList<int> &indices);

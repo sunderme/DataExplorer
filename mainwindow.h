@@ -26,7 +26,12 @@ protected:
     void readInCSV(const QString &fileName);
     void buildTable();
     void updateSweepGUI();
+    void updateSweeps();
     void plotSelected();
+    void headerMenuRequested(QPoint pt);
+    void addSweepVar();
+    void deleteVar();
+    void addPlotVar();
     void test();
     int getIndex(const QString &name);
     QStringList getUniqueValues(const QString &var,const QList<int> &indices);

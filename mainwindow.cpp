@@ -35,6 +35,10 @@ void MainWindow::setupMenus()
     QAction *testAction=new QAction("test",this);
     connect(testAction, &QAction::triggered, this, &MainWindow::test);
     plotMenu->addAction(testAction);
+    QAction *act=new QAction("delete",this);
+    act->setShortcut(QKeySequence::Delete);
+    plotMenu->addAction(act);
+    connect(act,&QAction::triggered,this,&MainWindow::deleteVar);
 }
 
 void MainWindow::setupGUI()
@@ -44,6 +48,11 @@ void MainWindow::setupGUI()
     QVBoxLayout *mainLayout = new QVBoxLayout;
     QHBoxLayout *hLayout = new QHBoxLayout;
     lstSweeps = new QListWidget;
+    lstSweeps->setSelectionMode(QAbstractItemView::SingleSelection);
+    lstSweeps->setDragEnabled(true);
+    lstSweeps->setDefaultDropAction(Qt::MoveAction);
+    lstSweeps->setAcceptDrops(true);
+    lstSweeps->setDropIndicatorShown(true);
     lstData = new QListWidget;
     hLayout->addWidget(lstSweeps);
     hLayout->addWidget(lstData);
@@ -58,6 +67,9 @@ void MainWindow::setupGUI()
     QTabWidget *tabWidget = new QTabWidget;
     tabWidget->addTab(wgt,tr("CSV"));
     tabWidget->addTab(chartView,tr("Plots"));
+
+    tableWidget->horizontalHeader()-> setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(tableWidget->horizontalHeader(),&QAbstractItemView::customContextMenuRequested,this,&MainWindow::headerMenuRequested);
 
     setCentralWidget(tabWidget);
 }
@@ -115,6 +127,7 @@ void MainWindow::buildTable()
             QTableWidgetItem *newItem = new QTableWidgetItem(csv[i].value(row));
             tableWidget->setItem(row, i, newItem);
         }
+
     }
 }
 
@@ -130,8 +143,21 @@ void MainWindow::updateSweepGUI()
     }
 }
 
+void MainWindow::updateSweeps()
+{
+    sweeps.clear();
+    plotValues.clear();
+    for(int i=0;i<lstSweeps->count();++i){
+        sweeps<<lstSweeps->item(i)->text();
+    }
+    for(int i=0;i<lstData->count();++i){
+        plotValues<<lstData->item(i)->text();
+    }
+}
+
 void MainWindow::plotSelected()
 {
+    updateSweeps();
     if(plotValues.isEmpty()) return;
     if(sweeps.isEmpty()) return;
     QStringList vars=sweeps;
@@ -163,6 +189,61 @@ void MainWindow::plotSelected()
 
     chartView->setChart(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
+}
+
+void MainWindow::headerMenuRequested(QPoint pt)
+{
+    int column=tableWidget->horizontalHeader()->logicalIndexAt(pt);
+
+    QMenu *menu=new QMenu(this);
+    QAction *act=new QAction(tr("add as sweep var"), this);
+    act->setData(columns[column]);
+    connect(act,&QAction::triggered,this,&MainWindow::addSweepVar);
+    menu->addAction(act);
+    act=new QAction(tr("add as plot var"), this);
+    act->setData(columns[column]);
+    connect(act,&QAction::triggered,this,&MainWindow::addPlotVar);
+    menu->addAction(act);
+    menu->popup(tableWidget->horizontalHeader()->viewport()->mapToGlobal(pt));
+}
+
+void MainWindow::addSweepVar()
+{
+    QAction *act=qobject_cast<QAction*>(sender());
+    QString var=act->data().toString();
+    sweeps.prepend(var);
+    updateSweepGUI();
+}
+/*!
+ * \brief remove var from sweepvar/plotvar, depending which one is focused
+ */
+void MainWindow::deleteVar()
+{
+    // delete pressed
+    if(lstSweeps->hasFocus()){
+        auto lst=lstSweeps->selectedItems();
+        for(auto elem:lst){
+            QString var=elem->text();
+            sweeps.removeAll(var);
+            delete elem;
+        }
+    }
+    if(lstData->hasFocus()){
+        auto lst=lstData->selectedItems();
+        for(auto elem:lst){
+            QString var=elem->text();
+            plotValues.removeAll(var);
+            delete elem;
+        }
+    }
+}
+
+void MainWindow::addPlotVar()
+{
+    QAction *act=qobject_cast<QAction*>(sender());
+    QString var=act->data().toString();
+    plotValues.prepend(var);
+    updateSweepGUI();
 }
 
 QDebug operator<< (QDebug d, const QList<loopIteration>& dt) {

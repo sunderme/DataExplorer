@@ -209,6 +209,9 @@ void MainWindow::plotSelected()
     ZoomableChart *chart = new ZoomableChart();
     foreach(loopIteration lit,lits){
         QLineSeries *series = new QLineSeries();
+        if(!lit.value.isEmpty()){
+            series->setName(lit.value.left(lit.value.size()-1));
+        }
         for(int i:lit.indices){
             bool ok_x,ok_y;
             qreal x=csv[index_x].value(i).toDouble(&ok_x);

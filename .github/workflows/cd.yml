@@ -39,14 +39,14 @@ jobs:
         if: github.event_name == 'push'
         uses: actions/upload-artifact@v2
         with:
-          name: qdia-win-qt6-zip
+          name: dataexplorer-win-qt6-zip
           path: ./build/package-zip/DataExplorer-win-qt6-${{ steps.package.outputs.VERSION_NAME }}.zip
           
       - name: Upload to GitHub Artifacts
         if: github.event_name == 'push'
         uses: actions/upload-artifact@v2
         with:
-          name: qdia-win-qt6-exe
+          name: dataexplorer-win-qt6-exe
           path: ./build/DataExplorer-win-qt6-${{ steps.package.outputs.VERSION_NAME }}.exe
         
       - name: Release exe
@@ -162,7 +162,7 @@ jobs:
       if: github.event_name == 'push'
       uses: actions/upload-artifact@v2
       with:
-        name: qdia-osx
+        name: dataexplorer-osx
         path: build/dataexplorer-osx-${{ steps.package.outputs.VERSION_NAME }}.dmg
         
     - name: Release

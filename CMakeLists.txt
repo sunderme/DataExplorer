@@ -18,6 +18,12 @@ set(PROJECT_SOURCES
         main.cpp
         mainwindow.cpp
         mainwindow.h
+        zoomablechart.cpp
+        zoomablechart.h
+        zoomablechartview.cpp
+        zoomablechartview.h
+        rangelimitedvalueaxis.cpp
+        rangelimitedvalueaxis.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

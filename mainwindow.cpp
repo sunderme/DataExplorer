@@ -5,6 +5,7 @@
 #include <QTextStream>
 #include <QtCharts>
 #include <set>
+#include "zoomablechart.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -63,6 +64,11 @@ void MainWindow::setupMenus()
     connect(act,&QAction::triggered,this,&MainWindow::zoomReset);
     plotMenu->addAction(act);
     plotToolBar->addAction(act);
+    act=new QAction(tr("Pan"),this);
+    act->setShortcut(Qt::Key_P);
+    connect(act,&QAction::triggered,this,&MainWindow::panMode);
+    plotMenu->addAction(act);
+    plotToolBar->addAction(act);
 
     act=new QAction("delete",this);
     act->setShortcut(QKeySequence::Delete);
@@ -94,8 +100,8 @@ void MainWindow::setupGUI()
 
     wgt->setLayout(mainLayout);
 
-    chartView = new QChartView();
-    chartView->setRubberBand(QChartView::RectangleRubberBand);
+    chartView = new ZoomableChartView();
+    chartView->setZoomMode(ZoomableChartView::RectangleZoom);
 
     QTabWidget *tabWidget = new QTabWidget;
     tabWidget->addTab(wgt,tr("CSV"));
@@ -200,7 +206,7 @@ void MainWindow::plotSelected()
     int index_y=getIndex(yn);
 
     QList<loopIteration> lits=groupBy(vars);
-    QChart *chart = new QChart();
+    ZoomableChart *chart = new ZoomableChart();
     foreach(loopIteration lit,lits){
         QLineSeries *series = new QLineSeries();
         for(int i:lit.indices){
@@ -281,17 +287,22 @@ void MainWindow::addPlotVar()
 
 void MainWindow::zoomAreaMode()
 {
-    chartView->setRubberBand(QChartView::RectangleRubberBand);
+    chartView->setZoomMode(ZoomableChartView::RectangleZoom);
+}
+
+void MainWindow::panMode()
+{
+    chartView->setZoomMode(ZoomableChartView::Pan);
 }
 
 void MainWindow::zoomX()
 {
-    chartView->setRubberBand(QChartView::HorizontalRubberBand);
+    chartView->setZoomMode(ZoomableChartView::HorizontalZoom);
 }
 
 void MainWindow::zoomY()
 {
-    chartView->setRubberBand(QChartView::VerticalRubberBand);
+    chartView->setZoomMode(ZoomableChartView::VerticalZoom);
 }
 
 void MainWindow::zoomIn()

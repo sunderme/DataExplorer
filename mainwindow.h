@@ -5,6 +5,7 @@
 #include <QTableWidget>
 #include <QChartView>
 #include <QListWidget>
+#include "zoomablechartview.h"
 
 struct loopIteration{
     QString value;
@@ -33,6 +34,7 @@ protected:
     void deleteVar();
     void addPlotVar();
     void zoomAreaMode();
+    void panMode();
     void zoomX();
     void zoomY();
     void zoomIn();
@@ -54,7 +56,7 @@ private:
     QAction *plotAct;
 
     QTableWidget *tableWidget;
-    QChartView *chartView;
+    ZoomableChartView *chartView;
 
     QListWidget *lstSweeps;
     QListWidget *lstData;

@@ -15,16 +15,16 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Charts)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Charts)
 
 set(PROJECT_SOURCES
-        main.cpp
-        mainwindow.cpp
-        mainwindow.h
-        zoomablechart.cpp
-        zoomablechart.h
-        zoomablechartview.cpp
-        zoomablechartview.h
-        rangelimitedvalueaxis.cpp
-        rangelimitedvalueaxis.h
-	resources/icons.qrc
+        src/main.cpp
+        src/mainwindow.cpp
+        src/mainwindow.h
+        src/zoomablechart.cpp
+        src/zoomablechart.h
+        src/zoomablechartview.cpp
+        src/zoomablechartview.h
+        src/rangelimitedvalueaxis.cpp
+        src/rangelimitedvalueaxis.h
+	    resources/icons.qrc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

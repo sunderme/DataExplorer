@@ -96,8 +96,18 @@ void MainWindow::setupGUI()
     hLayout->addWidget(lstSweeps);
     hLayout->addWidget(lstData);
     mainLayout->addLayout(hLayout,1);
+    QHBoxLayout *hLayout2 = new QHBoxLayout;
+    btFilter=new QToolButton;
+    btFilter->setCheckable(true);
+    btFilter->setText("Filter");
+    connect(btFilter,&QAbstractButton::toggled,this,&MainWindow::filterToggled);
+    hLayout2->addWidget(btFilter);
+    leFilterText = new QLineEdit;
+    connect(leFilterText,&QLineEdit::textEdited,this,&MainWindow::filterTextChanged);
+    hLayout2->addWidget(leFilterText);
+    hLayout2->addSpacing(1);
+    mainLayout->addLayout(hLayout2);
     mainLayout->addWidget(tableWidget,3);
-
     wgt->setLayout(mainLayout);
 
     chartView = new ZoomableChartView();
@@ -168,6 +178,7 @@ void MainWindow::buildTable()
         }
 
     }
+    tableWidget->resizeColumnsToContents();
 }
 
 void MainWindow::updateSweepGUI()
@@ -321,6 +332,35 @@ void MainWindow::zoomOut()
 void MainWindow::zoomReset()
 {
     chartView->chart()->zoomReset();
+}
+
+void MainWindow::filterToggled(bool checked)
+{
+    // filter columns
+    for(int i=0;i<columns.size();++i){
+        if(!checked){
+            tableWidget->showColumn(i);
+        }else{
+            if(columns.value(i).contains(leFilterText->text())){
+                tableWidget->showColumn(i);
+            }else{
+                tableWidget->hideColumn(i);
+            }
+        }
+    }
+}
+
+void MainWindow::filterTextChanged(const QString &text)
+{
+    if(btFilter->isChecked()){
+        for(int i=0;i<columns.size();++i){
+            if(columns.value(i).contains(text)){
+                tableWidget->showColumn(i);
+            }else{
+                tableWidget->hideColumn(i);
+            }
+        }
+    }
 }
 
 QDebug operator<< (QDebug d, const QList<loopIteration>& dt) {

@@ -5,6 +5,7 @@
 #include <QTableWidget>
 #include <QChartView>
 #include <QListWidget>
+#include <QLineEdit>
 #include "zoomablechartview.h"
 
 struct loopIteration{
@@ -40,6 +41,8 @@ protected:
     void zoomIn();
     void zoomOut();
     void zoomReset();
+    void filterToggled(bool checked);
+    void filterTextChanged(const QString &text);
     void test();
     int getIndex(const QString &name);
     QStringList getUniqueValues(const QString &var,const QList<int> &indices);
@@ -60,6 +63,9 @@ private:
 
     QListWidget *lstSweeps;
     QListWidget *lstData;
+
+    QToolButton *btFilter;
+    QLineEdit *leFilterText;
 
     QString fileName;
 

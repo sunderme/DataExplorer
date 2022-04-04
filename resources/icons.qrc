@@ -9,5 +9,6 @@
         <file>icons/zoom-select-y.svg</file>
         <file>icons/transform-move.svg</file>
         <file>icons/labplot-xy-curve-segments.svg</file>
+        <file>icons/zoom-fit-best.svg</file>
     </qresource>
 </RCC>

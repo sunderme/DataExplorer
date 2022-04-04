@@ -66,7 +66,7 @@ void MainWindow::setupMenus()
     connect(act,&QAction::triggered,this,&MainWindow::zoomOut);
     plotMenu->addAction(act);
     act=new QAction(tr("Zoom fit"),this);
-    act->setIcon(QIcon(":/icons/zoompage.svg"));
+    act->setIcon(QIcon(":/icons/zoom-fit-best.svg"));
     act->setShortcut(Qt::Key_F);
     connect(act,&QAction::triggered,this,&MainWindow::zoomReset);
     plotMenu->addAction(act);

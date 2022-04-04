@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/view-filter.svg</file>
+        <file>icons/zoom.svg</file>
+        <file>icons/zoomin.svg</file>
+        <file>icons/zoomout.svg</file>
+        <file>icons/zoompage.svg</file>
+        <file>icons/zoom-select-x.svg</file>
+        <file>icons/zoom-select-y.svg</file>
+        <file>icons/transform-move.svg</file>
+        <file>icons/labplot-xy-curve-segments.svg</file>
+    </qresource>
+</RCC>

@@ -24,6 +24,7 @@ set(PROJECT_SOURCES
         zoomablechartview.h
         rangelimitedvalueaxis.cpp
         rangelimitedvalueaxis.h
+	resources/icons.qrc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

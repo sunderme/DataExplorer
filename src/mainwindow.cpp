@@ -26,6 +26,12 @@ void MainWindow::setupMenus()
     openAct = new QAction(tr("&Open"), this);
     connect(openAct, &QAction::triggered, this, &MainWindow::openFile);
     fileMenu->addAction(openAct);
+    QAction *loadTemplateAct=new QAction(tr("&Open Template"), this);
+    connect(loadTemplateAct, &QAction::triggered, this, &MainWindow::openTemplate);
+    fileMenu->addAction(loadTemplateAct);
+    QAction *saveTemplateAct=new QAction(tr("&Save Template"), this);
+    connect(saveTemplateAct, &QAction::triggered, this, &MainWindow::saveTemplate);
+    fileMenu->addAction(saveTemplateAct);
     exitAct = new QAction(tr("&Quit"), this);
     connect(exitAct, &QAction::triggered, this, &MainWindow::close);
     fileMenu->addAction(exitAct);
@@ -150,6 +156,55 @@ void MainWindow::openFile()
         plotValues<<"y";
     }
     updateSweepGUI();
+}
+
+void MainWindow::openTemplate()
+{
+    fileName = QFileDialog::getOpenFileName(this,
+                                            tr("Open template"), "", tr("Template File (*.deTemplate)"));
+    if(fileName.isEmpty()) return;
+    QFile loadFile(fileName);
+    if (!loadFile.open(QIODevice::ReadOnly)) {
+        qWarning("Couldn't open file.");
+        return;
+    }
+    QByteArray data = loadFile.readAll();
+
+    QJsonDocument loadDoc(QJsonDocument::fromJson(data));
+    QJsonObject jo=loadDoc.object();
+    QJsonArray ja=jo["sweeps"].toArray();
+    sweeps.clear();
+    for(int i = 0; i < ja.size(); ++i) {
+        sweeps<<ja[i].toString();
+    }
+    ja=jo["plots"].toArray();
+    plotValues.clear();
+    for(int i = 0; i < ja.size(); ++i) {
+        plotValues<<ja[i].toString();
+    }
+    updateSweepGUI();
+}
+/*!
+ * \brief save sweeps/plots as template
+ * Format is json
+ */
+void MainWindow::saveTemplate()
+{
+    fileName = QFileDialog::getSaveFileName(this,
+        tr("Save template"), "", tr("Template File (*.deTemplate)"));
+    if(fileName.isEmpty()) return;
+    QFile saveFile(fileName);
+    if (!saveFile.open(QIODevice::WriteOnly)) {
+        qWarning("Couldn't open save file.");
+        return;
+    }
+
+    QJsonObject jo;
+    jo["sweeps"]=QJsonArray::fromStringList(sweeps);
+    jo["plots"]=QJsonArray::fromStringList(plotValues);
+
+    QJsonDocument saveDoc(jo);
+    saveFile.write(saveDoc.toJson());
 }
 
 void MainWindow::readInCSV(const QString &fileName)

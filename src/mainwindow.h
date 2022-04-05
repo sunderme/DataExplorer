@@ -25,6 +25,8 @@ protected:
     void setupMenus();
     void setupGUI();
     void openFile();
+    void openTemplate();
+    void saveTemplate();
     void readInCSV(const QString &fileName);
     void buildTable();
     void updateSweepGUI();

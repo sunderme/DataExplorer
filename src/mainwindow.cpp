@@ -213,9 +213,14 @@ void MainWindow::readInCSV(const QString &fileName)
     if (data.open(QFile::ReadOnly)){
         QTextStream stream(&data);
         QString line;
-        // first line is column names
-        stream.readLineInto(&line);
-        columns=line.split(',');
+        // first line with commas is column names
+        while(stream.readLineInto(&line)){
+            if(line.startsWith('!') || line.isEmpty())
+                continue;
+            columns=line.split(',');
+            if(columns.size()>1)
+                break;
+        }
         QList<QStringList> data(columns.size());
         while (stream.readLineInto(&line)) {
             QStringList elements=line.split(',');

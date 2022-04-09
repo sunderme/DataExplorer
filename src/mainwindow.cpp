@@ -326,13 +326,15 @@ void MainWindow::plotSelected()
         if(!lit.value.isEmpty()){
             series->setName(lit.value.left(lit.value.size()-1));
         }
-        for(int i:lit.indices){
-            bool ok_x,ok_y;
-            qreal x=csv[index_x].value(i).toDouble(&ok_x);
-            qreal y=csv[index_y].value(i).toDouble(&ok_y);
-            if(ok_x && ok_y){
-                QPointF pt(x,y);
-                series->append(pt);
+        for(std::size_t i=0;i<lit.indices.size();++i){
+            if(lit.indices[i]){
+                bool ok_x,ok_y;
+                qreal x=csv[index_x].value(i).toDouble(&ok_x);
+                qreal y=csv[index_y].value(i).toDouble(&ok_y);
+                if(ok_x && ok_y){
+                    QPointF pt(x,y);
+                    series->append(pt);
+                }
             }
         }
         chart->addSeries(series);
@@ -603,15 +605,15 @@ QDebug operator<< (QDebug d, const QList<LoopIteration>& dt) {
 void MainWindow::test()
 {
     if(csv.isEmpty()) return;
-    QList<int> providedIndices(csv[0].size());
+    std::vector<bool> providedIndices(csv[0].size());
     for(int i=0;i<csv[0].size();++i){
-        providedIndices[i]=i;
+        providedIndices[i]=true;
     }
     QStringList vals=getUniqueValues("x",providedIndices);
     qDebug()<<"x"<<vals;
     vals=getUniqueValues("s",providedIndices);
     qDebug()<<"s"<<vals;
-    QList<int> indices=filterIndices("s","2",providedIndices);
+    std::vector<bool> indices=filterIndices("s","2",providedIndices);
     qDebug()<<"s indices"<<indices;
     indices=filterIndices("x","0.2",providedIndices);
     qDebug()<<"x inices"<<indices;
@@ -670,12 +672,14 @@ int MainWindow::getColumnFilter(int column) const
  * \param indices
  * \return list of values
  */
-QStringList MainWindow::getUniqueValues(const QString &var, const QList<int> &indices)
+QStringList MainWindow::getUniqueValues(const QString &var, const std::vector<bool> &indices)
 {
     int index=getIndex(var);
     QStringList result;
-    for(int i:indices){
-        result<<csv[index][i];
+    for(std::size_t i=0;i<indices.size();++i){
+        if(indices[i]){
+            result<<csv[index][i];
+        }
     }
     result.removeDuplicates();
     return result;
@@ -687,13 +691,13 @@ QStringList MainWindow::getUniqueValues(const QString &var, const QList<int> &in
  * \param providedIndices
  * \return
  */
-QList<int> MainWindow::filterIndices(const QString &var, const QString &value, const QList<int> &providedIndices)
+std::vector<bool> MainWindow::filterIndices(const QString &var, const QString &value, const std::vector<bool> &providedIndices)
 {
     int index=getIndex(var);
-    QList<int> result;
-    foreach(int i,providedIndices){
-        if(csv[index][i]==value){
-            result<<i;
+    std::vector<bool> result=providedIndices;
+    for(std::size_t i=0;i<result.size();++i){
+        if(csv[index][i]!=value){
+            result[i]=false;
         }
     }
     return result;
@@ -704,22 +708,22 @@ QList<int> MainWindow::filterIndices(const QString &var, const QString &value, c
  * \param sweepVar, last is x axxis
  * \return list of list of indices
  */
-QList<LoopIteration> MainWindow::groupBy(QStringList sweepVar,QList<int> providedIndices)
+QList<LoopIteration> MainWindow::groupBy(QStringList sweepVar,std::vector<bool> providedIndices)
 {
     QList<LoopIteration> result;
-    if(providedIndices.isEmpty()){
+    if(providedIndices.size()==0){
         // fill from 0 to size(csv)-1
         int sz=csv[0].size();
         providedIndices.resize(sz);
         for(int i=0;i<csv[0].size();++i){
-            providedIndices[i]=i;
+            providedIndices[i]=true;
         }
     }
     if(!sweepVar.isEmpty()){
         QString var=sweepVar.takeFirst();
         QStringList values=getUniqueValues(var,providedIndices);
         for(const QString &value:values){
-            QList<int> indices=filterIndices(var,value,providedIndices);
+            std::vector<bool> indices=filterIndices(var,value,providedIndices);
             QList<LoopIteration>groupedResult=groupBy(sweepVar,indices);
             for(LoopIteration &lit:groupedResult){
                 lit.value.prepend(var+"="+value+";");

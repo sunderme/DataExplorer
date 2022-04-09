@@ -10,7 +10,7 @@
 
 struct LoopIteration{
     QString value;
-    QList<int> indices;
+    std::vector<bool> indices;
 };
 
 struct ColumnFilter{
@@ -65,10 +65,10 @@ protected:
     int getIndex(const QString &name);
     bool hasColumnFilter(int column) const;
     int getColumnFilter(int column) const;
-    QStringList getUniqueValues(const QString &var,const QList<int> &indices);
-    QList<int> filterIndices(const QString &var,const QString &value,const QList<int> &providedIndices);
+    QStringList getUniqueValues(const QString &var,const std::vector<bool> &indices);
+    std::vector<bool> filterIndices(const QString &var,const QString &value,const std::vector<bool> &providedIndices);
 
-    QList<LoopIteration> groupBy(QStringList sweepVar,QList<int> providedIndices=QList<int>() );
+    QList<LoopIteration> groupBy(QStringList sweepVar,std::vector<bool> providedIndices=std::vector<bool>() );
 
 private:
     QMenu *fileMenu;

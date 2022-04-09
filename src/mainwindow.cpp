@@ -655,7 +655,13 @@ void MainWindow::filterElementChanged(bool checked)
     }
     if(checked){
         columnFilters[cfi].allowedValues.append(value);
-        //TODO remove filter if all is allowed
+        //remove filter if all is allowed
+        QStringList lst=csv[column];
+        lst.removeDuplicates();
+        if(lst.size()==columnFilters[cfi].allowedValues.size()){
+            // assume identical
+            updateColBackground(cfi,false);
+        }
     }else{
         columnFilters[cfi].allowedValues.removeOne(value);
     }

@@ -13,7 +13,7 @@ MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
     setupMenus();
     setupGUI();
     resize(800,600);
-    if(argc>0){
+    if(argc>1){
         // assume last argument as filename
         // maybe more elaborate later
         fileName=QString(argv[argc-1]);
@@ -252,8 +252,8 @@ void MainWindow::readInCSV(const QString &fileName)
             }
         }
         csv=data;
+        columnFilters.clear();
     }
-
 }
 /*!
  * \brief popalte table widget with present data
@@ -317,11 +317,11 @@ void MainWindow::plotSelected()
     QString yn=plotValues.last();
     int index_y=getIndex(yn);
 
-    QList<loopIteration> lits=groupBy(vars);
+    QList<LoopIteration> lits=groupBy(vars);
     ZoomableChart *chart = new ZoomableChart();
     chartView->setChart(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
-    foreach(loopIteration lit,lits){
+    foreach(LoopIteration lit,lits){
         QLineSeries *series = new QLineSeries();
         if(!lit.value.isEmpty()){
             series->setName(lit.value.left(lit.value.size()-1));
@@ -363,6 +363,34 @@ void MainWindow::headerMenuRequested(QPoint pt)
     act->setData(columns[column]);
     connect(act,&QAction::triggered,this,&MainWindow::addPlotVar);
     menu->addAction(act);
+    menu->addSeparator();
+    act=new QAction(tr("show all"), this);
+    act->setData(column);
+    connect(act,&QAction::triggered,this,&MainWindow::columnShowAll);
+    menu->addAction(act);
+    act=new QAction(tr("show none"), this);
+    act->setData(column);
+    connect(act,&QAction::triggered,this,&MainWindow::columnShowNone);
+    menu->addAction(act);
+    QStringList lst=csv[column];
+    lst.removeDuplicates();
+    if(lst.size()<20){
+        int cfi=getColumnFilter(column);
+        for(const QString &elem:lst){
+            act=new QAction(elem, this);
+            act->setCheckable(true);
+            bool check=true;
+            if(cfi>=0){
+                if(!columnFilters[cfi].allowedValues.contains(elem))
+                    check=false;
+            }
+            act->setChecked(check);
+            act->setData(column);
+            connect(act,&QAction::toggled,this,&MainWindow::filterElementChanged);
+            menu->addAction(act);
+        }
+    }
+
     menu->popup(tableWidget->horizontalHeader()->viewport()->mapToGlobal(pt));
 }
 /*!
@@ -481,14 +509,90 @@ void MainWindow::filterTextChanged(const QString &text)
         }
     }
 }
+
+void MainWindow::columnShowAll()
+{
+    QAction *act=qobject_cast<QAction*>(sender());
+    int column=act->data().toInt();
+    int cfi=getColumnFilter(column);
+    if(cfi>=0){
+        columnFilters.removeAt(cfi);
+        updateFilteredTable();
+    }
+}
+
+void MainWindow::columnShowNone()
+{
+    QAction *act=qobject_cast<QAction*>(sender());
+    int column=act->data().toInt();
+    int cfi=getColumnFilter(column);
+    if(cfi>=0){
+        columnFilters[cfi].allowedValues.clear();
+    }else{
+        ColumnFilter cf;
+        cf.column=column;
+        columnFilters.append(cf);
+    }
+    updateFilteredTable();
+}
+
+void MainWindow::updateFilteredTable()
+{
+    int sz=csv[0].size();
+    visibleRows.resize(sz);
+    std::fill(visibleRows.begin(),visibleRows.end(),true);
+    for(const ColumnFilter &cf:columnFilters){
+        filterRowsForColumnValues(cf);
+    }
+    for(int i=0;i<tableWidget->rowCount();++i){
+        bool hide = !visibleRows.at(i);
+        tableWidget->setRowHidden(i,hide);
+    }
+}
+
+void MainWindow::filterRowsForColumnValues(ColumnFilter cf)
+{
+    int column=cf.column;
+    QStringList &colVals=csv[column];
+    for(int i=0;i<colVals.size();++i){
+        if(visibleRows[i]){
+            if(!cf.allowedValues.contains(colVals[i])){
+                visibleRows[i]=false;
+            }
+        }
+    }
+}
+
+void MainWindow::filterElementChanged(bool checked)
+{
+    QAction *act=qobject_cast<QAction*>(sender());
+    int column=act->data().toInt();
+    QString value=act->text();
+    int cfi=getColumnFilter(column);
+    if(cfi<0){
+        ColumnFilter cf;
+        cf.column=column;
+        QStringList lst=csv[column];
+        lst.removeDuplicates();
+        cf.allowedValues=lst;
+        columnFilters.append(cf);
+        cfi=columnFilters.size()-1;
+    }
+    if(checked){
+        columnFilters[cfi].allowedValues.append(value);
+    }else{
+        columnFilters[cfi].allowedValues.removeOne(value);
+    }
+    updateFilteredTable();
+}
 /*!
  * \brief operator << for debug QList<loopIteration>
  * \param d
  * \param dt
  * \return
  */
-QDebug operator<< (QDebug d, const QList<loopIteration>& dt) {
-    foreach(const loopIteration &lit,dt){
+QDebug operator<< (QDebug d, const QList<LoopIteration>& dt) {
+    foreach(const LoopIteration &lit,dt){
         d << lit.value << '/' << lit.indices;
     }
     return d;
@@ -513,7 +617,7 @@ void MainWindow::test()
     qDebug()<<"x inices"<<indices;
     QStringList vars;
     vars<<"s";
-    QList<loopIteration> lits=groupBy(vars);
+    QList<LoopIteration> lits=groupBy(vars);
     qDebug()<<"by s:"<<lits;
     vars.clear();
     vars<<"s"<<"h";
@@ -532,6 +636,33 @@ int MainWindow::getIndex(const QString &name)
 {
     int result=columns.indexOf(name);
     return result;
+}
+/*!
+ * \brief check if specific column has a filter
+ * \param column
+ * \return
+ */
+bool MainWindow::hasColumnFilter(int column) const
+{
+    for(const ColumnFilter& cf:columnFilters){
+        if(cf.column==column)
+            return true;
+    }
+    return false;
+}
+/*!
+ * \brief return column filter for given column
+ * \param column
+ * \return
+ */
+int MainWindow::getColumnFilter(int column) const
+{
+    for(int i=0;i<columnFilters.size();++i){
+        const ColumnFilter& cf=columnFilters[i];
+        if(cf.column==column)
+            return i;
+    }
+    return -1;
 }
 /*!
  * \brief get Unique Values for given var in list of indices
@@ -573,9 +704,9 @@ QList<int> MainWindow::filterIndices(const QString &var, const QString &value, c
  * \param sweepVar, last is x axxis
  * \return list of list of indices
  */
-QList<loopIteration> MainWindow::groupBy(QStringList sweepVar,QList<int> providedIndices)
+QList<LoopIteration> MainWindow::groupBy(QStringList sweepVar,QList<int> providedIndices)
 {
-    QList<loopIteration> result;
+    QList<LoopIteration> result;
     if(providedIndices.isEmpty()){
         // fill from 0 to size(csv)-1
         int sz=csv[0].size();
@@ -589,14 +720,14 @@ QList<loopIteration> MainWindow::groupBy(QStringList sweepVar,QList<int> provide
         QStringList values=getUniqueValues(var,providedIndices);
         for(const QString &value:values){
             QList<int> indices=filterIndices(var,value,providedIndices);
-            QList<loopIteration>groupedResult=groupBy(sweepVar,indices);
-            for(loopIteration &lit:groupedResult){
+            QList<LoopIteration>groupedResult=groupBy(sweepVar,indices);
+            for(LoopIteration &lit:groupedResult){
                 lit.value.prepend(var+"="+value+";");
             }
             result.append(groupedResult);
         }
     }else{
-        loopIteration lit;
+        LoopIteration lit;
         lit.indices=providedIndices;
         result<<lit;
     }

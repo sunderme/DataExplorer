@@ -8,9 +8,14 @@
 #include <QLineEdit>
 #include "zoomablechartview.h"
 
-struct loopIteration{
+struct LoopIteration{
     QString value;
     QList<int> indices;
+};
+
+struct ColumnFilter{
+    int column;
+    QStringList allowedValues;
 };
 
 class MainWindow : public QMainWindow
@@ -46,6 +51,11 @@ protected:
     void zoomReset();
     void filterToggled(bool checked);
     void filterTextChanged(const QString &text);
+    void columnShowAll();
+    void columnShowNone();
+    void updateFilteredTable();
+    void filterRowsForColumnValues(ColumnFilter cf);
+    void filterElementChanged(bool checked);
     void legendMarkerClicked();
     void legendMarkerHovered(bool hover);
     void setSeriesVisible(QAbstractSeries *series, bool visible = true);
@@ -53,10 +63,12 @@ protected:
     void seriesRemoved(QAbstractSeries *series);
     void test();
     int getIndex(const QString &name);
+    bool hasColumnFilter(int column) const;
+    int getColumnFilter(int column) const;
     QStringList getUniqueValues(const QString &var,const QList<int> &indices);
     QList<int> filterIndices(const QString &var,const QString &value,const QList<int> &providedIndices);
 
-    QList<loopIteration> groupBy(QStringList sweepVar,QList<int> providedIndices=QList<int>() );
+    QList<LoopIteration> groupBy(QStringList sweepVar,QList<int> providedIndices=QList<int>() );
 
 private:
     QMenu *fileMenu;
@@ -80,5 +92,8 @@ private:
     QStringList columns;
     QList<QStringList> csv;
     QStringList sweeps,plotValues;
+
+    QList<ColumnFilter> columnFilters;
+    std::vector<bool>visibleRows;
 };
 #endif // MAINWINDOW_H

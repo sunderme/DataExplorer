@@ -165,7 +165,7 @@ void MainWindow::setupGUI()
     chartView = new ZoomableChartView();
     chartView->setZoomMode(ZoomableChartView::RectangleZoom);
 
-    QTabWidget *tabWidget = new QTabWidget;
+    tabWidget = new QTabWidget;
     tabWidget->addTab(wgt,tr("CSV"));
     tabWidget->addTab(chartView,tr("Plots"));
 
@@ -389,7 +389,9 @@ void MainWindow::plotSelected()
     }
     chart->createDefaultAxes();
     chart->setTitle("Line chart");
-
+    if(tabWidget->currentIndex()!=1){
+        tabWidget->setCurrentIndex(1); // plot tab
+    }
 
 }
 /*!

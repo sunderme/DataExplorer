@@ -83,6 +83,7 @@ private:
     QAction *exitAct;
     QAction *plotAct;
 
+    QTabWidget *tabWidget;
     QTableWidget *tableWidget;
     ZoomableChartView *chartView;
 

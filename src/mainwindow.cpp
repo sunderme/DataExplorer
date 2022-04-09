@@ -7,12 +7,18 @@
 #include <set>
 #include "zoomablechart.h"
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
     : QMainWindow(parent)
 {
     setupMenus();
     setupGUI();
     resize(800,600);
+    if(argc>0){
+        // assume last argument as filename
+        // maybe more elaborate later
+        fileName=QString(argv[argc-1]);
+        readFile();
+    }
 }
 
 MainWindow::~MainWindow()
@@ -137,11 +143,21 @@ void MainWindow::setupGUI()
 
     setCentralWidget(tabWidget);
 }
-
+/*!
+ * \brief call file dialog and then open file
+ */
 void MainWindow::openFile()
 {
     fileName = QFileDialog::getOpenFileName(this,
         tr("Open CSV"), "", tr("CSV Files (*.csv)"));
+    if(fileName.isEmpty()) return;
+    readFile();
+}
+/*!
+ * \brief read in csv file and update GUI
+ */
+void MainWindow::readFile()
+{
     if(fileName.isEmpty()) return;
     readInCSV(fileName);
     buildTable();
@@ -157,7 +173,9 @@ void MainWindow::openFile()
     }
     updateSweepGUI();
 }
-
+/*!
+ * \brief open Template which contains the sweeps/plots settings
+ */
 void MainWindow::openTemplate()
 {
     fileName = QFileDialog::getOpenFileName(this,
@@ -206,7 +224,12 @@ void MainWindow::saveTemplate()
     QJsonDocument saveDoc(jo);
     saveFile.write(saveDoc.toJson());
 }
-
+/*!
+ * \brief read in CSV
+ * Assumes comma separated values
+ * First line with commas is assumed to be header line
+ * \param fileName
+ */
 void MainWindow::readInCSV(const QString &fileName)
 {
     QFile data(fileName);
@@ -232,7 +255,9 @@ void MainWindow::readInCSV(const QString &fileName)
     }
 
 }
-
+/*!
+ * \brief popalte table widget with present data
+ */
 void MainWindow::buildTable()
 {
     tableWidget->clear();
@@ -249,7 +274,9 @@ void MainWindow::buildTable()
     }
     tableWidget->resizeColumnsToContents();
 }
-
+/*!
+ * \brief update Sweep/plotvar list widget
+ */
 void MainWindow::updateSweepGUI()
 {
     lstSweeps->clear();
@@ -261,7 +288,9 @@ void MainWindow::updateSweepGUI()
         new QListWidgetItem(elem,lstData);
     }
 }
-
+/*!
+ * \brief update internal sweep structure from GUI
+ */
 void MainWindow::updateSweeps()
 {
     sweeps.clear();
@@ -273,7 +302,10 @@ void MainWindow::updateSweeps()
         plotValues<<lstData->item(i)->text();
     }
 }
-
+/*!
+ * \brief plot data with selected sweeps
+ * Only last plot var is plotted.
+ */
 void MainWindow::plotSelected()
 {
     updateSweeps();
@@ -314,7 +346,10 @@ void MainWindow::plotSelected()
 
 
 }
-
+/*!
+ * \brief show context menu on table header
+ * \param pt
+ */
 void MainWindow::headerMenuRequested(QPoint pt)
 {
     int column=tableWidget->horizontalHeader()->logicalIndexAt(pt);
@@ -330,7 +365,9 @@ void MainWindow::headerMenuRequested(QPoint pt)
     menu->addAction(act);
     menu->popup(tableWidget->horizontalHeader()->viewport()->mapToGlobal(pt));
 }
-
+/*!
+ * \brief add Sweep Var
+ */
 void MainWindow::addSweepVar()
 {
     QAction *act=qobject_cast<QAction*>(sender());
@@ -361,7 +398,9 @@ void MainWindow::deleteVar()
         }
     }
 }
-
+/*!
+ * \brief add Plot Var
+ */
 void MainWindow::addPlotVar()
 {
     QAction *act=qobject_cast<QAction*>(sender());
@@ -369,7 +408,9 @@ void MainWindow::addPlotVar()
     plotValues.prepend(var);
     updateSweepGUI();
 }
-
+/*!
+ * \brief set zoomAreaMode
+ */
 void MainWindow::zoomAreaMode()
 {
     chartView->setZoomMode(ZoomableChartView::RectangleZoom);
@@ -404,7 +445,10 @@ void MainWindow::zoomReset()
 {
     chartView->chart()->zoomReset();
 }
-
+/*!
+ * \brief filter button toggled
+ * \param checked
+ */
 void MainWindow::filterToggled(bool checked)
 {
     // filter columns
@@ -420,7 +464,11 @@ void MainWindow::filterToggled(bool checked)
         }
     }
 }
-
+/*!
+ * \brief filter text was changed
+ * Filtering is updated if turned on
+ * \param text
+ */
 void MainWindow::filterTextChanged(const QString &text)
 {
     if(btFilter->isChecked()){
@@ -440,7 +488,9 @@ QDebug operator<< (QDebug d, const QList<loopIteration>& dt) {
     }
     return d;
 }
-
+/*!
+ * \brief simple unit test until better solution
+ */
 void MainWindow::test()
 {
     if(csv.isEmpty()) return;
@@ -468,7 +518,11 @@ void MainWindow::test()
     lits=groupBy(vars);
     qDebug()<<"by none:"<<lits;
 }
-
+/*!
+ * \brief get column number from header name
+ * \param name
+ * \return
+ */
 int MainWindow::getIndex(const QString &name)
 {
     int result=columns.indexOf(name);
@@ -543,7 +597,9 @@ QList<loopIteration> MainWindow::groupBy(QStringList sweepVar,QList<int> provide
     }
     return result;
 }
-
+/*!
+ * \brief change series visibility when legendMarker is clicked
+ */
 void MainWindow::legendMarkerClicked()
 {
     auto* marker = qobject_cast<QLegendMarker*>(sender());
@@ -552,7 +608,12 @@ void MainWindow::legendMarkerClicked()
     // Toggle visibility of series
     setSeriesVisible(marker->series(), !marker->series()->isVisible());
 }
-
+/*!
+ * \brief highlight series when hovering over legen marker
+ * Not working properly !!!
+ * \param hover
+ *
+ */
 void MainWindow::legendMarkerHovered(bool hover)
 {
     auto* marker = qobject_cast<QLegendMarker*>(sender());
@@ -569,6 +630,11 @@ void MainWindow::legendMarkerHovered(bool hover)
         series->setPen(pen);
     }
 }
+/*!
+ * \brief set series in chart visible
+ * \param series
+ * \param visible
+ */
 void MainWindow::setSeriesVisible(QAbstractSeries *series, bool visible)
 {
     ZoomableChart *m_chart=qobject_cast<ZoomableChart *>(chartView->chart());
@@ -616,7 +682,11 @@ void MainWindow::setSeriesVisible(QAbstractSeries *series, bool visible)
         axis->setVisible(!hideAxis);
     }
 }
-
+/*!
+ * \brief slot for updating legend markers
+ * Only directly used here.
+ * \param series
+ */
 void MainWindow::seriesAdded(QAbstractSeries *series)
 {
     // Connect all markers to handler
@@ -630,7 +700,11 @@ void MainWindow::seriesAdded(QAbstractSeries *series)
                          this, &MainWindow::legendMarkerHovered);
     }
 }
-
+/*!
+ * \brief remove signal/slot connect when series is removed
+ * Basically unused.
+ * \param series
+ */
 void MainWindow::seriesRemoved(QAbstractSeries *series)
 {
     // Connect all markers to handler

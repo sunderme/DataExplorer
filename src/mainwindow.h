@@ -18,13 +18,14 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(int argc, char *argv[],QWidget *parent = nullptr);
     ~MainWindow();
 
 protected:
     void setupMenus();
     void setupGUI();
     void openFile();
+    void readFile();
     void openTemplate();
     void saveTemplate();
     void readInCSV(const QString &fileName);

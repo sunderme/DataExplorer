@@ -481,7 +481,12 @@ void MainWindow::filterTextChanged(const QString &text)
         }
     }
 }
-
+/*!
+ * \brief operator << for debug QList<loopIteration>
+ * \param d
+ * \param dt
+ * \return
+ */
 QDebug operator<< (QDebug d, const QList<loopIteration>& dt) {
     foreach(const loopIteration &lit,dt){
         d << lit.value << '/' << lit.indices;

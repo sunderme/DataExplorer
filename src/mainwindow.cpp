@@ -5,15 +5,25 @@
 #include <QTextStream>
 #include <QtCharts>
 #include <QtGlobal>
+#include <QSettings>
 #include <set>
 #include "zoomablechart.h"
 
 MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
     : QMainWindow(parent)
 {
+    QSettings settings("DataExplorer","DataExplorer");
+    recentFiles=settings.value("recentFiles").toStringList();
     setupMenus();
     setupGUI();
-    resize(800,600);
+
+    if(settings.contains("geometry")){
+        restoreGeometry(settings.value("geometry").toByteArray());
+        restoreState(settings.value("windowState").toByteArray());
+    }else{
+        resize(800,600);
+    }
+
     if(argc>1){
         // assume last argument as filename
         // maybe more elaborate later
@@ -22,17 +32,29 @@ MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
     }
 }
 
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    QSettings settings("DataExplorer", "DataExplorer");
+    settings.setValue("geometry", saveGeometry());
+    settings.setValue("windowState", saveState());
+    settings.setValue("recentFiles",recentFiles);
+    event->accept();
+}
+
+
 MainWindow::~MainWindow()
 {
 }
 
 void MainWindow::setupMenus()
 {
-
+    recentFilesMenu=new QMenu(tr("Open recent files..."));
     fileMenu = menuBar()->addMenu(tr("&File"));
     openAct = new QAction(tr("&Open"), this);
     connect(openAct, &QAction::triggered, this, &MainWindow::openFile);
     fileMenu->addAction(openAct);
+    populateRecentFiles();
+    fileMenu->addMenu(recentFilesMenu);
     QAction *loadTemplateAct=new QAction(tr("&Open Template"), this);
     connect(loadTemplateAct, &QAction::triggered, this, &MainWindow::openTemplate);
     fileMenu->addAction(loadTemplateAct);
@@ -161,6 +183,19 @@ void MainWindow::openFile()
         tr("Open CSV"), "", tr("CSV Files (*.csv)"));
     if(fileName.isEmpty()) return;
     readFile();
+    recentFiles.removeOne(fileName);
+    recentFiles.prepend(fileName);
+    populateRecentFiles();
+}
+/*!
+ * \brief open file via recent menu
+ */
+void MainWindow::openRecentFile()
+{
+    QAction *act=qobject_cast<QAction*>(sender());
+    fileName=act->text();
+    if(QFileInfo(fileName).exists())
+        readFile();
 }
 /*!
  * \brief read in csv file and update GUI
@@ -483,6 +518,16 @@ void MainWindow::zoomOut()
 void MainWindow::zoomReset()
 {
     chartView->chart()->zoomReset();
+}
+
+void MainWindow::populateRecentFiles()
+{
+    recentFilesMenu->clear();
+    for(const QString &elem:recentFiles){
+        QAction *act=new QAction(elem);
+        connect(act,&QAction::triggered,this,&MainWindow::openRecentFile);
+        recentFilesMenu->addAction(act);
+    }
 }
 /*!
  * \brief filter button toggled

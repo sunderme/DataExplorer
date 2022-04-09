@@ -29,7 +29,9 @@ public:
 protected:
     void setupMenus();
     void setupGUI();
+    void closeEvent(QCloseEvent *event);
     void openFile();
+    void openRecentFile();
     void readFile();
     void openTemplate();
     void saveTemplate();
@@ -49,6 +51,7 @@ protected:
     void zoomIn();
     void zoomOut();
     void zoomReset();
+    void populateRecentFiles();
     void filterToggled(bool checked);
     void filterTextChanged(const QString &text);
     void columnShowAll();
@@ -74,6 +77,7 @@ protected:
 private:
     QMenu *fileMenu;
     QMenu *plotMenu;
+    QMenu *recentFilesMenu;
 
     QAction *openAct;
     QAction *exitAct;
@@ -89,6 +93,8 @@ private:
     QLineEdit *leFilterText;
 
     QString fileName;
+
+    QStringList recentFiles;
 
     QStringList columns;
     QVector<QStringList> csv;

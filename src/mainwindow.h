@@ -40,6 +40,7 @@ protected:
     void updateSweepGUI();
     void updateSweeps();
     void plotSelected();
+    void tabChanged(int index);
     void headerMenuRequested(QPoint pt);
     void addSweepVar();
     void deleteVar();

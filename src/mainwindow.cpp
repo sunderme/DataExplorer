@@ -144,6 +144,11 @@ void MainWindow::setupGUI()
     lstSweeps->setAcceptDrops(true);
     lstSweeps->setDropIndicatorShown(true);
     lstData = new QListWidget;
+    lstData->setDragEnabled(true);
+    lstData->setDefaultDropAction(Qt::MoveAction);
+    lstData->setSelectionMode(QAbstractItemView::SingleSelection);
+    lstData->setAcceptDrops(true);
+    lstData->setDropIndicatorShown(true);
     hLayout->addWidget(lstSweeps);
     hLayout->addWidget(lstData);
     mainLayout->addLayout(hLayout,1);
@@ -168,6 +173,7 @@ void MainWindow::setupGUI()
     tabWidget = new QTabWidget;
     tabWidget->addTab(wgt,tr("CSV"));
     tabWidget->addTab(chartView,tr("Plots"));
+    connect(tabWidget,&QTabWidget::currentChanged,this,&MainWindow::tabChanged);
 
     tableWidget->horizontalHeader()-> setContextMenuPolicy(Qt::CustomContextMenu);
     connect(tableWidget->horizontalHeader(),&QAbstractItemView::customContextMenuRequested,this,&MainWindow::headerMenuRequested);
@@ -393,6 +399,16 @@ void MainWindow::plotSelected()
         tabWidget->setCurrentIndex(1); // plot tab
     }
 
+}
+/*!
+ * \brief plot if changed to plot tab
+ * \param index
+ */
+void MainWindow::tabChanged(int index)
+{
+    if(index==1){
+        plotSelected();
+    }
 }
 /*!
  * \brief show context menu on table header
@@ -941,7 +957,6 @@ void MainWindow::seriesRemoved(QAbstractSeries *series)
 
 /* TODO
 Unit tests
-recent files
 better filter selector
 cursor in plot
 */

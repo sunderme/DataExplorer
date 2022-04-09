@@ -45,6 +45,11 @@ protected:
     void zoomReset();
     void filterToggled(bool checked);
     void filterTextChanged(const QString &text);
+    void legendMarkerClicked();
+    void legendMarkerHovered(bool hover);
+    void setSeriesVisible(QAbstractSeries *series, bool visible = true);
+    void seriesAdded(QAbstractSeries *series);
+    void seriesRemoved(QAbstractSeries *series);
     void test();
     int getIndex(const QString &name);
     QStringList getUniqueValues(const QString &var,const QList<int> &indices);

@@ -1,7 +1,7 @@
 #ifndef ZOOMABLECHART_H
 #define ZOOMABLECHART_H
 
-#include <QtCharts/QChart>
+#include <QtCharts>
 
 class ZoomableChart : public QChart
 {

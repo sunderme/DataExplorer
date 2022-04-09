@@ -1,7 +1,7 @@
 #ifndef RANGELIMITEDVALUEAXIS_H
 #define RANGELIMITEDVALUEAXIS_H
 
-#include <QtCharts/QValueAxis>
+#include <QtCharts>
 
 class RangeLimitedValueAxis : public QValueAxis
 {

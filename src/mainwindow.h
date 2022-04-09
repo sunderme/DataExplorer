@@ -91,7 +91,7 @@ private:
     QString fileName;
 
     QStringList columns;
-    QList<QStringList> csv;
+    QVector<QStringList> csv;
     QStringList sweeps,plotValues;
 
     QList<ColumnFilter> columnFilters;

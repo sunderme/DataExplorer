@@ -4,6 +4,7 @@
 #include <QFileDialog>
 #include <QTextStream>
 #include <QtCharts>
+#include <QtGlobal>
 #include <set>
 #include "zoomablechart.h"
 
@@ -69,12 +70,20 @@ void MainWindow::setupMenus()
     plotToolBar->addAction(act);
     act=new QAction(tr("Zoom in"),this);
     act->setIcon(QIcon(":/icons/zoomin.svg"));
+#if  QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     act->setShortcut(Qt::ShiftModifier|Qt::Key_Z);
+#else
+    act->setShortcut(Qt::ShiftModifier+Qt::Key_Z);
+#endif
     connect(act,&QAction::triggered,this,&MainWindow::zoomIn);
     plotMenu->addAction(act);
     act=new QAction(tr("Zoom out"),this);
     act->setIcon(QIcon(":/icons/zoomout.svg"));
+#if  QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     act->setShortcut(Qt::ControlModifier|Qt::Key_Z);
+#else
+    act->setShortcut(Qt::ControlModifier+Qt::Key_Z);
+#endif
     connect(act,&QAction::triggered,this,&MainWindow::zoomOut);
     plotMenu->addAction(act);
     act=new QAction(tr("Zoom fit"),this);
@@ -163,11 +172,11 @@ void MainWindow::readFile()
     buildTable();
     sweeps.clear();
     plotValues.clear();
-    if(columns.contains('x')){
+    if(columns.contains("x")){
         // add x to sweeps
         sweeps<<"x";
     }
-    if(columns.contains('y')){
+    if(columns.contains("y")){
         // add y to plot values
         plotValues<<"y";
     }
@@ -244,7 +253,7 @@ void MainWindow::readInCSV(const QString &fileName)
             if(columns.size()>1)
                 break;
         }
-        QList<QStringList> data(columns.size());
+        QVector<QStringList> data(columns.size());
         while (stream.readLineInto(&line)) {
             QStringList elements=line.split(',');
             for(int i=0;i<elements.size();++i){

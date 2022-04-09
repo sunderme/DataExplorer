@@ -1,6 +1,7 @@
 #include "zoomablechartview.h"
 #include <QtGui/QGuiApplication>
 #include <QtGui/QMouseEvent>
+#include <QtGlobal>
 
 #include "rangelimitedvalueaxis.h"
 
@@ -15,7 +16,11 @@ ZoomableChartView::ZoomableChartView(QWidget *parent) :
 void ZoomableChartView::mousePressEvent(QMouseEvent *event)
 {
     m_isTouching = true;
+#if  QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     m_lastMousePos = event->position();
+#else
+    m_lastMousePos = event->localPos();
+#endif
     QChartView::mousePressEvent(event);
 }
 
@@ -38,7 +43,11 @@ void ZoomableChartView::mouseMoveEvent(QMouseEvent *event)
                 moveHorizontalAxis = !moveHorizontalAxis;
 
             if (moveHorizontalAxis) {
+#if  QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
                 qreal dx = -(event->position().x() - m_lastMousePos.x());
+#else
+                qreal dx = -(event->localPos().x() - m_lastMousePos.x());
+#endif
                 for (auto *series : this->chart()->series()) {
                     for (const auto *axis : series->attachedAxes()) {
                         if (axis->orientation() != Qt::Horizontal)
@@ -48,7 +57,11 @@ void ZoomableChartView::mouseMoveEvent(QMouseEvent *event)
                             if (rangeLimitedAxis->orientation() != Qt::Horizontal)
                                 continue;
                             QPointF oldPoint = getSeriesCoordFromChartCoord(m_lastMousePos, series);
+#if  QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
                             QPointF newPoint = getSeriesCoordFromChartCoord(event->position(), series);
+#else
+                            QPointF newPoint = getSeriesCoordFromChartCoord(event->localPos(), series);
+#endif
                             qreal dxAxis = -(newPoint.x() - oldPoint.x());
                             if (rangeLimitedAxis->isLowerRangeLimited()
                                     && (rangeLimitedAxis->min() + dxAxis) < rangeLimitedAxis->lowerLimit()) {
@@ -89,7 +102,11 @@ void ZoomableChartView::mouseMoveEvent(QMouseEvent *event)
                             if (rangeLimitedAxis->orientation() != Qt::Vertical)
                                 continue;
                             QPointF oldPoint = getSeriesCoordFromChartCoord(m_lastMousePos, series);
+#if  QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
                             QPointF newPoint = getSeriesCoordFromChartCoord(event->position(), series);
+#else
+                            QPointF newPoint = getSeriesCoordFromChartCoord(event->localPos(), series);
+#endif
                             qreal dyAxis = -(newPoint.y() - oldPoint.y());
                             if (rangeLimitedAxis->isLowerRangeLimited()
                                     && (rangeLimitedAxis->min() + dyAxis) < rangeLimitedAxis->lowerLimit()) {

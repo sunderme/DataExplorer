@@ -194,7 +194,7 @@ void MainWindow::openRecentFile()
 {
     QAction *act=qobject_cast<QAction*>(sender());
     fileName=act->text();
-    if(QFileInfo(fileName).exists())
+    if(QFileInfo::exists(fileName))
         readFile();
 }
 /*!

@@ -54,6 +54,7 @@ protected:
     void columnShowAll();
     void columnShowNone();
     void updateFilteredTable();
+    void updateColBackground(int col,bool filtered=false);
     void filterRowsForColumnValues(ColumnFilter cf);
     void filterElementChanged(bool checked);
     void legendMarkerClicked();

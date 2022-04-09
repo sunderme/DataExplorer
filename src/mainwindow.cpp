@@ -520,6 +520,18 @@ void MainWindow::columnShowAll()
     if(cfi>=0){
         columnFilters.removeAt(cfi);
         updateFilteredTable();
+        updateColBackground(column,false);
+    }
+}
+
+void MainWindow::updateColBackground(int col,bool filtered){
+    // color filter columns
+    for(int row=0;row<tableWidget->rowCount();++row){
+        QTableWidgetItem *item=tableWidget->item(row,col);
+        if(filtered)
+            item->setBackground(Qt::cyan);
+        else
+            item->setBackground(Qt::white);
     }
 }
 
@@ -534,6 +546,7 @@ void MainWindow::columnShowNone()
         ColumnFilter cf;
         cf.column=column;
         columnFilters.append(cf);
+        updateColBackground(column,true);
     }
     updateFilteredTable();
 }
@@ -543,13 +556,16 @@ void MainWindow::updateFilteredTable()
     int sz=csv[0].size();
     visibleRows.resize(sz);
     std::fill(visibleRows.begin(),visibleRows.end(),true);
+    QList<int> colsFiltered;
     for(const ColumnFilter &cf:columnFilters){
         filterRowsForColumnValues(cf);
+        colsFiltered.append(cf.column);
     }
     for(int i=0;i<tableWidget->rowCount();++i){
         bool hide = !visibleRows.at(i);
         tableWidget->setRowHidden(i,hide);
     }
+
 }
 
 void MainWindow::filterRowsForColumnValues(ColumnFilter cf)
@@ -579,9 +595,11 @@ void MainWindow::filterElementChanged(bool checked)
         cf.allowedValues=lst;
         columnFilters.append(cf);
         cfi=columnFilters.size()-1;
+        updateColBackground(cfi,true);
     }
     if(checked){
         columnFilters[cfi].allowedValues.append(value);
+        //TODO remove filter if all is allowed
     }else{
         columnFilters[cfi].allowedValues.removeOne(value);
     }
@@ -861,7 +879,8 @@ void MainWindow::seriesRemoved(QAbstractSeries *series)
 
 /* TODO
 Unit tests
-filter
+recent files
+better filter selector
 cursor in plot
 */
 

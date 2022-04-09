@@ -317,7 +317,7 @@ void MainWindow::plotSelected()
     QString yn=plotValues.last();
     int index_y=getIndex(yn);
 
-    QList<LoopIteration> lits=groupBy(vars);
+    QList<LoopIteration> lits=groupBy(vars,visibleRows);
     ZoomableChart *chart = new ZoomableChart();
     chartView->setChart(chart);
     chartView->setRenderHint(QPainter::Antialiasing);

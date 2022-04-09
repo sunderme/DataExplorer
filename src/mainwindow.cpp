@@ -310,7 +310,7 @@ void MainWindow::plotSelected()
         chart->legend()->hide();
     }
     chart->createDefaultAxes();
-    chart->setTitle("Simple line chart example");
+    chart->setTitle("Line chart");
 
 
 }

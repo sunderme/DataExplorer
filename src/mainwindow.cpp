@@ -156,13 +156,13 @@ void MainWindow::setupGUI()
     btFilterPlot=new QToolButton;
     btFilterPlot->setCheckable(true);
     btFilterPlot->setText("Filter to plot");
-    btFilterPlot->setIcon(QIcon(":/icons/view-filter.svg"));
+    btFilterPlot->setIcon(QIcon(":/icons/view-filter-plot.svg"));
     connect(btFilterPlot,&QAbstractButton::toggled,this,&MainWindow::filterPlotToggled);
     hLayout2->addWidget(btFilterPlot);
     btFilterChecked=new QToolButton;
     btFilterChecked->setCheckable(true);
     btFilterChecked->setText("Filter to checked headers");
-    btFilterChecked->setIcon(QIcon(":/icons/view-filter.svg"));
+    btFilterChecked->setIcon(QIcon(":/icons/view-filter-checked.svg"));
     connect(btFilterChecked,&QAbstractButton::toggled,this,&MainWindow::filterCheckedToggled);
     hLayout2->addWidget(btFilterChecked);
     btFilter=new QToolButton;

@@ -159,12 +159,14 @@ void MainWindow::setupGUI()
     btFilterPlot->setIcon(QIcon(":/icons/view-filter-plot.svg"));
     connect(btFilterPlot,&QAbstractButton::toggled,this,&MainWindow::filterPlotToggled);
     hLayout2->addWidget(btFilterPlot);
+    /*
     btFilterChecked=new QToolButton;
     btFilterChecked->setCheckable(true);
     btFilterChecked->setText("Filter to checked headers");
     btFilterChecked->setIcon(QIcon(":/icons/view-filter-checked.svg"));
     connect(btFilterChecked,&QAbstractButton::toggled,this,&MainWindow::filterCheckedToggled);
     hLayout2->addWidget(btFilterChecked);
+    */
     btFilter=new QToolButton;
     btFilter->setCheckable(true);
     btFilter->setText("Filter");
@@ -328,6 +330,8 @@ void MainWindow::buildTable()
     tableWidget->setColumnCount(columns.size());
     tableWidget->setHorizontalHeaderLabels(columns);
     for(int i=0;i<columns.size();++i){
+        //QTableWidgetItem *hdr=tableWidget->horizontalHeaderItem(i);
+        //hdr->setFlags(Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
         for(int row=0;row<csv[i].size();++row){
             QTableWidgetItem *newItem = new QTableWidgetItem(csv[i].value(row));
             tableWidget->setItem(row, i, newItem);

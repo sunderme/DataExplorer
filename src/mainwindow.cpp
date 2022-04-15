@@ -153,6 +153,18 @@ void MainWindow::setupGUI()
     hLayout->addWidget(lstData);
     mainLayout->addLayout(hLayout,1);
     QHBoxLayout *hLayout2 = new QHBoxLayout;
+    btFilterPlot=new QToolButton;
+    btFilterPlot->setCheckable(true);
+    btFilterPlot->setText("Filter to plot");
+    btFilterPlot->setIcon(QIcon(":/icons/view-filter.svg"));
+    connect(btFilterPlot,&QAbstractButton::toggled,this,&MainWindow::filterPlotToggled);
+    hLayout2->addWidget(btFilterPlot);
+    btFilterChecked=new QToolButton;
+    btFilterChecked->setCheckable(true);
+    btFilterChecked->setText("Filter to checked headers");
+    btFilterChecked->setIcon(QIcon(":/icons/view-filter.svg"));
+    connect(btFilterChecked,&QAbstractButton::toggled,this,&MainWindow::filterCheckedToggled);
+    hLayout2->addWidget(btFilterChecked);
     btFilter=new QToolButton;
     btFilter->setCheckable(true);
     btFilter->setText("Filter");
@@ -559,6 +571,34 @@ void MainWindow::filterToggled(bool checked)
             tableWidget->showColumn(i);
         }else{
             if(columns.value(i).contains(leFilterText->text())){
+                tableWidget->showColumn(i);
+            }else{
+                tableWidget->hideColumn(i);
+            }
+        }
+    }
+}
+/*!
+ * \brief filter to only columns which are checked on header
+ * \param checked
+ */
+void MainWindow::filterCheckedToggled(bool checked)
+{
+
+}
+/*!
+ * \brief filter to only columns selected for plotting (sweep or plot)
+ * \param checked
+ */
+void MainWindow::filterPlotToggled(bool checked)
+{
+    // filter columns
+    for(int i=0;i<columns.size();++i){
+        if(!checked){
+            tableWidget->showColumn(i);
+        }else{
+            QString text=columns.value(i);
+            if(sweeps.contains(text) || plotValues.contains(text)){
                 tableWidget->showColumn(i);
             }else{
                 tableWidget->hideColumn(i);

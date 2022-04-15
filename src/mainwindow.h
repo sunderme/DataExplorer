@@ -54,6 +54,8 @@ protected:
     void zoomReset();
     void populateRecentFiles();
     void filterToggled(bool checked);
+    void filterCheckedToggled(bool checked);
+    void filterPlotToggled(bool checked);
     void filterTextChanged(const QString &text);
     void columnShowAll();
     void columnShowNone();
@@ -91,7 +93,7 @@ private:
     QListWidget *lstSweeps;
     QListWidget *lstData;
 
-    QToolButton *btFilter;
+    QToolButton *btFilter,*btFilterPlot,*btFilterChecked;
     QLineEdit *leFilterText;
 
     QString fileName;

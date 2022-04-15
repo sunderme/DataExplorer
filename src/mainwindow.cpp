@@ -328,12 +328,15 @@ void MainWindow::buildTable()
     if(csv.isEmpty()) return;
     tableWidget->setRowCount(csv[0].size());
     tableWidget->setColumnCount(columns.size());
-    tableWidget->setHorizontalHeaderLabels(columns);
+    //tableWidget->setHorizontalHeaderLabels(columns);
     for(int i=0;i<columns.size();++i){
-        //QTableWidgetItem *hdr=tableWidget->horizontalHeaderItem(i);
-        //hdr->setFlags(Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
+        QTableWidgetItem *hdr=new QTableWidgetItem(columns[i]);
+        hdr->setFlags(Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
+        hdr->setCheckState(Qt::Unchecked);
+        tableWidget->setHorizontalHeaderItem(i,hdr);
         for(int row=0;row<csv[i].size();++row){
             QTableWidgetItem *newItem = new QTableWidgetItem(csv[i].value(row));
+
             tableWidget->setItem(row, i, newItem);
         }
 

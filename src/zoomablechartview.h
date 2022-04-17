@@ -33,7 +33,7 @@ public:
     void setChart(QChart *chart);
     QChart* chart() const;
 
-    void addVerticalMarker(qreal x);
+    void addVerticalMarker();
     void addHorizontalMarker(qreal x);
 
 protected slots:

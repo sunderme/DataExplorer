@@ -66,6 +66,7 @@ void ZoomableChartView::mouseMoveEvent(QMouseEvent *event)
     m_coordY->setText(QString("Y: %1").arg(m_chart->mapToValue(event->pos()).y()));
 
     if (!m_isTouching){
+        m_lastMousePos = event->pos();
         QGraphicsView::mouseMoveEvent(event);
         return;
     }
@@ -178,8 +179,8 @@ void ZoomableChartView::mouseMoveEvent(QMouseEvent *event)
                 chart()->scroll(0, dy);
             }
         }
-        m_lastMousePos = event->pos();
     }
+    m_lastMousePos = event->pos();
 
     QGraphicsView::mouseMoveEvent(event);
 }
@@ -252,9 +253,11 @@ void ZoomableChartView::setZoomMode(const ZoomMode &zoomMode)
  * \brief add vertical marker at value x
  * \param x
  */
-void ZoomableChartView::addVerticalMarker(qreal x)
+void ZoomableChartView::addVerticalMarker()
 {
-    QGraphicsLineItem *lineItem=new QGraphicsLineItem(x,0.,x,5.);
+    const qreal x=m_lastMousePos.x();
+    const QRectF rect=m_chart->plotArea();
+    QGraphicsLineItem *lineItem=new QGraphicsLineItem(x,rect.bottom(),x,rect.top());
     QGraphicsScene *scene=chart()->scene();
     scene->addItem(lineItem);
 }
@@ -384,10 +387,10 @@ void ZoomableChartView::keyPressEvent(QKeyEvent *event)
 {
     switch (event->key()) {
     case Qt::Key_Plus:
-        chart()->zoomIn();
+        chart()->zoom(1.4);
         break;
     case Qt::Key_Minus:
-        chart()->zoomOut();
+        chart()->zoom(0.7);
         break;
         //![1]
     case Qt::Key_Left:

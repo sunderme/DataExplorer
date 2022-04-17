@@ -16,6 +16,13 @@ public:
         VerticalZoom,
         HorizontalZoom
     };
+    enum MarkerData{
+        Type,
+        ValueX,ValueY
+    };
+    enum MarkerType{
+        Vertical,Horizontal,XY
+    };
 
     ZoomableChartView(QWidget *parent = 0);
 
@@ -34,13 +41,14 @@ public:
     QChart* chart() const;
 
     void addVerticalMarker();
-    void addHorizontalMarker(qreal x);
+    void addHorizontalMarker();
 
 protected slots:
     void legendMarkerClicked();
     void legendMarkerHovered(bool hover);
     void seriesClicked(const QPointF &point);
     void seriesHovered(const QPointF &point,bool state);
+    void updateMarker(const QRectF &plotArea);
 
 protected:
     void mousePressEvent(QMouseEvent *event);
@@ -62,6 +70,9 @@ private:
     QPointF m_startMousePos;
     ZoomMode m_zoomMode = RectangleZoom;
     QChart *m_chart;
+
+    QList<QGraphicsItem*> m_verticalMarkers,m_horizontalMarkers;
+    QList<QGraphicsItem*> m_markers;
 
     static bool isAxisTypeZoomableWithMouse(const QAbstractAxis::AxisType type);
     QPointF getSeriesCoordFromChartCoord(const QPointF & mousePos, QAbstractSeries *series) const;

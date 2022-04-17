@@ -21,7 +21,7 @@ ZoomableChartView::ZoomableChartView(QWidget *parent) :
     m_chart->legend()->hide();
     m_chart->createDefaultAxes();
     m_chart->setAcceptHoverEvents(true);
-
+    connect(m_chart,&QChart::plotAreaChanged,this,&ZoomableChartView::updateMarker);
 
     setRenderHint(QPainter::Antialiasing);
     scene()->addItem(m_chart);
@@ -250,16 +250,34 @@ void ZoomableChartView::setZoomMode(const ZoomMode &zoomMode)
     }
 }
 /*!
- * \brief add vertical marker at value x
- * \param x
+ * \brief add vertical marker at mouse cursor
  */
 void ZoomableChartView::addVerticalMarker()
 {
     const qreal x=m_lastMousePos.x();
+    const QPointF val=m_chart->mapToValue(m_lastMousePos);
     const QRectF rect=m_chart->plotArea();
     QGraphicsLineItem *lineItem=new QGraphicsLineItem(x,rect.bottom(),x,rect.top());
+    lineItem->setData(MarkerData::Type,MarkerType::Vertical);
+    lineItem->setData(MarkerData::ValueX,val.x());
     QGraphicsScene *scene=chart()->scene();
     scene->addItem(lineItem);
+    m_verticalMarkers.append(lineItem);
+}
+/*!
+ * \brief add horizontal marker at mouse cursor
+ */
+void ZoomableChartView::addHorizontalMarker()
+{
+    const qreal y=m_lastMousePos.y();
+    const QPointF val=m_chart->mapToValue(m_lastMousePos);
+    const QRectF rect=m_chart->plotArea();
+    QGraphicsLineItem *lineItem=new QGraphicsLineItem(rect.left(),y,rect.right(),y);
+    lineItem->setData(MarkerData::Type,MarkerType::Horizontal);
+    lineItem->setData(MarkerData::ValueY,val.y());
+    QGraphicsScene *scene=chart()->scene();
+    scene->addItem(lineItem);
+    m_horizontalMarkers.append(lineItem);
 }
 
 /*!
@@ -466,6 +484,28 @@ void ZoomableChartView::seriesHovered(const QPointF &point, bool state)
         QFont font = marker->font();
         font.setBold(state);
         marker->setFont(font);
+    }
+}
+
+void ZoomableChartView::updateMarker(const QRectF &plotArea)
+{
+    for(QGraphicsItem *item:m_verticalMarkers){
+        QGraphicsLineItem *lineItem=qgraphicsitem_cast<QGraphicsLineItem *>(item);
+        bool ok;
+        qreal x=item->data(MarkerData::ValueX).toDouble(&ok);
+        if(ok){
+            x=m_chart->mapToPosition(QPointF(x,x)).x();
+            lineItem->setLine(x,plotArea.bottom(),x,plotArea.top());
+        }
+    }
+    for(QGraphicsItem *item:m_horizontalMarkers){
+        QGraphicsLineItem *lineItem=qgraphicsitem_cast<QGraphicsLineItem *>(item);
+        bool ok;
+        qreal y=item->data(MarkerData::ValueY).toDouble(&ok);
+        if(ok){
+            y=m_chart->mapToPosition(QPointF(y,y)).y();
+            lineItem->setLine(plotArea.left(),y,plotArea.right(),y);
+        }
     }
 }
 /*!

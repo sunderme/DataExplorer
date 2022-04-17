@@ -53,6 +53,7 @@ protected:
     void zoomOut();
     void zoomReset();
     void addVerticalMarker();
+    void addHorizontalMarker();
     void populateRecentFiles();
     void filterToggled(bool checked);
     void filterCheckedToggled(bool checked);

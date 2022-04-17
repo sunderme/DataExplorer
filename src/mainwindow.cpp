@@ -120,10 +120,16 @@ void MainWindow::setupMenus()
     connect(act,&QAction::triggered,this,&MainWindow::panMode);
     plotMenu->addAction(act);
     plotToolBar->addAction(act);
+
     act=new QAction(tr("Vertical Marker"),this);
     act->setIcon(QIcon(":/icons/zoom-select-y.svg"));
     act->setShortcut(Qt::Key_V);
     connect(act,&QAction::triggered,this,&MainWindow::addVerticalMarker);
+    plotMenu->addAction(act);
+    act=new QAction(tr("Horizontal Marker"),this);
+    act->setIcon(QIcon(":/icons/zoom-select-x.svg"));
+    act->setShortcut(Qt::Key_H);
+    connect(act,&QAction::triggered,this,&MainWindow::addHorizontalMarker);
     plotMenu->addAction(act);
 
     act=new QAction("delete",this);
@@ -563,6 +569,12 @@ void MainWindow::addVerticalMarker()
 {
     chartView->addVerticalMarker();
 }
+
+void MainWindow::addHorizontalMarker()
+{
+    chartView->addHorizontalMarker();
+}
+
 
 void MainWindow::populateRecentFiles()
 {

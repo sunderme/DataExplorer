@@ -120,6 +120,11 @@ void MainWindow::setupMenus()
     connect(act,&QAction::triggered,this,&MainWindow::panMode);
     plotMenu->addAction(act);
     plotToolBar->addAction(act);
+    act=new QAction(tr("Vertical Marker"),this);
+    act->setIcon(QIcon(":/icons/zoom-select-y.svg"));
+    act->setShortcut(Qt::Key_V);
+    connect(act,&QAction::triggered,this,&MainWindow::addVerticalMarker);
+    plotMenu->addAction(act);
 
     act=new QAction("delete",this);
     act->setShortcut(QKeySequence::Delete);
@@ -182,7 +187,8 @@ void MainWindow::setupGUI()
     wgt->setLayout(mainLayout);
 
     chartView = new ZoomableChartView();
-    chartView->setZoomMode(ZoomableChartView::RectangleZoom);
+    //chartView->setZoomMode(ZoomableChartView::RectangleZoom);
+    //chartView->setMouseTracking(true);
 
     tabWidget = new QTabWidget;
     tabWidget->addTab(wgt,tr("CSV"));
@@ -193,6 +199,7 @@ void MainWindow::setupGUI()
     connect(tableWidget->horizontalHeader(),&QAbstractItemView::customContextMenuRequested,this,&MainWindow::headerMenuRequested);
 
     setCentralWidget(tabWidget);
+    this->setMouseTracking(true);
 }
 /*!
  * \brief call file dialog and then open file
@@ -387,9 +394,7 @@ void MainWindow::plotSelected()
     int index_y=getIndex(yn);
 
     QList<LoopIteration> lits=groupBy(vars,visibleRows);
-    ZoomableChart *chart = new ZoomableChart();
-    chartView->setChart(chart);
-    chartView->setRenderHint(QPainter::Antialiasing);
+    chartView->clear();
     foreach(LoopIteration lit,lits){
         QLineSeries *series = new QLineSeries();
         if(!lit.value.isEmpty()){
@@ -406,14 +411,11 @@ void MainWindow::plotSelected()
                 }
             }
         }
-        chart->addSeries(series);
-        seriesAdded(series);
+        chartView->addSeries(series);
     }
-    if(lits.size()<2){
-        chart->legend()->hide();
-    }
-    chart->createDefaultAxes();
-    chart->setTitle("Line chart");
+
+
+    chartView->setTitle("Line chart");
     if(tabWidget->currentIndex()!=1){
         tabWidget->setCurrentIndex(1); // plot tab
     }
@@ -555,6 +557,11 @@ void MainWindow::zoomOut()
 void MainWindow::zoomReset()
 {
     chartView->chart()->zoomReset();
+}
+
+void MainWindow::addVerticalMarker()
+{
+    chartView->addVerticalMarker(0.4);
 }
 
 void MainWindow::populateRecentFiles()
@@ -880,131 +887,9 @@ QList<LoopIteration> MainWindow::groupBy(QStringList sweepVar,std::vector<bool> 
     }
     return result;
 }
-/*!
- * \brief change series visibility when legendMarker is clicked
- */
-void MainWindow::legendMarkerClicked()
-{
-    auto* marker = qobject_cast<QLegendMarker*>(sender());
-    Q_ASSERT(marker);
-
-    // Toggle visibility of series
-    setSeriesVisible(marker->series(), !marker->series()->isVisible());
-}
-/*!
- * \brief highlight series when hovering over legen marker
- * Not working properly !!!
- * \param hover
- *
- */
-void MainWindow::legendMarkerHovered(bool hover)
-{
-    auto* marker = qobject_cast<QLegendMarker*>(sender());
-    Q_ASSERT(marker);
-
-    QFont font = marker->font();
-    font.setBold(hover);
-    marker->setFont(font);
-
-    if (marker->series()->type() == QAbstractSeries::SeriesTypeLine) {
-        auto series = qobject_cast<QLineSeries*>(marker->series());
-        auto pen = series->pen();
-        pen.setWidth(hover ? (pen.width() * 2) : (pen.width() / 2));
-        series->setPen(pen);
-    }
-}
-/*!
- * \brief set series in chart visible
- * \param series
- * \param visible
- */
-void MainWindow::setSeriesVisible(QAbstractSeries *series, bool visible)
-{
-    ZoomableChart *m_chart=qobject_cast<ZoomableChart *>(chartView->chart());
-    if(!m_chart) return;
-    series->setVisible(visible);
-    for (auto *marker : m_chart->legend()->markers(series)) {
-        // Turn legend marker back to visible, since hiding series also hides the marker
-        // and we don't want it to happen now.
-        marker->setVisible(true);
-
-        // Dim the marker, if series is not visible
-        qreal alpha = visible ? 1.0 : 0.5;
-        QColor color;
-        QBrush brush = marker->labelBrush();
-        color = brush.color();
-        color.setAlphaF(alpha);
-        brush.setColor(color);
-        marker->setLabelBrush(brush);
-
-        brush = marker->brush();
-        color = brush.color();
-        color.setAlphaF(alpha);
-        brush.setColor(color);
-        marker->setBrush(brush);
-
-        QPen pen = marker->pen();
-        color = pen.color();
-        color.setAlphaF(alpha);
-        pen.setColor(color);
-        marker->setPen(pen);
-    }
-
-    for (QAbstractAxis *axis : m_chart->axes(Qt::Vertical)) {
-        bool hideAxis = true;
-        for (auto *series : m_chart->series()) {
-            for (const auto *attachedAxis : series->attachedAxes()) {
-                if (series->isVisible() && attachedAxis == axis) {
-                    hideAxis = false;
-                    break;
-                }
-            }
-            if (!hideAxis)
-                break;
-        }
-        axis->setVisible(!hideAxis);
-    }
-}
-/*!
- * \brief slot for updating legend markers
- * Only directly used here.
- * \param series
- */
-void MainWindow::seriesAdded(QAbstractSeries *series)
-{
-    // Connect all markers to handler
-    ZoomableChart *m_chart=qobject_cast<ZoomableChart *>(chartView->chart());
-    if(!m_chart) return;
-    const auto markers = m_chart->legend()->markers(series);
-    for (auto marker : markers) {
-        QObject::connect(marker, &QLegendMarker::clicked,
-                         this, &MainWindow::legendMarkerClicked);
-        QObject::connect(marker, &QLegendMarker::hovered,
-                         this, &MainWindow::legendMarkerHovered);
-    }
-}
-/*!
- * \brief remove signal/slot connect when series is removed
- * Basically unused.
- * \param series
- */
-void MainWindow::seriesRemoved(QAbstractSeries *series)
-{
-    // Connect all markers to handler
-    ZoomableChart *m_chart=qobject_cast<ZoomableChart *>(chartView->chart());
-    if(!m_chart) return;
-    const auto markers = m_chart->legend()->markers(series);
-    for (auto marker : markers) {
-        QObject::disconnect(marker, &QLegendMarker::clicked,
-                            this, &MainWindow::legendMarkerClicked);
-        QObject::disconnect(marker, &QLegendMarker::hovered,
-                            this, &MainWindow::legendMarkerHovered);
-    }
-}
 
 /* TODO
 Unit tests
-better filter selector
 cursor in plot
 */
 

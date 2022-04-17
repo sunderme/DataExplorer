@@ -52,6 +52,7 @@ protected:
     void zoomIn();
     void zoomOut();
     void zoomReset();
+    void addVerticalMarker();
     void populateRecentFiles();
     void filterToggled(bool checked);
     void filterCheckedToggled(bool checked);
@@ -63,11 +64,6 @@ protected:
     void updateColBackground(int col,bool filtered=false);
     void filterRowsForColumnValues(ColumnFilter cf);
     void filterElementChanged(bool checked);
-    void legendMarkerClicked();
-    void legendMarkerHovered(bool hover);
-    void setSeriesVisible(QAbstractSeries *series, bool visible = true);
-    void seriesAdded(QAbstractSeries *series);
-    void seriesRemoved(QAbstractSeries *series);
     void test();
     int getIndex(const QString &name);
     bool hasColumnFilter(int column) const;

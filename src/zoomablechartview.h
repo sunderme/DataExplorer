@@ -19,11 +19,7 @@ public:
 
     ZoomableChartView(QWidget *parent = 0);
 
-    void zoomX(qreal factor, qreal xcenter);
-    void zoomX(qreal factor);
-
-    void zoomY(qreal factor, qreal ycenter);
-    void zoomY(qreal factor);
+    void zoom(qreal factor, QPointF center);
 
     void clear();
     void addSeries(QXYSeries *series);

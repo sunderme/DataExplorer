@@ -132,8 +132,7 @@ void ZoomableChartView::mouseMoveEvent(QMouseEvent *event)
                         }
                     }
                 }
-                chart()->scroll(dx, 0);
-                updateMarker();
+                scrollWithinPlot(dx, 0);
             } else {
                 qreal dy = event->pos().y() - m_lastMousePos.y();
                 for (const auto series : this->chart()->series()) {
@@ -177,8 +176,7 @@ void ZoomableChartView::mouseMoveEvent(QMouseEvent *event)
                         }
                     }
                 }
-                chart()->scroll(0, dy);
-                updateMarker();
+                scrollWithinPlot(0, dy);
             }
         }
     }
@@ -198,11 +196,10 @@ void ZoomableChartView::wheelEvent(QWheelEvent *event)
         return;
     }
     if (QGuiApplication::keyboardModifiers() & Qt::KeyboardModifier::ShiftModifier){
-        chart()->scroll(event->angleDelta().y(), 0);
+        scrollWithinPlot(event->angleDelta().y(), 0);
     }else{
-        chart()->scroll(0,event->angleDelta().y());
+        scrollWithinPlot(0,event->angleDelta().y());
     }
-    updateMarker();
 }
 
 bool ZoomableChartView::isAxisTypeZoomableWithMouse(const QAbstractAxis::AxisType type)
@@ -415,16 +412,16 @@ void ZoomableChartView::keyPressEvent(QKeyEvent *event)
         break;
         //![1]
     case Qt::Key_Left:
-        chart()->scroll(-10, 0);
+        scrollWithinPlot(-10, 0);
         break;
     case Qt::Key_Right:
-        chart()->scroll(10, 0);
+        scrollWithinPlot(10, 0);
         break;
     case Qt::Key_Up:
-        chart()->scroll(0, 10);
+        scrollWithinPlot(0, 10);
         break;
     case Qt::Key_Down:
-        chart()->scroll(0, -10);
+        scrollWithinPlot(0, -10);
         break;
     default:
         QGraphicsView::keyPressEvent(event);
@@ -579,4 +576,15 @@ void ZoomableChartView::emphasisSeries(QXYSeries *series, bool emphasis)
     auto pen = series->pen();
     pen.setWidth(emphasis ? (pen.width() * 2) : (pen.width() / 2));
     series->setPen(pen);
+}
+/*!
+ * \brief scroll within plot
+ * calls chart scroll and update marker
+ * \param dx
+ * \param dy
+ */
+void ZoomableChartView::scrollWithinPlot(qreal dx, qreal dy)
+{
+    m_chart->scroll(dx,dy);
+    updateMarker();
 }

@@ -61,6 +61,7 @@ protected:
 
     void setSeriesVisible(QAbstractSeries *series, bool visible = true);
     void emphasisSeries(QXYSeries *series, bool emphasis = true);
+    void scrollWithinPlot(qreal dx,qreal dy);
 
 private:
     QGraphicsSimpleTextItem *m_coordX;

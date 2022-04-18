@@ -257,11 +257,12 @@ void ZoomableChartView::addVerticalMarker()
     const qreal x=m_lastMousePos.x();
     const QPointF val=m_chart->mapToValue(m_lastMousePos);
     const QRectF rect=m_chart->plotArea();
-    QGraphicsLineItem *lineItem=new QGraphicsLineItem(x,rect.bottom(),x,rect.top());
-    lineItem->setData(MarkerData::Type,MarkerType::Vertical);
-    lineItem->setData(MarkerData::ValueX,val.x());
+    VerticalMarker *lineItem=new VerticalMarker();
+    lineItem->setLine(0,rect.bottom(),0,rect.top());
+    lineItem->setXVal(val.x());
     QGraphicsScene *scene=chart()->scene();
     scene->addItem(lineItem);
+    lineItem->setPos(x,0);
     m_verticalMarkers.append(lineItem);
 }
 /*!
@@ -272,11 +273,12 @@ void ZoomableChartView::addHorizontalMarker()
     const qreal y=m_lastMousePos.y();
     const QPointF val=m_chart->mapToValue(m_lastMousePos);
     const QRectF rect=m_chart->plotArea();
-    QGraphicsLineItem *lineItem=new QGraphicsLineItem(rect.left(),y,rect.right(),y);
-    lineItem->setData(MarkerData::Type,MarkerType::Horizontal);
-    lineItem->setData(MarkerData::ValueY,val.y());
+    HorizontalMarker *lineItem=new HorizontalMarker();
+    lineItem->setLine(rect.left(),0,rect.right(),0);
+    lineItem->setYVal(val.y());
     QGraphicsScene *scene=chart()->scene();
     scene->addItem(lineItem);
+    lineItem->setPos(0,y);
     m_horizontalMarkers.append(lineItem);
 }
 
@@ -384,7 +386,7 @@ void ZoomableChartView::resizeEvent(QResizeEvent *event)
  */
 void ZoomableChartView::mouseReleaseEvent(QMouseEvent *event)
 {
-    if(m_zoomMode==RectangleZoom){
+    if(!rubberBandRect().isNull() && m_zoomMode==RectangleZoom){
 #if  QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         m_lastMousePos = event->position();
 #else

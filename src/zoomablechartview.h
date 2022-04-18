@@ -4,6 +4,9 @@
 #include <QtCharts>
 #include <QtWidgets/QRubberBand>
 
+#include "verticalmarker.h"
+#include "horizontalmarker.h"
+
 
 //![1]
 class ZoomableChartView : public QGraphicsView
@@ -73,7 +76,8 @@ private:
     ZoomMode m_zoomMode = RectangleZoom;
     QChart *m_chart;
 
-    QList<QGraphicsItem*> m_verticalMarkers,m_horizontalMarkers;
+    QList<VerticalMarker*> m_verticalMarkers;
+    QList<HorizontalMarker*> m_horizontalMarkers;
     QList<QGraphicsItem*> m_markers;
 
     static bool isAxisTypeZoomableWithMouse(const QAbstractAxis::AxisType type);

@@ -24,7 +24,9 @@ set(PROJECT_SOURCES
         src/zoomablechartview.h
         src/rangelimitedvalueaxis.cpp
         src/rangelimitedvalueaxis.h
-	    resources/icons.qrc
+        src/verticalmarker.h src/verticalmarker.cpp
+        src/horizontalmarker.h src/horizontalmarker.cpp
+        resources/icons.qrc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

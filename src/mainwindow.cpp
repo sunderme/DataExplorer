@@ -240,13 +240,19 @@ void MainWindow::readFile()
     buildTable();
     sweeps.clear();
     plotValues.clear();
-    if(columns.contains("x")){
-        // add x to sweeps
-        sweeps<<"x";
-    }
-    if(columns.contains("y")){
-        // add y to plot values
-        plotValues<<"y";
+    if(columns.size()==2){
+        //assume first x, second y
+        sweeps<<columns[0];
+        plotValues<<columns[1];
+    }else{
+        if(columns.contains("x")){
+            // add x to sweeps
+            sweeps<<"x";
+        }
+        if(columns.contains("y")){
+            // add y to plot values
+            plotValues<<"y";
+        }
     }
     updateSweepGUI();
 }

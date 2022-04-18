@@ -21,7 +21,6 @@ ZoomableChartView::ZoomableChartView(QWidget *parent) :
     m_chart->legend()->hide();
     m_chart->createDefaultAxes();
     m_chart->setAcceptHoverEvents(true);
-    connect(m_chart,&QChart::plotAreaChanged,this,&ZoomableChartView::updateMarkerArea);
 
     setRenderHint(QPainter::Antialiasing);
     scene()->addItem(m_chart);
@@ -193,6 +192,7 @@ void ZoomableChartView::wheelEvent(QWheelEvent *event)
         } else if (event->angleDelta().y() < 0) {
             zoom(0.7, event->position());
         }
+        updateMarker();
         return;
     }
     if (QGuiApplication::keyboardModifiers() & Qt::KeyboardModifier::ShiftModifier){
@@ -394,6 +394,7 @@ void ZoomableChartView::mouseReleaseEvent(QMouseEvent *event)
 #endif
         QRectF rect(m_startMousePos,m_lastMousePos);
         chart()->zoomIn(rect.normalized());
+        updateMarker();
     }
     m_isTouching = false;
     QGraphicsView::mouseReleaseEvent(event);
@@ -491,31 +492,18 @@ void ZoomableChartView::seriesHovered(const QPointF &point, bool state)
 
 void ZoomableChartView::updateMarker()
 {
-    const QRectF rect=m_chart->plotArea();
-    updateMarkerArea(rect);
+    for(VerticalMarker *item:m_verticalMarkers){
+        qreal x=item->xVal();
+        x=m_chart->mapToPosition(QPointF(x,x)).x();
+        item->setPos(x,0);
+    }
+    for(HorizontalMarker *item:m_horizontalMarkers){
+        qreal y=item->yVal();
+        y=m_chart->mapToPosition(QPointF(y,y)).y();
+        item->setPos(0,y);
+    }
 }
 
-void ZoomableChartView::updateMarkerArea(const QRectF &plotArea)
-{
-    for(QGraphicsItem *item:m_verticalMarkers){
-        QGraphicsLineItem *lineItem=qgraphicsitem_cast<QGraphicsLineItem *>(item);
-        bool ok;
-        qreal x=item->data(MarkerData::ValueX).toDouble(&ok);
-        if(ok){
-            x=m_chart->mapToPosition(QPointF(x,x)).x();
-            lineItem->setLine(x,plotArea.bottom(),x,plotArea.top());
-        }
-    }
-    for(QGraphicsItem *item:m_horizontalMarkers){
-        QGraphicsLineItem *lineItem=qgraphicsitem_cast<QGraphicsLineItem *>(item);
-        bool ok;
-        qreal y=item->data(MarkerData::ValueY).toDouble(&ok);
-        if(ok){
-            y=m_chart->mapToPosition(QPointF(y,y)).y();
-            lineItem->setLine(plotArea.left(),y,plotArea.right(),y);
-        }
-    }
-}
 /*!
  * \brief set series in chart visible
  * \param series

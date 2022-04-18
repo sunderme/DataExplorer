@@ -52,7 +52,6 @@ protected slots:
     void seriesClicked(const QPointF &point);
     void seriesHovered(const QPointF &point,bool state);
     void updateMarker();
-    void updateMarkerArea(const QRectF &plotArea);
 
 protected:
     void mousePressEvent(QMouseEvent *event);

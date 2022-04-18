@@ -9,6 +9,14 @@
 #include <set>
 #include "zoomablechart.h"
 
+/*!
+ * \brief construct GUI
+ * Read in settings, build menu&GUI
+ * Interpret CLI options
+ * \param argc
+ * \param argv
+ * \param parent
+ */
 MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
     : QMainWindow(parent)
 {
@@ -31,7 +39,10 @@ MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
         readFile();
     }
 }
-
+/*!
+ * \brief write settings on closeEvent
+ * \param event
+ */
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     QSettings settings("DataExplorer", "DataExplorer");
@@ -45,7 +56,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
 MainWindow::~MainWindow()
 {
 }
-
+/*!
+ * \brief define all menus
+ */
 void MainWindow::setupMenus()
 {
     recentFilesMenu=new QMenu(tr("Open recent files..."));
@@ -141,7 +154,9 @@ void MainWindow::setupMenus()
     connect(testAction, &QAction::triggered, this, &MainWindow::test);
     plotMenu->addAction(testAction);
 }
-
+/*!
+ * \brief generate GUI
+ */
 void MainWindow::setupGUI()
 {
     tableWidget = new QTableWidget;

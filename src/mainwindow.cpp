@@ -625,6 +625,8 @@ void MainWindow::populateRecentFiles()
  */
 void MainWindow::filterToggled(bool checked)
 {
+    if(checked)
+        btFilterPlot->setChecked(false);
     // filter columns
     for(int i=0;i<columns.size();++i){
         if(!checked){
@@ -652,6 +654,9 @@ void MainWindow::filterCheckedToggled(bool checked)
  */
 void MainWindow::filterPlotToggled(bool checked)
 {
+    if(checked)
+        btFilter->setChecked(false);
+    updateSweeps(false);
     // filter columns
     for(int i=0;i<columns.size();++i){
         if(!checked){

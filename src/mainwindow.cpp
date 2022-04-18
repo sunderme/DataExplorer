@@ -417,28 +417,35 @@ void MainWindow::plotSelected()
     QStringList vars=sweeps;
     QString xn=vars.takeLast();
     int index_x=getIndex(xn);
-    QString yn=plotValues.last();
-    int index_y=getIndex(yn);
-
-    QList<LoopIteration> lits=groupBy(vars,visibleRows);
+    bool multiPlot=plotValues.size()>1;
     chartView->clear();
-    foreach(LoopIteration lit,lits){
-        QLineSeries *series = new QLineSeries();
-        if(!lit.value.isEmpty()){
-            series->setName(lit.value.left(lit.value.size()-1));
-        }
-        for(std::size_t i=0;i<lit.indices.size();++i){
-            if(lit.indices[i]){
-                bool ok_x,ok_y;
-                qreal x=csv[index_x].value(i).toDouble(&ok_x);
-                qreal y=csv[index_y].value(i).toDouble(&ok_y);
-                if(ok_x && ok_y){
-                    QPointF pt(x,y);
-                    series->append(pt);
+    for(const QString &yn:plotValues){
+        int index_y=getIndex(yn);
+
+        QList<LoopIteration> lits=groupBy(vars,visibleRows);
+        foreach(LoopIteration lit,lits){
+            QLineSeries *series = new QLineSeries();
+            if(!lit.value.isEmpty()){
+                QString name=lit.value.left(lit.value.size()-1);
+                if(multiPlot)
+                    name=yn+":"+name;
+                series->setName(name);
+            }else{
+                series->setName(yn);
+            }
+            for(std::size_t i=0;i<lit.indices.size();++i){
+                if(lit.indices[i]){
+                    bool ok_x,ok_y;
+                    qreal x=csv[index_x].value(i).toDouble(&ok_x);
+                    qreal y=csv[index_y].value(i).toDouble(&ok_y);
+                    if(ok_x && ok_y){
+                        QPointF pt(x,y);
+                        series->append(pt);
+                    }
                 }
             }
+            chartView->addSeries(series);
         }
-        chartView->addSeries(series);
     }
 
 

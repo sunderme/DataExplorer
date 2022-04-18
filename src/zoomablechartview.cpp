@@ -21,7 +21,7 @@ ZoomableChartView::ZoomableChartView(QWidget *parent) :
     m_chart->legend()->hide();
     m_chart->createDefaultAxes();
     m_chart->setAcceptHoverEvents(true);
-    connect(m_chart,&QChart::plotAreaChanged,this,&ZoomableChartView::updateMarker);
+    connect(m_chart,&QChart::plotAreaChanged,this,&ZoomableChartView::updateMarkerArea);
 
     setRenderHint(QPainter::Antialiasing);
     scene()->addItem(m_chart);
@@ -133,6 +133,7 @@ void ZoomableChartView::mouseMoveEvent(QMouseEvent *event)
                     }
                 }
                 chart()->scroll(dx, 0);
+                updateMarker();
             } else {
                 qreal dy = event->pos().y() - m_lastMousePos.y();
                 for (const auto series : this->chart()->series()) {
@@ -177,6 +178,7 @@ void ZoomableChartView::mouseMoveEvent(QMouseEvent *event)
                     }
                 }
                 chart()->scroll(0, dy);
+                updateMarker();
             }
         }
     }
@@ -200,6 +202,7 @@ void ZoomableChartView::wheelEvent(QWheelEvent *event)
     }else{
         chart()->scroll(0,event->angleDelta().y());
     }
+    updateMarker();
 }
 
 bool ZoomableChartView::isAxisTypeZoomableWithMouse(const QAbstractAxis::AxisType type)
@@ -487,7 +490,13 @@ void ZoomableChartView::seriesHovered(const QPointF &point, bool state)
     }
 }
 
-void ZoomableChartView::updateMarker(const QRectF &plotArea)
+void ZoomableChartView::updateMarker()
+{
+    const QRectF rect=m_chart->plotArea();
+    updateMarkerArea(rect);
+}
+
+void ZoomableChartView::updateMarkerArea(const QRectF &plotArea)
 {
     for(QGraphicsItem *item:m_verticalMarkers){
         QGraphicsLineItem *lineItem=qgraphicsitem_cast<QGraphicsLineItem *>(item);

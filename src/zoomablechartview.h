@@ -48,7 +48,8 @@ protected slots:
     void legendMarkerHovered(bool hover);
     void seriesClicked(const QPointF &point);
     void seriesHovered(const QPointF &point,bool state);
-    void updateMarker(const QRectF &plotArea);
+    void updateMarker();
+    void updateMarkerArea(const QRectF &plotArea);
 
 protected:
     void mousePressEvent(QMouseEvent *event);

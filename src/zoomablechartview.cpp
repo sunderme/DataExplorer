@@ -240,12 +240,9 @@ void ZoomableChartView::setZoomMode(const ZoomMode &zoomMode)
         setDragMode(QGraphicsView::RubberBandDrag);
         break;
     case HorizontalZoom:
-        //setRubberBand(QChartView::HorizontalRubberBand);
-        setDragMode(QChartView::NoDrag);
-        break;
     case VerticalZoom:
-        //setRubberBand(QChartView::VerticalRubberBand);
-        setDragMode(QChartView::NoDrag);
+        //setRubberBand(QChartView::HorizontalRubberBand);
+        setDragMode(QGraphicsView::RubberBandDrag);
         break;
     }
 }
@@ -393,6 +390,32 @@ void ZoomableChartView::mouseReleaseEvent(QMouseEvent *event)
         m_lastMousePos = event->localPos();
 #endif
         QRectF rect(m_startMousePos,m_lastMousePos);
+        chart()->zoomIn(rect.normalized());
+        updateMarker();
+    }
+    if(!rubberBandRect().isNull() && m_zoomMode==HorizontalZoom){
+#if  QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        m_lastMousePos = event->position();
+#else
+        m_lastMousePos = event->localPos();
+#endif
+        const QRectF ro=m_chart->plotArea();
+        QRectF rect(m_startMousePos,m_lastMousePos);
+        rect=rect.normalized();
+        rect.setHeight(ro.height());
+        chart()->zoomIn(rect.normalized());
+        updateMarker();
+    }
+    if(!rubberBandRect().isNull() && m_zoomMode==VerticalZoom){
+#if  QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        m_lastMousePos = event->position();
+#else
+        m_lastMousePos = event->localPos();
+#endif
+        const QRectF ro=m_chart->plotArea();
+        QRectF rect(m_startMousePos,m_lastMousePos);
+        rect=rect.normalized();
+        rect.setWidth(ro.width());
         chart()->zoomIn(rect.normalized());
         updateMarker();
     }

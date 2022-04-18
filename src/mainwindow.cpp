@@ -385,10 +385,12 @@ void MainWindow::updateSweepGUI()
     lstSweeps->clear();
     lstData->clear();
     foreach(const QString &elem,sweeps){
-        new QListWidgetItem(elem,lstSweeps);
+        QListWidgetItem *item=new QListWidgetItem(elem,lstSweeps);
+        item->setCheckState(Qt::Checked);
     }
     foreach(const QString &elem,plotValues){
-        new QListWidgetItem(elem,lstData);
+        QListWidgetItem *item=new QListWidgetItem(elem,lstData);
+        item->setCheckState(Qt::Checked);
     }
 }
 /*!
@@ -399,9 +401,13 @@ void MainWindow::updateSweeps()
     sweeps.clear();
     plotValues.clear();
     for(int i=0;i<lstSweeps->count();++i){
+        if(lstSweeps->item(i)->checkState()!=Qt::Checked)
+            continue;
         sweeps<<lstSweeps->item(i)->text();
     }
     for(int i=0;i<lstData->count();++i){
+        if(lstData->item(i)->checkState()!=Qt::Checked)
+            continue;
         plotValues<<lstData->item(i)->text();
     }
 }

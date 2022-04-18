@@ -396,17 +396,17 @@ void MainWindow::updateSweepGUI()
 /*!
  * \brief update internal sweep structure from GUI
  */
-void MainWindow::updateSweeps()
+void MainWindow::updateSweeps(bool filterChecked)
 {
     sweeps.clear();
     plotValues.clear();
     for(int i=0;i<lstSweeps->count();++i){
-        if(lstSweeps->item(i)->checkState()!=Qt::Checked)
+        if(filterChecked && lstSweeps->item(i)->checkState()!=Qt::Checked)
             continue;
         sweeps<<lstSweeps->item(i)->text();
     }
     for(int i=0;i<lstData->count();++i){
-        if(lstData->item(i)->checkState()!=Qt::Checked)
+        if(filterChecked && lstData->item(i)->checkState()!=Qt::Checked)
             continue;
         plotValues<<lstData->item(i)->text();
     }

@@ -38,7 +38,7 @@ protected:
     void readInCSV(const QString &fileName);
     void buildTable();
     void updateSweepGUI();
-    void updateSweeps();
+    void updateSweeps(bool filterChecked=true);
     void plotSelected();
     void tabChanged(int index);
     void headerMenuRequested(QPoint pt);

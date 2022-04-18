@@ -257,6 +257,7 @@ void ZoomableChartView::addVerticalMarker()
     VerticalMarker *lineItem=new VerticalMarker();
     lineItem->setLine(0,rect.bottom(),0,rect.top());
     lineItem->setXVal(val.x());
+    lineItem->setChart(m_chart);
     QGraphicsScene *scene=chart()->scene();
     scene->addItem(lineItem);
     lineItem->setPos(x,0);
@@ -273,6 +274,7 @@ void ZoomableChartView::addHorizontalMarker()
     HorizontalMarker *lineItem=new HorizontalMarker();
     lineItem->setLine(rect.left(),0,rect.right(),0);
     lineItem->setYVal(val.y());
+    lineItem->setChart(m_chart);
     QGraphicsScene *scene=chart()->scene();
     scene->addItem(lineItem);
     lineItem->setPos(0,y);

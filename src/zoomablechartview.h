@@ -46,6 +46,8 @@ public:
     void addVerticalMarker();
     void addHorizontalMarker();
 
+    bool deleteSelectedMarker();
+
 protected slots:
     void legendMarkerClicked();
     void legendMarkerHovered(bool hover);

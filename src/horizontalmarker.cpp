@@ -7,6 +7,7 @@ HorizontalMarker::HorizontalMarker(QGraphicsItem *parent):
     QGraphicsLineItem(parent),m_chart(nullptr)
 {
     setFlag(QGraphicsItem::ItemIsMovable,true);
+    setFlag(QGraphicsItem::ItemIsSelectable,true);
     setCursor(Qt::SizeVerCursor);
 }
 

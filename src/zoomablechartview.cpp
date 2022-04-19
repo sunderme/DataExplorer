@@ -281,6 +281,25 @@ void ZoomableChartView::addHorizontalMarker()
     m_horizontalMarkers.append(lineItem);
 }
 
+bool ZoomableChartView::deleteSelectedMarker()
+{
+    for(int i=0;i<m_verticalMarkers.size();++i){
+        if(m_verticalMarkers[i]->isSelected()){
+            VerticalMarker *item=m_verticalMarkers.takeAt(i);
+            scene()->removeItem(item);
+            return true;
+        }
+    }
+    for(int i=0;i<m_horizontalMarkers.size();++i){
+        if(m_horizontalMarkers[i]->isSelected()){
+            HorizontalMarker *item=m_horizontalMarkers.takeAt(i);
+            scene()->removeItem(item);
+            return true;
+        }
+    }
+    return false;
+}
+
 /*!
  * \brief zoom at center point
  * \param factor

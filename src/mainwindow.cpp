@@ -550,6 +550,9 @@ void MainWindow::deleteVar()
             delete elem;
         }
     }
+    if(chartView->deleteSelectedMarker()){
+        return;
+    }
 }
 /*!
  * \brief add Plot Var

@@ -8,7 +8,7 @@
 #include <QDebug>
 
 ZoomableChartView::ZoomableChartView(QWidget *parent) :
-    QGraphicsView(new QGraphicsScene, parent),m_chart(nullptr)
+    QGraphicsView(new QGraphicsScene, parent),m_chart(nullptr),m_tooltip(nullptr)
 {
     setDragMode(QGraphicsView::NoDrag);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -342,7 +342,9 @@ void ZoomableChartView::addSeries(QXYSeries *series)
     if(m_chart->series().length()>1){
         m_chart->legend()->show();
     }
-    QObject::connect(series, &QLineSeries::clicked,this, &ZoomableChartView::seriesClicked);
+    //QObject::connect(series, &QLineSeries::clicked,this, &ZoomableChartView::seriesClicked);
+    QObject::connect(series, &QLineSeries::clicked, this, &ZoomableChartView::keepCallout);
+    QObject::connect(series, &QLineSeries::hovered, this, &ZoomableChartView::tooltip);
     QObject::connect(series, &QLineSeries::hovered,this, &ZoomableChartView::seriesHovered);
     const auto markers = m_chart->legend()->markers(series);
     for (auto marker : markers) {
@@ -621,4 +623,26 @@ void ZoomableChartView::scrollWithinPlot(qreal dx, qreal dy)
 {
     m_chart->scroll(dx,dy);
     updateMarker();
+}
+
+void ZoomableChartView::keepCallout()
+{
+    m_callouts.append(m_tooltip);
+    m_tooltip = new Callout(m_chart);
+}
+
+void ZoomableChartView::tooltip(QPointF point, bool state)
+{
+    if (m_tooltip == 0)
+        m_tooltip = new Callout(m_chart);
+
+    if (state) {
+        m_tooltip->setText(QString("X: %1 \nY: %2 ").arg(point.x()).arg(point.y()));
+        m_tooltip->setAnchor(point);
+        m_tooltip->setZValue(11);
+        m_tooltip->updateGeometry();
+        m_tooltip->show();
+    } else {
+        m_tooltip->hide();
+    }
 }

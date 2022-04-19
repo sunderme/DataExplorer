@@ -6,6 +6,7 @@
 
 #include "verticalmarker.h"
 #include "horizontalmarker.h"
+#include "callout.h"
 
 
 //![1]
@@ -54,6 +55,8 @@ protected slots:
     void seriesClicked(const QPointF &point);
     void seriesHovered(const QPointF &point,bool state);
     void updateMarker();
+    void keepCallout();
+    void tooltip(QPointF point, bool state);
 
 protected:
     void mousePressEvent(QMouseEvent *event);
@@ -76,6 +79,9 @@ private:
     QPointF m_startMousePos;
     ZoomMode m_zoomMode = RectangleZoom;
     QChart *m_chart;
+
+    Callout *m_tooltip;
+    QList<Callout *> m_callouts;
 
     QList<VerticalMarker*> m_verticalMarkers;
     QList<HorizontalMarker*> m_horizontalMarkers;

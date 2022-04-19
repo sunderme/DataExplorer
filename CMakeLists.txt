@@ -26,6 +26,7 @@ set(PROJECT_SOURCES
         src/rangelimitedvalueaxis.h
         src/verticalmarker.h src/verticalmarker.cpp
         src/horizontalmarker.h src/horizontalmarker.cpp
+        src/callout.h src/callout.cpp
         resources/icons.qrc
 )
 

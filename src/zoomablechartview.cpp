@@ -624,20 +624,28 @@ void ZoomableChartView::scrollWithinPlot(qreal dx, qreal dy)
     m_chart->scroll(dx,dy);
     updateMarker();
 }
-
+/*!
+ * \brief make callout permanent
+ */
 void ZoomableChartView::keepCallout()
 {
     m_callouts.append(m_tooltip);
     m_tooltip = new Callout(m_chart);
 }
-
+/*!
+ * \brief show tooltip of point and sweep when hovering over line
+ * \param point
+ * \param state
+ */
 void ZoomableChartView::tooltip(QPointF point, bool state)
 {
+    auto *series=qobject_cast<QXYSeries*>(sender());
     if (m_tooltip == 0)
         m_tooltip = new Callout(m_chart);
 
     if (state) {
-        m_tooltip->setText(QString("X: %1 \nY: %2 ").arg(point.x()).arg(point.y()));
+        QString name=series->name();
+        m_tooltip->setText(QString("%1\nX: %2 \nY: %3 ").arg(name).arg(point.x()).arg(point.y()));
         m_tooltip->setAnchor(point);
         m_tooltip->setZValue(11);
         m_tooltip->updateGeometry();

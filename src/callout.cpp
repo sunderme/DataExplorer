@@ -38,6 +38,7 @@ Callout::Callout(QChart *chart):
     QGraphicsItem(chart),
     m_chart(chart)
 {
+    setFlag(QGraphicsItem::ItemIsSelectable,true);
 }
 
 QRectF Callout::boundingRect() const

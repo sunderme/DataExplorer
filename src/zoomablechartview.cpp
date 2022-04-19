@@ -297,6 +297,13 @@ bool ZoomableChartView::deleteSelectedMarker()
             return true;
         }
     }
+    for(int i=0;i<m_callouts.size();++i){
+        if(m_callouts[i]->isSelected()){
+            Callout *item=m_callouts.takeAt(i);
+            scene()->removeItem(item);
+            return true;
+        }
+    }
     return false;
 }
 

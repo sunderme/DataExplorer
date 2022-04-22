@@ -80,6 +80,13 @@ void ZoomableChartView::mouseMoveEvent(QMouseEvent *event)
     m_coordX->setText(QString("X: %1").arg(m_chart->mapToValue(event->pos()).x()));
     m_coordY->setText(QString("Y: %1").arg(m_chart->mapToValue(event->pos()).y()));
 
+    if(m_tooltip){
+        // update tooltip position
+        QPointF p=m_chart->mapToValue(event->pos());
+        m_tooltip->setAnchor(p);
+        m_tooltip->updateGeometry();
+    }
+
     if (!m_isTouching){
         m_lastMousePos = event->pos();
         QGraphicsView::mouseMoveEvent(event);
@@ -671,7 +678,7 @@ void ZoomableChartView::keepCallout()
 void ZoomableChartView::tooltip(QPointF point, bool state)
 {
     auto *series=qobject_cast<QXYSeries*>(sender());
-    if (m_tooltip == 0)
+    if (m_tooltip == nullptr)
         m_tooltip = new Callout(m_chart);
 
     if (state) {
@@ -683,5 +690,7 @@ void ZoomableChartView::tooltip(QPointF point, bool state)
         m_tooltip->show();
     } else {
         m_tooltip->hide();
+        delete m_tooltip;
+        m_tooltip=nullptr;
     }
 }

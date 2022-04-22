@@ -350,9 +350,8 @@ void ZoomableChartView::addSeries(QXYSeries *series)
         m_chart->legend()->show();
     }
     //QObject::connect(series, &QLineSeries::clicked,this, &ZoomableChartView::seriesClicked);
-    QObject::connect(series, &QLineSeries::clicked, this, &ZoomableChartView::keepCallout);
+    //QObject::connect(series, &QLineSeries::clicked, this, &ZoomableChartView::keepCallout);
     QObject::connect(series, &QLineSeries::hovered, this, &ZoomableChartView::tooltip);
-    QObject::connect(series, &QLineSeries::hovered,this, &ZoomableChartView::seriesHovered);
     const auto markers = m_chart->legend()->markers(series);
     for (auto marker : markers) {
         QObject::connect(marker, &QLegendMarker::clicked,

@@ -35,13 +35,29 @@ ZoomableChartView::ZoomableChartView(QWidget *parent) :
     this->setMouseTracking(true);
     setZoomMode(RectangleZoom);
 }
-
+/*!
+ * \brief zoom in/out at center
+ * \param factor
+ */
+void ZoomableChartView::zoom(qreal factor)
+{
+    QPointF center=m_chart->plotArea().center();
+    zoom(factor,center);
+    updateMarker();
+}
+/*!
+ * \brief set chart
+ * \param chart
+ */
 void ZoomableChartView::setChart(QChart *chart)
 {
     m_chart=chart;
     scene()->addItem(m_chart);
 }
-
+/*!
+ * \brief get chart
+ * \return
+ */
 QChart *ZoomableChartView::chart() const
 {
     return m_chart;
@@ -328,6 +344,15 @@ void ZoomableChartView::zoom(qreal factor, QPointF center)
     rect.translate(transl);
 
     chart()->zoomIn(rect);
+}
+/*!
+ * \brief reset zoom
+ * handle markers and pan
+ */
+void ZoomableChartView::zoomReset()
+{
+    m_chart->zoomReset();
+    updateMarker();
 }
 
 /*!

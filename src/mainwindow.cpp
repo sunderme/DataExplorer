@@ -589,17 +589,17 @@ void MainWindow::zoomY()
 
 void MainWindow::zoomIn()
 {
-    chartView->chart()->zoom(1.4);
+    chartView->zoom(1.4);
 }
 
 void MainWindow::zoomOut()
 {
-    chartView->chart()->zoom(0.7);
+    chartView->zoom(0.7);
 }
 
 void MainWindow::zoomReset()
 {
-    chartView->chart()->zoomReset();
+    chartView->zoomReset();
 }
 
 void MainWindow::addVerticalMarker()

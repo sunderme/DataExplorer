@@ -30,7 +30,9 @@ public:
 
     ZoomableChartView(QWidget *parent = 0);
 
+    void zoom(qreal factor);
     void zoom(qreal factor, QPointF center);
+    void zoomReset();
 
     void clear();
     void addSeries(QXYSeries *series);
@@ -48,6 +50,8 @@ public:
     void addHorizontalMarker();
 
     bool deleteSelectedMarker();
+
+
 
 protected slots:
     void legendMarkerClicked();

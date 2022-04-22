@@ -775,7 +775,7 @@ void MainWindow::filterElementChanged(bool checked)
         cf.allowedValues=lst;
         columnFilters.append(cf);
         cfi=columnFilters.size()-1;
-        updateColBackground(cfi,true);
+        updateColBackground(column,true);
     }
     if(checked){
         columnFilters[cfi].allowedValues.append(value);
@@ -784,7 +784,8 @@ void MainWindow::filterElementChanged(bool checked)
         lst.removeDuplicates();
         if(lst.size()==columnFilters[cfi].allowedValues.size()){
             // assume identical
-            updateColBackground(cfi,false);
+            updateColBackground(column,false);
+            columnFilters.takeAt(cfi);
         }
     }else{
         columnFilters[cfi].allowedValues.removeOne(value);

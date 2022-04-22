@@ -631,16 +631,12 @@ void MainWindow::filterToggled(bool checked)
     if(checked)
         btFilterPlot->setChecked(false);
     // filter columns
-    for(int i=0;i<columns.size();++i){
-        if(!checked){
+    if(!checked){
+        for(int i=0;i<columns.size();++i){
             tableWidget->showColumn(i);
-        }else{
-            if(columns.value(i).contains(leFilterText->text())){
-                tableWidget->showColumn(i);
-            }else{
-                tableWidget->hideColumn(i);
-            }
         }
+    }else{
+        filterTextChanged(leFilterText->text());
     }
 }
 /*!
@@ -683,7 +679,7 @@ void MainWindow::filterTextChanged(const QString &text)
 {
     if(btFilter->isChecked()){
         for(int i=0;i<columns.size();++i){
-            if(columns.value(i).contains(text)){
+            if(columns.value(i).contains(text, Qt::CaseInsensitive)){
                 tableWidget->showColumn(i);
             }else{
                 tableWidget->hideColumn(i);

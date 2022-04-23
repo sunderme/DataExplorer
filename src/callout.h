@@ -40,6 +40,7 @@ QT_END_NAMESPACE
 
 QT_BEGIN_NAMESPACE
 class QChart;
+class QAbstractSeries;
 QT_END_NAMESPACE
 
 QT_USE_NAMESPACE
@@ -47,11 +48,12 @@ QT_USE_NAMESPACE
 class Callout : public QGraphicsItem
 {
 public:
-    Callout(QChart *parent);
+    Callout(QChart *parent,QAbstractSeries *series);
 
     void setText(const QString &text);
     void setAnchor(QPointF point);
     void updateGeometry();
+    QAbstractSeries* series() const;
 
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,QWidget *widget);
@@ -67,6 +69,7 @@ private:
     QPointF m_anchor;
     QFont m_font;
     QChart *m_chart;
+    QAbstractSeries *m_series;
 };
 
 #endif // CALLOUT_H

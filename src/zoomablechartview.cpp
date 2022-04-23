@@ -82,6 +82,11 @@ void ZoomableChartView::mouseMoveEvent(QMouseEvent *event)
     if(m_tooltip){
         // update tooltip position
         QPointF p=m_chart->mapToValue(event->pos());
+        // move p on series, not on pointer
+        QXYSeries *series=qobject_cast<QXYSeries*>(m_tooltip->series());
+        movePointOnSeries(p,series);
+        QString name=series->name();
+        m_tooltip->setText(QString("%1\nX: %2 \nY: %3 ").arg(name).arg(p.x()).arg(p.y()));
         m_tooltip->setAnchor(p);
         m_tooltip->updateGeometry();
     }
@@ -243,6 +248,46 @@ QPointF ZoomableChartView::getChartCoordFromSeriesCoord(const QPointF &seriesPos
     QPointF ret = chart()->mapToPosition(seriesPos, series);
     ret = chart()->mapFromScene(ret);
     return ret;
+}
+/*!
+ * \brief move pointer onto a series point
+ * \param p pointer point
+ * \param series
+ */
+void ZoomableChartView::movePointOnSeries(QPointF &p, QXYSeries *series) const
+{
+    if(series->count()==0) return;
+    QPointF p0=series->at(0);
+    if(series->count()==1){
+        p=p0;
+        return;
+    }
+    qreal minimalDistance=sqrt(QPointF::dotProduct(p-p0, p-p0));
+    QPointF bestFittingPoint=p0;
+    // find closest point on lines between points
+    for(int i=1;i<series->count();++i){
+        QPointF p1=series->at(i);
+        QPointF v=p1-p0;
+        qreal lv=sqrt(QPointF::dotProduct(v, v));
+        qreal dotp=QPointF::dotProduct(p-p0, v)/lv;
+        if(dotp>=0 && dotp<=lv){
+            // p vertical between to p0/p1
+            qreal lp=QPointF::dotProduct(p-p0, p-p0);
+            qreal verticalDistance=sqrt(lp-dotp*dotp);
+            if(verticalDistance<minimalDistance){
+                bestFittingPoint=p0+v*dotp/lv;
+                minimalDistance=verticalDistance;
+            }
+        }
+        // check closesness to point p1
+        qreal distance=sqrt(QPointF::dotProduct(p-p1, p-p1));
+        if(distance<minimalDistance){
+            minimalDistance=distance;
+            bestFittingPoint=p1;
+        }
+        p0=p1;
+    }
+    p=bestFittingPoint;
 }
 
 ZoomableChartView::ZoomMode ZoomableChartView::zoomMode() const
@@ -708,7 +753,7 @@ void ZoomableChartView::scrollWithinPlot(qreal dx, qreal dy)
 void ZoomableChartView::keepCallout()
 {
     m_callouts.append(m_tooltip);
-    m_tooltip = new Callout(m_chart);
+    m_tooltip = new Callout(m_chart,m_tooltip->series());
 }
 /*!
  * \brief show tooltip of point and sweep when hovering over line
@@ -719,7 +764,7 @@ void ZoomableChartView::tooltip(QPointF point, bool state)
 {
     auto *series=qobject_cast<QXYSeries*>(sender());
     if (m_tooltip == nullptr)
-        m_tooltip = new Callout(m_chart);
+        m_tooltip = new Callout(m_chart,series);
 
     if (state) {
         QString name=series->name();

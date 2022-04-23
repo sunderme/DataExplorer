@@ -34,9 +34,9 @@
 #include <QtGui/QMouseEvent>
 #include <QtCharts/QChart>
 
-Callout::Callout(QChart *chart):
+Callout::Callout(QChart *chart, QAbstractSeries *series):
     QGraphicsItem(chart),
-    m_chart(chart)
+    m_chart(chart),m_series(series)
 {
     setFlag(QGraphicsItem::ItemIsSelectable,true);
 }
@@ -134,4 +134,9 @@ void Callout::updateGeometry()
 {
     prepareGeometryChange();
     setPos(m_chart->mapToPosition(m_anchor) + QPoint(10, -50));
+}
+
+QAbstractSeries *Callout::series() const
+{
+    return m_series;
 }

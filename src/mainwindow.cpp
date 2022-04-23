@@ -706,7 +706,7 @@ void MainWindow::filterToggled(bool checked)
  */
 void MainWindow::filterCheckedToggled(bool checked)
 {
-
+    Q_UNUSED(checked);
 }
 /*!
  * \brief filter to only columns selected for plotting (sweep or plot)

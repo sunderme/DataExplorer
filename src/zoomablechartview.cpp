@@ -768,6 +768,7 @@ void ZoomableChartView::tooltip(QPointF point, bool state)
 
     if (state) {
         QString name=series->name();
+        movePointOnSeries(point,series);
         m_tooltip->setText(QString("%1\nX: %2 \nY: %3 ").arg(name).arg(point.x()).arg(point.y()));
         m_tooltip->setAnchor(point);
         m_tooltip->setZValue(11);

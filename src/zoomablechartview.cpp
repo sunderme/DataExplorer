@@ -358,6 +358,47 @@ void ZoomableChartView::zoom(qreal factor, QPointF center)
 void ZoomableChartView::zoomReset()
 {
     m_chart->zoomReset();
+    // reset axes
+    qreal xmin=0;
+    qreal xmax=0;
+    qreal ymin=0;
+    qreal ymax=0;
+    bool first=true;
+    for(QAbstractSeries *series:m_chart->series()){
+        QXYSeries *ls=qobject_cast<QXYSeries *>(series);
+        if(ls){
+            if(first && ls->count()>0){
+                first=false;
+                xmin=ls->at(0).x();
+                xmax=ls->at(0).x();
+                ymin=ls->at(0).y();
+                ymax=ls->at(0).y();
+            }
+            for(int i=0;i<ls->count();++i){
+                QPointF p=ls->at(i);
+                if(p.x()>xmax){
+                    xmax=p.x();
+                }
+                if(p.x()<xmin){
+                    xmin=p.x();
+                }
+                if(p.y()>ymax){
+                    ymax=p.y();
+                }
+                if(p.y()<ymin){
+                    ymin=p.y();
+                }
+            }
+        }
+    }
+    QValueAxis *axis=qobject_cast<QValueAxis*>(m_chart->axes(Qt::Horizontal).value(0));
+    if(axis){
+        axis->setRange(xmin,xmax);
+    }
+    axis=qobject_cast<QValueAxis*>(m_chart->axes(Qt::Vertical).value(0));
+    if(axis){
+        axis->setRange(ymin,ymax);
+    }
     updateMarker();
 }
 

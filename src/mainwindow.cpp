@@ -251,7 +251,8 @@ void MainWindow::openRecentFile()
 void MainWindow::readFile()
 {
     if(fileName.isEmpty()) return;
-    readInCSV(fileName);
+    bool ok=readInCSV(fileName);
+    if(!ok) return;
     buildTable();
     sweeps.clear();
     plotValues.clear();
@@ -327,12 +328,13 @@ void MainWindow::saveTemplate()
  * Assumes comma separated values
  * First line with commas is assumed to be header line
  * \param fileName
+ * \return operation successful
  */
-void MainWindow::readInCSV(const QString &fileName)
+bool MainWindow::readInCSV(const QString &fileName)
 {
-    QFile data(fileName);
-    if (data.open(QFile::ReadOnly)){
-        QTextStream stream(&data);
+    QFile dataFile(fileName);
+    if (dataFile.open(QFile::ReadOnly)){
+        QTextStream stream(&dataFile);
         QString line;
         // first line with commas is column names
         while(stream.readLineInto(&line)){
@@ -343,14 +345,28 @@ void MainWindow::readInCSV(const QString &fileName)
                 break;
         }
         QVector<QStringList> data(columns.size());
+        bool errorOccured=false;
         while (stream.readLineInto(&line)) {
             QStringList elements=line.split(',');
+            if(elements.size()!=columns.size()){
+                // columns estimate wrong
+                errorOccured=true;
+                QErrorMessage *msg=new QErrorMessage(this);
+                msg->showMessage(tr("CSV read in failed!\nColumns don't match."));
+                msg->exec();
+                delete msg;
+                break;
+            }
             for(int i=0;i<elements.size();++i){
                 data[i].append(elements[i]);
             }
         }
+        if(errorOccured){
+            return false;
+        }
         csv=data;
         columnFilters.clear();
+        return true;
     }
 }
 /*!

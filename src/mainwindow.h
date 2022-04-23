@@ -35,7 +35,7 @@ protected:
     void readFile();
     void openTemplate();
     void saveTemplate();
-    void readInCSV(const QString &fileName);
+    bool readInCSV(const QString &fileName);
     void buildTable();
     void updateSweepGUI();
     void updateSweeps(bool filterChecked=true);

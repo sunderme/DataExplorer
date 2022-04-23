@@ -368,6 +368,7 @@ bool MainWindow::readInCSV(const QString &fileName)
         columnFilters.clear();
         return true;
     }
+    return false;
 }
 /*!
  * \brief popalte table widget with present data

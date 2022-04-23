@@ -21,7 +21,8 @@ MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
     : QMainWindow(parent)
 {
     QSettings settings("DataExplorer","DataExplorer");
-    recentFiles=settings.value("recentFiles").toStringList();
+    m_recentFiles=settings.value("recentFiles").toStringList();
+    m_recentTemplates=settings.value("recentTemplates").toStringList();
     setupMenus();
     setupGUI();
 
@@ -35,7 +36,7 @@ MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
     if(argc>1){
         // assume last argument as filename
         // maybe more elaborate later
-        fileName=QString(argv[argc-1]);
+        m_fileName=QString(argv[argc-1]);
         readFile();
     }
 }
@@ -48,7 +49,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
     QSettings settings("DataExplorer", "DataExplorer");
     settings.setValue("geometry", saveGeometry());
     settings.setValue("windowState", saveState());
-    settings.setValue("recentFiles",recentFiles);
+    settings.setValue("recentFiles",m_recentFiles);
+    settings.setValue("recentTemplates",m_recentTemplates);
     event->accept();
 }
 
@@ -61,47 +63,50 @@ MainWindow::~MainWindow()
  */
 void MainWindow::setupMenus()
 {
-    recentFilesMenu=new QMenu(tr("Open recent files..."));
-    fileMenu = menuBar()->addMenu(tr("&File"));
-    openAct = new QAction(tr("&Open"), this);
-    connect(openAct, &QAction::triggered, this, &MainWindow::openFile);
-    fileMenu->addAction(openAct);
+    m_recentFilesMenu=new QMenu(tr("Open recent files..."));
+    m_recentTemplatesMenu=new QMenu(tr("Open recent templates..."));
+    m_fileMenu = menuBar()->addMenu(tr("&File"));
+    m_openAct = new QAction(tr("&Open"), this);
+    connect(m_openAct, &QAction::triggered, this, &MainWindow::openFile);
+    m_fileMenu->addAction(m_openAct);
     populateRecentFiles();
-    fileMenu->addMenu(recentFilesMenu);
+    m_fileMenu->addMenu(m_recentFilesMenu);
     QAction *loadTemplateAct=new QAction(tr("&Open Template"), this);
     connect(loadTemplateAct, &QAction::triggered, this, &MainWindow::openTemplate);
-    fileMenu->addAction(loadTemplateAct);
+    m_fileMenu->addAction(loadTemplateAct);
+    populateRecentTemplates();
+    m_fileMenu->addMenu(m_recentTemplatesMenu);
     QAction *saveTemplateAct=new QAction(tr("&Save Template"), this);
     connect(saveTemplateAct, &QAction::triggered, this, &MainWindow::saveTemplate);
-    fileMenu->addAction(saveTemplateAct);
-    exitAct = new QAction(tr("&Quit"), this);
-    connect(exitAct, &QAction::triggered, this, &MainWindow::close);
-    fileMenu->addAction(exitAct);
+    m_fileMenu->addAction(saveTemplateAct);
+    m_exitAct = new QAction(tr("&Quit"), this);
+    connect(m_exitAct, &QAction::triggered, this, &MainWindow::close);
+    m_fileMenu->addAction(m_exitAct);
 
     QToolBar *plotToolBar = addToolBar(tr("Plot"));
-    plotMenu = menuBar()->addMenu(tr("&Plot"));
-    plotAct = new QAction(tr("&Plot"), this);
-    plotAct->setIcon(QIcon(":/icons/labplot-xy-curve-segments.svg"));
-    plotToolBar->addAction(plotAct);
-    connect(plotAct, &QAction::triggered, this, &MainWindow::plotSelected);
-    plotMenu->addAction(plotAct);
+    m_plotMenu = menuBar()->addMenu(tr("&Plot"));
+    m_plotAct = new QAction(tr("&Plot"), this);
+    m_plotAct->setIcon(QIcon(":/icons/labplot-xy-curve-segments.svg"));
+    plotToolBar->addAction(m_plotAct);
+    connect(m_plotAct, &QAction::triggered, this, &MainWindow::plotSelected);
+    m_plotMenu->addAction(m_plotAct);
     QAction *act=new QAction(tr("Zoom area"),this);
     act->setIcon(QIcon(":/icons/zoom.svg"));
     act->setShortcut(Qt::Key_Z);
     connect(act,&QAction::triggered,this,&MainWindow::zoomAreaMode);
-    plotMenu->addAction(act);
+    m_plotMenu->addAction(act);
     plotToolBar->addAction(act);
     act=new QAction(tr("Zoom X"),this);
     act->setIcon(QIcon(":/icons/zoom-select-x.svg"));
     act->setShortcut(Qt::Key_X);
     connect(act,&QAction::triggered,this,&MainWindow::zoomX);
-    plotMenu->addAction(act);
+    m_plotMenu->addAction(act);
     plotToolBar->addAction(act);
     act=new QAction(tr("Zoom Y"),this);
     act->setIcon(QIcon(":/icons/zoom-select-y.svg"));
     act->setShortcut(Qt::Key_Y);
     connect(act,&QAction::triggered,this,&MainWindow::zoomY);
-    plotMenu->addAction(act);
+    m_plotMenu->addAction(act);
     plotToolBar->addAction(act);
     act=new QAction(tr("Zoom in"),this);
     act->setIcon(QIcon(":/icons/zoomin.svg"));
@@ -111,7 +116,7 @@ void MainWindow::setupMenus()
     act->setShortcut(Qt::ShiftModifier+Qt::Key_Z);
 #endif
     connect(act,&QAction::triggered,this,&MainWindow::zoomIn);
-    plotMenu->addAction(act);
+    m_plotMenu->addAction(act);
     act=new QAction(tr("Zoom out"),this);
     act->setIcon(QIcon(":/icons/zoomout.svg"));
 #if  QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
@@ -120,39 +125,39 @@ void MainWindow::setupMenus()
     act->setShortcut(Qt::ControlModifier+Qt::Key_Z);
 #endif
     connect(act,&QAction::triggered,this,&MainWindow::zoomOut);
-    plotMenu->addAction(act);
+    m_plotMenu->addAction(act);
     act=new QAction(tr("Zoom fit"),this);
     act->setIcon(QIcon(":/icons/zoom-fit-best.svg"));
     act->setShortcut(Qt::Key_F);
     connect(act,&QAction::triggered,this,&MainWindow::zoomReset);
-    plotMenu->addAction(act);
+    m_plotMenu->addAction(act);
     plotToolBar->addAction(act);
     act=new QAction(tr("Pan"),this);
     act->setIcon(QIcon(":/icons/transform-move.svg"));
     act->setShortcut(Qt::Key_P);
     connect(act,&QAction::triggered,this,&MainWindow::panMode);
-    plotMenu->addAction(act);
+    m_plotMenu->addAction(act);
     plotToolBar->addAction(act);
 
     act=new QAction(tr("Vertical Marker"),this);
     act->setIcon(QIcon(":/icons/zoom-select-y.svg"));
     act->setShortcut(Qt::Key_V);
     connect(act,&QAction::triggered,this,&MainWindow::addVerticalMarker);
-    plotMenu->addAction(act);
+    m_plotMenu->addAction(act);
     act=new QAction(tr("Horizontal Marker"),this);
     act->setIcon(QIcon(":/icons/zoom-select-x.svg"));
     act->setShortcut(Qt::Key_H);
     connect(act,&QAction::triggered,this,&MainWindow::addHorizontalMarker);
-    plotMenu->addAction(act);
+    m_plotMenu->addAction(act);
 
     act=new QAction("delete",this);
     act->setShortcut(QKeySequence::Delete);
-    plotMenu->addAction(act);
+    m_plotMenu->addAction(act);
     connect(act,&QAction::triggered,this,&MainWindow::deleteVar);
 
     QAction *testAction=new QAction("test",this);
     connect(testAction, &QAction::triggered, this, &MainWindow::test);
-    plotMenu->addAction(testAction);
+    m_plotMenu->addAction(testAction);
 }
 /*!
  * \brief generate GUI
@@ -227,12 +232,12 @@ void MainWindow::setupGUI()
  */
 void MainWindow::openFile()
 {
-    fileName = QFileDialog::getOpenFileName(this,
+    m_fileName = QFileDialog::getOpenFileName(this,
         tr("Open CSV"), "", tr("CSV Files (*.csv)"));
-    if(fileName.isEmpty()) return;
+    if(m_fileName.isEmpty()) return;
     readFile();
-    recentFiles.removeOne(fileName);
-    recentFiles.prepend(fileName);
+    m_recentFiles.removeOne(m_fileName);
+    m_recentFiles.prepend(m_fileName);
     populateRecentFiles();
 }
 /*!
@@ -241,17 +246,35 @@ void MainWindow::openFile()
 void MainWindow::openRecentFile()
 {
     QAction *act=qobject_cast<QAction*>(sender());
-    fileName=act->text();
-    if(QFileInfo::exists(fileName))
+    m_fileName=act->text();
+    m_recentFiles.removeOne(m_fileName);
+    if(QFileInfo::exists(m_fileName)){
         readFile();
+        m_recentFiles.prepend(m_fileName);
+    }
+    populateRecentFiles();
+}
+/*!
+ * \brief open template via recent menu
+ */
+void MainWindow::openRecentTemplate()
+{
+    QAction *act=qobject_cast<QAction*>(sender());
+    QString fileName=act->text();
+    m_recentTemplates.removeOne(fileName);
+    if(QFileInfo::exists(fileName)){
+        readTemplate(fileName);
+        m_recentTemplates.prepend(fileName);
+    }
+    populateRecentTemplates();
 }
 /*!
  * \brief read in csv file and update GUI
  */
 void MainWindow::readFile()
 {
-    if(fileName.isEmpty()) return;
-    bool ok=readInCSV(fileName);
+    if(m_fileName.isEmpty()) return;
+    bool ok=readInCSV(m_fileName);
     if(!ok) return;
     buildTable();
     sweeps.clear();
@@ -277,8 +300,41 @@ void MainWindow::readFile()
  */
 void MainWindow::openTemplate()
 {
-    fileName = QFileDialog::getOpenFileName(this,
+    QString fileName = QFileDialog::getOpenFileName(this,
                                             tr("Open template"), "", tr("Template File (*.deTemplate)"));
+    readTemplate(fileName);
+    m_recentTemplates.removeOne(fileName);
+    m_recentTemplates.prepend(fileName);
+    populateRecentTemplates();
+}
+/*!
+ * \brief save sweeps/plots as template
+ * Format is json
+ */
+void MainWindow::saveTemplate()
+{
+    m_fileName = QFileDialog::getSaveFileName(this,
+        tr("Save template"), "", tr("Template File (*.deTemplate)"));
+    if(m_fileName.isEmpty()) return;
+    QFile saveFile(m_fileName);
+    if (!saveFile.open(QIODevice::WriteOnly)) {
+        qWarning("Couldn't open save file.");
+        return;
+    }
+
+    QJsonObject jo;
+    jo["sweeps"]=QJsonArray::fromStringList(sweeps);
+    jo["plots"]=QJsonArray::fromStringList(plotValues);
+
+    QJsonDocument saveDoc(jo);
+    saveFile.write(saveDoc.toJson());
+}
+/*!
+ * \brief read in template
+ * \param fileName
+ */
+void MainWindow::readTemplate(const QString &fileName)
+{
     if(fileName.isEmpty()) return;
     QFile loadFile(fileName);
     if (!loadFile.open(QIODevice::ReadOnly)) {
@@ -300,28 +356,6 @@ void MainWindow::openTemplate()
         plotValues<<ja[i].toString();
     }
     updateSweepGUI();
-}
-/*!
- * \brief save sweeps/plots as template
- * Format is json
- */
-void MainWindow::saveTemplate()
-{
-    fileName = QFileDialog::getSaveFileName(this,
-        tr("Save template"), "", tr("Template File (*.deTemplate)"));
-    if(fileName.isEmpty()) return;
-    QFile saveFile(fileName);
-    if (!saveFile.open(QIODevice::WriteOnly)) {
-        qWarning("Couldn't open save file.");
-        return;
-    }
-
-    QJsonObject jo;
-    jo["sweeps"]=QJsonArray::fromStringList(sweeps);
-    jo["plots"]=QJsonArray::fromStringList(plotValues);
-
-    QJsonDocument saveDoc(jo);
-    saveFile.write(saveDoc.toJson());
 }
 /*!
  * \brief read in CSV
@@ -632,11 +666,21 @@ void MainWindow::addHorizontalMarker()
 
 void MainWindow::populateRecentFiles()
 {
-    recentFilesMenu->clear();
-    for(const QString &elem:recentFiles){
+    m_recentFilesMenu->clear();
+    for(const QString &elem:m_recentFiles){
         QAction *act=new QAction(elem);
         connect(act,&QAction::triggered,this,&MainWindow::openRecentFile);
-        recentFilesMenu->addAction(act);
+        m_recentFilesMenu->addAction(act);
+    }
+}
+
+void MainWindow::populateRecentTemplates()
+{
+    m_recentTemplatesMenu->clear();
+    for(const QString &elem:m_recentTemplates){
+        QAction *act=new QAction(elem);
+        connect(act,&QAction::triggered,this,&MainWindow::openRecentTemplate);
+        m_recentTemplatesMenu->addAction(act);
     }
 }
 /*!

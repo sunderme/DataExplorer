@@ -34,7 +34,9 @@ protected:
     void openRecentFile();
     void readFile();
     void openTemplate();
+    void openRecentTemplate();
     void saveTemplate();
+    void readTemplate(const QString &fileName);
     bool readInCSV(const QString &fileName);
     void buildTable();
     void updateSweepGUI();
@@ -55,6 +57,7 @@ protected:
     void addVerticalMarker();
     void addHorizontalMarker();
     void populateRecentFiles();
+    void populateRecentTemplates();
     void filterToggled(bool checked);
     void filterCheckedToggled(bool checked);
     void filterPlotToggled(bool checked);
@@ -75,13 +78,13 @@ protected:
     QList<LoopIteration> groupBy(QStringList sweepVar,std::vector<bool> providedIndices=std::vector<bool>() );
 
 private:
-    QMenu *fileMenu;
-    QMenu *plotMenu;
-    QMenu *recentFilesMenu;
+    QMenu *m_fileMenu;
+    QMenu *m_plotMenu;
+    QMenu *m_recentFilesMenu,*m_recentTemplatesMenu;
 
-    QAction *openAct;
-    QAction *exitAct;
-    QAction *plotAct;
+    QAction *m_openAct;
+    QAction *m_exitAct;
+    QAction *m_plotAct;
 
     QTabWidget *tabWidget;
     QTableWidget *tableWidget;
@@ -93,9 +96,9 @@ private:
     QToolButton *btFilter,*btFilterPlot,*btFilterChecked;
     QLineEdit *leFilterText;
 
-    QString fileName;
+    QString m_fileName;
 
-    QStringList recentFiles;
+    QStringList m_recentFiles,m_recentTemplates;
 
     QStringList columns;
     QVector<QStringList> csv;

@@ -6,7 +6,7 @@
 
 
 VerticalMarker::VerticalMarker(QGraphicsItem *parent):
-    QGraphicsLineItem(parent),m_chart(nullptr)
+    QGraphicsLineItem(parent),m_chart(nullptr),m_lastStateSelected(false)
 {
     setFlag(QGraphicsItem::ItemIsMovable,true);
     setFlag(QGraphicsItem::ItemIsSelectable,true);
@@ -33,7 +33,7 @@ QRectF VerticalMarker::boundingRect() const
     QLineF l=line();
     QRectF rect;
     qreal width=pen().widthF()/2;
-    if(isSelected()){
+    if(isSelected() || m_lastStateSelected){
         rect.setLeft(l.x1()-width);
         rect.setRight(l.x1()+width+60);
         rect.setTop(qMin(l.y1(), l.y2()));
@@ -44,10 +44,11 @@ QRectF VerticalMarker::boundingRect() const
         rect.setTop(qMin(l.y1(), l.y2()));
         rect.setBottom(qMax(l.y1(), l.y2()));
     }
+
     return rect;
 }
 
-void VerticalMarker::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void VerticalMarker::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
     painter->drawLine(line());
     if(isSelected()){
@@ -74,6 +75,7 @@ void VerticalMarker::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
         }
         painter->restore();
     }
+    m_lastStateSelected=isSelected();
 }
 
 void VerticalMarker::mouseMoveEvent(QGraphicsSceneMouseEvent *event)

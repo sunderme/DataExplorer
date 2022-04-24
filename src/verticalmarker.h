@@ -13,7 +13,7 @@ public:
     qreal xVal() const;
     void setChart(QChart *chart);
 
-    virtual QRectF boundingRect() const override;
+    virtual QRectF boundingRect()const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,QWidget *widget) override;
 protected:
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
@@ -27,6 +27,7 @@ private:
 
     qreal m_xv;
     QChart *m_chart;
+    bool m_lastStateSelected;
 };
 
 #endif // VERTICALMARKER_H

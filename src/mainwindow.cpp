@@ -540,6 +540,21 @@ void MainWindow::headerMenuRequested(QPoint pt)
     connect(act,&QAction::triggered,this,&MainWindow::addPlotVar);
     menu->addAction(act);
     menu->addSeparator();
+    if(isIntOnlyData(column)){
+        act=new QAction(tr("show as hex"), this);
+        act->setData(column);
+        connect(act,&QAction::triggered,this,&MainWindow::showHex);
+        menu->addAction(act);
+        act=new QAction(tr("show as binary"), this);
+        act->setData(column);
+        connect(act,&QAction::triggered,this,&MainWindow::showBinary);
+        menu->addAction(act);
+        act=new QAction(tr("show as decimal"), this);
+        act->setData(column);
+        connect(act,&QAction::triggered,this,&MainWindow::showDecimal);
+        menu->addAction(act);
+        menu->addSeparator();
+    }
     act=new QAction(tr("show all"), this);
     act->setData(column);
     connect(act,&QAction::triggered,this,&MainWindow::columnShowAll);
@@ -890,6 +905,140 @@ void MainWindow::test()
     vars.clear();
     lits=groupBy(vars);
     qDebug()<<"by none:"<<lits;
+}
+/*!
+ * \brief check if data consists only of ints
+ * \param column
+ * \return
+ */
+bool MainWindow::isIntOnlyData(int column)
+{
+    bool ok=true;
+    for(qsizetype row=0;row<csv[column].count();++row){
+        QString cell=csv[column].value(row);
+        if(cell.startsWith("0b")){
+            cell.mid(2).toInt(&ok,2);
+        }else{
+            if(cell.startsWith("0x")){
+                cell.mid(2).toInt(&ok);
+            }else{
+                cell.toInt(&ok);
+            }
+        }
+        if(!ok) break;
+    }
+    return ok;
+}
+/*!
+ * \brief get maximum number of bits on all integer number in column
+ * Maybe fail for negative numbers !!!!
+ * \param column
+ * \return
+ */
+int MainWindow::getIntegerWidth(int column)
+{
+    int bits=0;
+    bool negative=false;
+    for(qsizetype row=0;row<csv[column].count();++row){
+        QString cell=csv[column].value(row);
+        bool ok;
+        qlonglong value=convertStringToLong(cell,ok);
+        if(!ok) break;
+        if(value<0){
+            // wild guessing from here
+            value=-value;
+            negative=true;
+        }
+        int k;
+        for(k=0;value!=0;++k){
+            value=value>>1;
+        }
+        if(k>bits) bits=k;
+    }
+    return !negative ? bits : bits+1;
+}
+/*!
+ * \brief show column in table as decimal coding
+ */
+void MainWindow::showDecimal()
+{
+    QAction *act=qobject_cast<QAction*>(sender());
+    int column=act->data().toInt();
+    bool ok;
+    for(qsizetype row=0;row<csv[column].count();++row){
+        QString cell=csv[column].value(row);
+        qlonglong value=convertStringToLong(cell,ok);
+        if(!ok) break;
+        QTableWidgetItem *item=tableWidget->item(row,column);
+        item->setText(QString("%1").arg(value,0));
+    }
+    tableWidget->resizeColumnToContents(column);
+}
+/*!
+ * \brief show column in table as binary coding
+ */
+void MainWindow::showBinary()
+{
+    QAction *act=qobject_cast<QAction*>(sender());
+    int column=act->data().toInt();
+    int bits=getIntegerWidth(column);
+    bool ok;
+    for(qsizetype row=0;row<csv[column].count();++row){
+        QString cell=csv[column].value(row);
+        qlonglong value=convertStringToLong(cell,ok);
+        if(value<0){
+            // 2er complement
+            value=(1<<bits)+value;
+        }
+        QTableWidgetItem *item=tableWidget->item(row,column);
+        item->setText(QString("0b%1").arg(value,bits,2,QChar('0')));
+        if(!ok) break;
+    }
+    tableWidget->resizeColumnToContents(column);
+}
+/*!
+ * \brief show column in table as hex coding
+ */
+void MainWindow::showHex()
+{
+    QAction *act=qobject_cast<QAction*>(sender());
+    int column=act->data().toInt();
+    int bits=getIntegerWidth(column);
+    int digits=bits/4 + (bits%4==0 ? 0 : 1);
+    bool ok;
+    for(qsizetype row=0;row<csv[column].count();++row){
+        QString cell=csv[column].value(row);
+        qlonglong value=convertStringToLong(cell,ok);
+        if(!ok) break;
+        if(value<0){
+            // 2er complement
+            value=(1<<bits)+value;
+        }
+        QTableWidgetItem *item=tableWidget->item(row,column);
+        item->setText(QString("0x%1").arg(value,digits,16,QChar('0')));
+    }
+    tableWidget->resizeColumnToContents(column);
+}
+/*!
+ * \brief convert String to long
+ * Can handle 0x and 0b formats
+ * \param text
+ * \param ok
+ * \return
+ */
+qlonglong MainWindow::convertStringToLong(QString text, bool &ok)
+{
+    qlonglong value;
+    if(text.startsWith("0b")){
+        value=text.mid(2).toInt(&ok,2);
+    }else{
+        if(text.startsWith("0x")){
+            value=text.mid(2).toInt(&ok,16);
+        }else{
+            value=text.toInt(&ok);
+        }
+    }
+    return value;
 }
 /*!
  * \brief get column number from header name

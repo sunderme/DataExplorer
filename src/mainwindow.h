@@ -69,6 +69,12 @@ protected:
     void filterRowsForColumnValues(ColumnFilter cf);
     void filterElementChanged(bool checked);
     void test();
+    bool isIntOnlyData(int column);
+    int getIntegerWidth(int column);
+    void showDecimal();
+    void showBinary();
+    void showHex();
+    qlonglong convertStringToLong(QString text,bool &ok);
     int getIndex(const QString &name);
     bool hasColumnFilter(int column) const;
     int getColumnFilter(int column) const;

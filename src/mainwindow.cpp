@@ -382,13 +382,15 @@ bool MainWindow::readInCSV(const QString &fileName)
         bool errorOccured=false;
         while (stream.readLineInto(&line)) {
             QStringList elements=line.split(',');
-            if(elements.size()!=columns.size() && !line.isEmpty() && elements.size()>1){ //
+            if(elements.size()!=columns.size() ){ //
                 // columns estimate wrong but ignore empty lines or lines without comma (e.g. END at end of csv)
-                errorOccured=true;
-                QErrorMessage *msg=new QErrorMessage(this);
-                msg->showMessage(tr("CSV read in failed!\nColumns don't match."));
-                msg->exec();
-                delete msg;
+                if(!line.isEmpty() && elements.size()>1){
+                    errorOccured=true;
+                    QErrorMessage *msg=new QErrorMessage(this);
+                    msg->showMessage(tr("CSV read in failed!\nColumns don't match."));
+                    msg->exec();
+                    delete msg;
+                }
                 break;
             }
             for(int i=0;i<elements.size();++i){

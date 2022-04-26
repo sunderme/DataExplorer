@@ -95,6 +95,7 @@ QList<VerticalMarker::Intersection> VerticalMarker::intersectingPoints()
     QLineF l=line();
     QLineF verticalLine(m_chart->mapToValue(mapToParent(l.p1())),m_chart->mapToValue(mapToParent(l.p2())));
     for(QAbstractSeries *series:m_chart->series()){
+        if(!series->isVisible()) continue;
         QList<qreal> ys;
         QXYSeries *s=qobject_cast<QXYSeries *>(series);
         if(s->count()==0) continue;

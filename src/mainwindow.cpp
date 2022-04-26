@@ -294,6 +294,8 @@ void MainWindow::readFile()
         }
     }
     updateSweepGUI();
+    // set window title to filename
+    setWindowFilePath(m_fileName);
 }
 /*!
  * \brief open Template which contains the sweeps/plots settings

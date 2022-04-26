@@ -757,6 +757,9 @@ void MainWindow::filterPlotToggled(bool checked)
  */
 void MainWindow::filterTextChanged(const QString &text)
 {
+    if(!btFilter->isChecked()){
+        btFilter->setChecked(true);
+    }
     if(btFilter->isChecked()){
         for(int i=0;i<columns.size();++i){
             if(columns.value(i).contains(text, Qt::CaseInsensitive)){

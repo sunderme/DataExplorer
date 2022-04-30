@@ -12,10 +12,21 @@ public:
     void setYVal(qreal y);
     qreal yVal() const;
     void setChart(QChart *chart);
+
+    virtual QRectF boundingRect()const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,QWidget *widget) override;
 protected:
-    void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:
+    struct Intersection{
+        QAbstractSeries *series;
+        QList<qreal> xs;
+    };
+    QList<Intersection> intersectingPointsWithSeries();
+    QList<qreal> intersectingPoints();
+    bool m_lastStateSelected;
+
     qreal m_yv;
     QChart *m_chart;
 };

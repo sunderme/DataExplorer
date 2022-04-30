@@ -23,7 +23,7 @@ private:
         QAbstractSeries *series;
         QList<qreal> ys;
     };
-    QList<Intersection> intersectingPoints();
+    QList<qreal> intersectingPoints();
 
     qreal m_xv;
     QChart *m_chart;

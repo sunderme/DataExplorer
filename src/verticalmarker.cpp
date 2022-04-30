@@ -34,10 +34,10 @@ QRectF VerticalMarker::boundingRect() const
     QRectF rect;
     qreal width=pen().widthF()/2;
     if(isSelected() || m_lastStateSelected){
-        rect.setLeft(l.x1()-width);
+        rect.setLeft(l.x1()-width-60);
         rect.setRight(l.x1()+width+60);
-        rect.setTop(qMin(l.y1(), l.y2()));
-        rect.setBottom(qMax(l.y1(), l.y2()));
+        rect.setTop(qMin(l.y1(), l.y2())-20);
+        rect.setBottom(qMax(l.y1(), l.y2())+20);
     }else{
         rect.setLeft(l.x1()-width);
         rect.setRight(l.x1()+width);
@@ -59,20 +59,42 @@ void VerticalMarker::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
         QBrush brush(Qt::SolidPattern);
         brush.setColor(Qt::white); // needs to query style
         painter->setBrush(brush);
-        QList<VerticalMarker::Intersection> result=intersectingPoints();
-        for(const auto &elem:result){
-            for(const qreal y:elem.ys){
-                QPointF anchor=m_chart->mapToPosition(QPointF(m_xv,y));
-                anchor=mapFromParent(anchor);
-                QRectF rect(anchor,anchor);
-                rect.setWidth(textWidth);
-                rect.setHeight(textHeight);
-                rect.translate(QPointF(2,-textHeight/2));
-                painter->drawRect(rect);
-                painter->drawText(rect,0,QString("%1").arg(y,6));
-
+        QList<qreal> result=intersectingPoints();
+        qreal last_yr,last_yl;
+        qreal last_ys;
+        bool firstLoop=true;
+        for(const qreal y:result){
+            QPointF anchor=m_chart->mapToPosition(QPointF(m_xv,y));
+            anchor=mapFromParent(anchor);
+            QRectF rect(anchor,anchor);
+            rect.setWidth(textWidth);
+            rect.setHeight(textHeight);
+            rect.translate(QPointF(2,-textHeight/2));
+            if(!firstLoop){
+                if(qFuzzyCompare(y,last_ys))
+                    continue; // don't draw same marker twice (for different series ot looped series)
+                if(last_yr-anchor.y()<textHeight){
+                    // move to other side
+                    rect.translate(QPointF(-4-textWidth,0));
+                }
+            }else{
+                last_yr=anchor.y();
+                last_yl=last_yr+100;
             }
+            painter->drawRect(rect);
+            painter->drawText(rect,0,QString("%1").arg(y,6));
+
+            last_ys=y;
+            firstLoop=false;
         }
+        // show marker x value
+        QPointF anchor=line().p1();
+        QRectF rect(anchor,anchor);
+        rect.setWidth(textWidth);
+        rect.setHeight(textHeight);
+        rect.translate(QPointF(-textWidth/2,2));
+        painter->drawRect(rect);
+        painter->drawText(rect,0,QString("%1").arg(m_xv,6));
         painter->restore();
     }
     m_lastStateSelected=isSelected();
@@ -89,9 +111,9 @@ void VerticalMarker::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
         m_xv=m_chart->mapToValue(new_pos).x();
 }
 
-QList<VerticalMarker::Intersection> VerticalMarker::intersectingPoints()
+QList<qreal> VerticalMarker::intersectingPoints()
 {
-    QList<VerticalMarker::Intersection> result;
+    QList<qreal> result;
     QLineF l=line();
     QLineF verticalLine(m_chart->mapToValue(mapToParent(l.p1())),m_chart->mapToValue(mapToParent(l.p2())));
     for(QAbstractSeries *series:m_chart->series()){
@@ -115,8 +137,13 @@ QList<VerticalMarker::Intersection> VerticalMarker::intersectingPoints()
             p0=p1;
         }
         if(!ys.isEmpty()){
-            result<<Intersection{series,ys};
+            result<<ys;
         }
     }
+    std::sort(result.begin(),result.end());
+    auto it=std::unique(result.begin(),result.end());
+    result.resize( std::distance(result.begin(),it) );
     return result;
 }
+
+

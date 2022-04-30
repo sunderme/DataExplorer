@@ -75,7 +75,14 @@ void VerticalMarker::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
                     continue; // don't draw same marker twice (for different series ot looped series)
                 if(last_yr-anchor.y()<textHeight){
                     // move to other side
+                    if(last_yl-anchor.y()<textHeight){
+                        // give up, text still colliding
+                        continue;
+                    }
                     rect.translate(QPointF(-4-textWidth,0));
+                    last_yl=anchor.y();
+                }else{
+                    last_yr=anchor.y();
                 }
             }else{
                 last_yr=anchor.y();

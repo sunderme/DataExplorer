@@ -62,16 +62,39 @@ void HorizontalMarker::paint(QPainter *painter, const QStyleOptionGraphicsItem *
         brush.setColor(Qt::white); // needs to query style
         painter->setBrush(brush);
         QList<qreal> result=intersectingPoints();
+        qreal last_xt,last_xb;
+        qreal last_xs;
+        bool firstLoop=true;
         for(const qreal x:result){
             QPointF anchor=m_chart->mapToPosition(QPointF(x,m_yv));
             anchor=mapFromParent(anchor);
             QRectF rect(anchor,anchor);
             rect.setWidth(textWidth);
             rect.setHeight(textHeight);
-            rect.translate(QPointF(2,-textHeight/2));
+            rect.translate(QPointF(-textWidth/2,-textHeight-2));
+            if(!firstLoop){
+                if(qFuzzyCompare(x,last_xs))
+                    continue; // don't draw same marker twice (for different series ot looped series)
+                if(anchor.x()-last_xt<textWidth){
+                    // move to other side
+                    if(anchor.x()-last_xb<textWidth){
+                        // already text shown, give up
+                        continue;
+                    }
+                    rect.translate(QPointF(0,textHeight+4));
+                    last_xb=anchor.x();
+                }else{
+                    last_xt=anchor.x();
+                }
+            }else{
+                last_xt=anchor.x();
+                last_xb=last_xt-100;
+            }
             painter->drawRect(rect);
             painter->drawText(rect,0,QString("%1").arg(x,6));
 
+            firstLoop=false;
+            last_xs=x;
         }
         // draw current y value
         QPointF anchor=line().p2();

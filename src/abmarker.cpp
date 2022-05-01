@@ -60,7 +60,7 @@ void ABMarker::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
         QRectF rect(anchor,anchor);
         rect.setWidth(textWidth);
         rect.setHeight(textHeight);
-        rect.translate(QPointF(2,-textHeight/2));
+        rect.translate(QPointF(2,-textHeight-2));
         painter->drawRect(rect);
         painter->drawText(rect,0,QString("%1/%2").arg(m_p.x(),6).arg(m_p.y(),6));
         // draw cross

@@ -119,12 +119,11 @@ void ABMarker::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
  * \brief move pointer onto a series point
  * \param p pointer point
  */
-void ABMarker::movePointOnSeriesChartCoord(QPointF &globalPoint) const
+void ABMarker::movePointOnSeriesChartCoord(QPointF &p) const
 {
     QXYSeries *series=qobject_cast<QXYSeries*>(m_series);
     if(!series || series->count()==0) return;
-    QPointF p=m_chart->mapToValue(globalPoint);
-    QPointF p0=series->at(0);
+    QPointF p0=m_chart->mapToPosition(series->at(0));
     if(series->count()==1){
         p=p0;
         return;
@@ -133,7 +132,7 @@ void ABMarker::movePointOnSeriesChartCoord(QPointF &globalPoint) const
     QPointF bestFittingPoint=p0;
     // find closest point on lines between points
     for(int i=1;i<series->count();++i){
-        QPointF p1=series->at(i);
+        QPointF p1=m_chart->mapToPosition(series->at(i));
         QPointF v=p1-p0;
         qreal lv=sqrt(QPointF::dotProduct(v, v));
         qreal dotp=QPointF::dotProduct(p-p0, v)/lv;
@@ -155,6 +154,5 @@ void ABMarker::movePointOnSeriesChartCoord(QPointF &globalPoint) const
         p0=p1;
     }
     p=bestFittingPoint;
-    globalPoint=m_chart->mapToPosition(p);
 }
 

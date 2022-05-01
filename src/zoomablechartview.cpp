@@ -256,7 +256,9 @@ QPointF ZoomableChartView::getChartCoordFromSeriesCoord(const QPointF &seriesPos
 void ZoomableChartView::movePointOnSeries(QPointF &p, QXYSeries *series) const
 {
     if(series->count()==0) return;
-    QPointF p0=series->at(0);
+    p=m_chart->mapToPosition(p);
+    // all calculation in chart coordinates as x/y are scaled differently
+    QPointF p0=m_chart->mapToPosition(series->at(0));
     if(series->count()==1){
         p=p0;
         return;
@@ -265,16 +267,17 @@ void ZoomableChartView::movePointOnSeries(QPointF &p, QXYSeries *series) const
     QPointF bestFittingPoint=p0;
     // find closest point on lines between points
     for(int i=1;i<series->count();++i){
-        QPointF p1=series->at(i);
+        QPointF p1=m_chart->mapToPosition(series->at(i));
         QPointF v=p1-p0;
+        QPointF vp=p-p0;
         qreal lv=sqrt(QPointF::dotProduct(v, v));
-        qreal dotp=QPointF::dotProduct(p-p0, v)/lv;
+        qreal dotp=QPointF::dotProduct(vp, v)/lv;
         if(dotp>=0 && dotp<=lv){
             // p vertical between to p0/p1
-            qreal lp=QPointF::dotProduct(p-p0, p-p0);
+            qreal lp=QPointF::dotProduct(vp, vp);
             qreal verticalDistance=sqrt(lp-dotp*dotp);
             if(verticalDistance<minimalDistance){
-                bestFittingPoint=p0+v*dotp/lv;
+                bestFittingPoint=p0+(v*dotp/lv);
                 minimalDistance=verticalDistance;
             }
         }
@@ -286,7 +289,7 @@ void ZoomableChartView::movePointOnSeries(QPointF &p, QXYSeries *series) const
         }
         p0=p1;
     }
-    p=bestFittingPoint;
+    p=m_chart->mapToValue(bestFittingPoint);
 }
 /*!
  * \brief check if a marker is selected
@@ -408,15 +411,15 @@ void ZoomableChartView::addMarker(bool markerB)
     ABMarker *item=getMarker(markerB);
     if(!item){
         item=new ABMarker();
+        QGraphicsScene *scene=chart()->scene();
+        scene->addItem(item);
+        m_markers.append(item);
     }
     item->setChart(m_chart);
-    item->setVal(val);
+    item->setVal(newPos);
     item->setSeries(bestSeries);
     item->setMarkerType(markerB);
-    QGraphicsScene *scene=chart()->scene();
-    scene->addItem(item);
     item->setPos(p);
-    m_markers.append(item);
 }
 
 bool ZoomableChartView::deleteSelectedMarker()

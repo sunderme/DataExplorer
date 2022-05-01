@@ -261,7 +261,7 @@ void ZoomableChartView::movePointOnSeries(QPointF &p, QXYSeries *series) const
         p=p0;
         return;
     }
-    qreal minimalDistance=sqrt(QPointF::dotProduct(p-p0, p-p0));
+    qreal minimalDistance=QLineF(p,p0).length();
     QPointF bestFittingPoint=p0;
     // find closest point on lines between points
     for(int i=1;i<series->count();++i){
@@ -349,8 +349,30 @@ void ZoomableChartView::addHorizontalMarker()
 
 void ZoomableChartView::addMarker(bool markerB)
 {
-    const QPointF p=m_lastMousePos;
+    QPointF p=m_lastMousePos;
     const QPointF val=m_chart->mapToValue(m_lastMousePos);
+    QPointF newPos;
+    bool firstLoop=true;
+    qreal delta;
+    for(auto *s:m_chart->series()){
+        auto *series=qobject_cast<QXYSeries*>(s);
+        if(series){
+            QPointF testPoint=val;
+            movePointOnSeries(testPoint,series);
+            if(firstLoop){
+                newPos=testPoint;
+                delta=QLineF(testPoint,val).length();
+            }else{
+                qreal deltaNew=QLineF(testPoint,val).length();
+                if(deltaNew<delta){
+                    delta=deltaNew;
+                    newPos=testPoint;
+                }
+            }
+            firstLoop=false;
+        }
+    }
+    p=m_chart->mapToPosition(newPos);
     ABMarker *item=new ABMarker();
     item->setChart(m_chart);
     item->setVal(val);

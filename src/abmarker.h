@@ -1,10 +1,11 @@
 #ifndef ABMARKER_H
 #define ABMARKER_H
 
-#include <QGraphicsLineItem>
+#include <QGraphicsItem>
 #include <QChart>
+#include <QXYSeries>
 
-class ABMarker : public QGraphicsLineItem
+class ABMarker : public QGraphicsItem
 {
 public:
     ABMarker(QGraphicsItem *parent = nullptr);
@@ -19,6 +20,7 @@ protected:
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:
+    void movePointOnSeries(QPointF &p) const;
     bool m_lastStateSelected;
 
     QPointF m_p;

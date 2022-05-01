@@ -6,12 +6,11 @@
 
 #include "verticalmarker.h"
 #include "horizontalmarker.h"
+#include "abmarker.h"
 #include "callout.h"
 
 
-//![1]
 class ZoomableChartView : public QGraphicsView
-        //![1]
 {
 public:
     enum ZoomMode {
@@ -39,7 +38,6 @@ public:
     void removeSeries(QXYSeries *series);
     void setTitle(const QString &title);
 
-    //![2]
     ZoomMode zoomMode() const;
     void setZoomMode(const ZoomMode &zoomMode);
 
@@ -48,10 +46,9 @@ public:
 
     void addVerticalMarker();
     void addHorizontalMarker();
+    void addMarker(bool markerB=false);
 
     bool deleteSelectedMarker();
-
-
 
 protected slots:
     void legendMarkerClicked();
@@ -89,7 +86,7 @@ private:
 
     QList<VerticalMarker*> m_verticalMarkers;
     QList<HorizontalMarker*> m_horizontalMarkers;
-    QList<QGraphicsItem*> m_markers;
+    QList<ABMarker*> m_markers;
 
     static bool isAxisTypeZoomableWithMouse(const QAbstractAxis::AxisType type);
     QPointF getSeriesCoordFromChartCoord(const QPointF & mousePos, QAbstractSeries *series) const;

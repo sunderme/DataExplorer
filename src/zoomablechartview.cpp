@@ -4,7 +4,6 @@
 #include <QtGlobal>
 
 #include "rangelimitedvalueaxis.h"
-
 #include <QDebug>
 
 ZoomableChartView::ZoomableChartView(QWidget *parent) :
@@ -348,6 +347,19 @@ void ZoomableChartView::addHorizontalMarker()
     m_horizontalMarkers.append(lineItem);
 }
 
+void ZoomableChartView::addMarker(bool markerB)
+{
+    const QPointF p=m_lastMousePos;
+    const QPointF val=m_chart->mapToValue(m_lastMousePos);
+    ABMarker *item=new ABMarker();
+    item->setChart(m_chart);
+    item->setVal(val);
+    QGraphicsScene *scene=chart()->scene();
+    scene->addItem(item);
+    item->setPos(p);
+    m_markers.append(item);
+}
+
 bool ZoomableChartView::deleteSelectedMarker()
 {
     for(int i=0;i<m_verticalMarkers.size();++i){
@@ -360,6 +372,13 @@ bool ZoomableChartView::deleteSelectedMarker()
     for(int i=0;i<m_horizontalMarkers.size();++i){
         if(m_horizontalMarkers[i]->isSelected()){
             HorizontalMarker *item=m_horizontalMarkers.takeAt(i);
+            scene()->removeItem(item);
+            return true;
+        }
+    }
+    for(int i=0;i<m_markers.size();++i){
+        if(m_markers[i]->isSelected()){
+            ABMarker *item=m_markers.takeAt(i);
             scene()->removeItem(item);
             return true;
         }
@@ -670,6 +689,11 @@ void ZoomableChartView::updateMarker()
         qreal y=item->yVal();
         y=m_chart->mapToPosition(QPointF(y,y)).y();
         item->setPos(0,y);
+    }
+    for(ABMarker *item:m_markers){
+        QPointF p=item->val();
+        p=m_chart->mapToPosition(p);
+        item->setPos(p);
     }
 }
 

@@ -56,6 +56,8 @@ protected:
     void zoomReset();
     void addVerticalMarker();
     void addHorizontalMarker();
+    void addMarkerA();
+    void addMarkerB();
     void populateRecentFiles();
     void populateRecentTemplates();
     void filterToggled(bool checked);

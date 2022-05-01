@@ -149,6 +149,16 @@ void MainWindow::setupMenus()
     act->setShortcut(Qt::Key_H);
     connect(act,&QAction::triggered,this,&MainWindow::addHorizontalMarker);
     m_plotMenu->addAction(act);
+    act=new QAction(tr("Set Marker A"),this);
+    act->setIcon(QIcon(":/icons/zoom-select-x.svg"));
+    act->setShortcut(Qt::Key_A);
+    connect(act,&QAction::triggered,this,&MainWindow::addMarkerA);
+    m_plotMenu->addAction(act);
+    act=new QAction(tr("Set Marker B"),this);
+    act->setIcon(QIcon(":/icons/zoom-select-x.svg"));
+    act->setShortcut(Qt::Key_B);
+    connect(act,&QAction::triggered,this,&MainWindow::addMarkerB);
+    m_plotMenu->addAction(act);
 
     act=new QAction("delete",this);
     act->setShortcut(QKeySequence::Delete);
@@ -680,6 +690,16 @@ void MainWindow::addVerticalMarker()
 void MainWindow::addHorizontalMarker()
 {
     chartView->addHorizontalMarker();
+}
+
+void MainWindow::addMarkerA()
+{
+    chartView->addMarker(false); // marker A
+}
+
+void MainWindow::addMarkerB()
+{
+    chartView->addMarker(true); // marker A
 }
 
 

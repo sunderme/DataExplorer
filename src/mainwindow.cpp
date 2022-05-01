@@ -762,7 +762,7 @@ void MainWindow::filterPlotToggled(bool checked)
             tableWidget->showColumn(i);
         }else{
             QString text=columns.value(i);
-            if(sweeps.contains(text) || plotValues.contains(text)){
+            if(sweeps.contains(text) || plotValues.contains(text)||hasColumnFilter(i)){
                 tableWidget->showColumn(i);
             }else{
                 tableWidget->hideColumn(i);

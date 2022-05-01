@@ -13,6 +13,7 @@ public:
     void setVal(QPointF p);
     QPointF val() const;
     void setChart(QChart *chart);
+    void setSeries(QAbstractSeries *series);
 
     virtual QRectF boundingRect()const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,QWidget *widget) override;
@@ -20,7 +21,7 @@ protected:
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:
-    void movePointOnSeries(QPointF &p) const;
+    void movePointOnSeriesChartCoord(QPointF &globalPoint) const;
     bool m_lastStateSelected;
 
     QPointF m_p;

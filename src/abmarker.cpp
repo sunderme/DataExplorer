@@ -28,6 +28,11 @@ void ABMarker::setChart(QChart *chart)
     m_chart=chart;
 }
 
+void ABMarker::setSeries(QAbstractSeries *series)
+{
+    m_series=series;
+}
+
 QRectF ABMarker::boundingRect() const
 {
     QRectF rect;
@@ -83,7 +88,7 @@ void ABMarker::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
 void ABMarker::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     QPointF new_pos = event->scenePos();
-    movePointOnSeries(new_pos);
+    movePointOnSeriesChartCoord(new_pos);
     this->setPos( new_pos );
     // update real x values
     if(m_chart)
@@ -94,10 +99,11 @@ void ABMarker::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
  * \brief move pointer onto a series point
  * \param p pointer point
  */
-void ABMarker::movePointOnSeries(QPointF &p) const
+void ABMarker::movePointOnSeriesChartCoord(QPointF &globalPoint) const
 {
     QXYSeries *series=qobject_cast<QXYSeries*>(m_series);
     if(!series || series->count()==0) return;
+    QPointF p=m_chart->mapToValue(globalPoint);
     QPointF p0=series->at(0);
     if(series->count()==1){
         p=p0;
@@ -129,5 +135,6 @@ void ABMarker::movePointOnSeries(QPointF &p) const
         p0=p1;
     }
     p=bestFittingPoint;
+    globalPoint=m_chart->mapToPosition(p);
 }
 

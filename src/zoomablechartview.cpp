@@ -352,30 +352,32 @@ void ZoomableChartView::addMarker(bool markerB)
     QPointF p=m_lastMousePos;
     const QPointF val=m_chart->mapToValue(m_lastMousePos);
     QPointF newPos;
-    bool firstLoop=true;
     qreal delta;
+    QAbstractSeries *bestSeries=nullptr;
     for(auto *s:m_chart->series()){
         auto *series=qobject_cast<QXYSeries*>(s);
         if(series){
             QPointF testPoint=val;
             movePointOnSeries(testPoint,series);
-            if(firstLoop){
+            if(!bestSeries){
                 newPos=testPoint;
                 delta=QLineF(testPoint,val).length();
+                bestSeries=s;
             }else{
                 qreal deltaNew=QLineF(testPoint,val).length();
                 if(deltaNew<delta){
                     delta=deltaNew;
                     newPos=testPoint;
+                    bestSeries=s;
                 }
             }
-            firstLoop=false;
         }
     }
     p=m_chart->mapToPosition(newPos);
     ABMarker *item=new ABMarker();
     item->setChart(m_chart);
     item->setVal(val);
+    item->setSeries(bestSeries);
     QGraphicsScene *scene=chart()->scene();
     scene->addItem(item);
     item->setPos(p);

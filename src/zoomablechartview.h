@@ -92,6 +92,8 @@ private:
     QPointF getSeriesCoordFromChartCoord(const QPointF & mousePos, QAbstractSeries *series) const;
     QPointF getChartCoordFromSeriesCoord(const QPointF & seriesPos, QAbstractSeries *series) const;
     void movePointOnSeries(QPointF &p,QXYSeries *series) const;
+    bool isMarkerSelected();
+    ABMarker *getMarker(bool markerB);
 };
 
 #endif

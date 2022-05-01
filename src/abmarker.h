@@ -14,6 +14,8 @@ public:
     QPointF val() const;
     void setChart(QChart *chart);
     void setSeries(QAbstractSeries *series);
+    void setMarkerType(bool isB=false);
+    bool getMarkerType() const;
 
     virtual QRectF boundingRect()const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,QWidget *widget) override;
@@ -27,6 +29,7 @@ private:
     QPointF m_p;
     QAbstractSeries *m_series;
     QChart *m_chart;
+    bool m_isB;
 };
 
 #endif // ABMARKER_H

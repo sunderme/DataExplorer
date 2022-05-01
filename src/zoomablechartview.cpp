@@ -288,6 +288,36 @@ void ZoomableChartView::movePointOnSeries(QPointF &p, QXYSeries *series) const
     }
     p=bestFittingPoint;
 }
+/*!
+ * \brief check if a marker is selected
+ * \return
+ */
+bool ZoomableChartView::isMarkerSelected()
+{
+    for(VerticalMarker *item:m_verticalMarkers){
+        if(item->isSelected()) return true;
+    }
+    for(HorizontalMarker *item:m_horizontalMarkers){
+        if(item->isSelected()) return true;
+    }
+    for(ABMarker *item:m_markers){
+        if(item->isSelected()) return true;
+    }
+    return false;
+}
+
+/*!
+ * \brief get Marker A or B if it is already placed, nullptr otherwise
+ * \param markerB
+ * \return
+ */
+ABMarker *ZoomableChartView::getMarker(bool markerB)
+{
+    for(ABMarker *item:m_markers){
+        if(item->getMarkerType()==markerB) return item;
+    }
+    return nullptr;
+}
 
 ZoomableChartView::ZoomMode ZoomableChartView::zoomMode() const
 {
@@ -374,10 +404,15 @@ void ZoomableChartView::addMarker(bool markerB)
         }
     }
     p=m_chart->mapToPosition(newPos);
-    ABMarker *item=new ABMarker();
+    // reuse old marker A/B if is already placed
+    ABMarker *item=getMarker(markerB);
+    if(!item){
+        item=new ABMarker();
+    }
     item->setChart(m_chart);
     item->setVal(val);
     item->setSeries(bestSeries);
+    item->setMarkerType(markerB);
     QGraphicsScene *scene=chart()->scene();
     scene->addItem(item);
     item->setPos(p);
@@ -811,6 +846,16 @@ void ZoomableChartView::keepCallout()
 void ZoomableChartView::tooltip(QPointF point, bool state)
 {
     auto *series=qobject_cast<QXYSeries*>(sender());
+    if(isMarkerSelected()){
+        // no tooltips when a marker is selected
+        if(m_tooltip){
+            m_tooltip->hide();
+            delete m_tooltip;
+            m_tooltip=nullptr;
+        }
+        return;
+    }
+
     if (m_tooltip == nullptr)
         m_tooltip = new Callout(m_chart,series);
 

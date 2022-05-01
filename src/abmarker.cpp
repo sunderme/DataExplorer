@@ -32,6 +32,22 @@ void ABMarker::setSeries(QAbstractSeries *series)
 {
     m_series=series;
 }
+/*!
+ * \brief set marker to be A (false) or B (true)
+ * \param isB
+ */
+void ABMarker::setMarkerType(bool isB)
+{
+    m_isB=isB;
+}
+/*!
+ * \brief return true if this is marker B
+ * \return
+ */
+bool ABMarker::getMarkerType() const
+{
+    return m_isB;
+}
 
 QRectF ABMarker::boundingRect() const
 {
@@ -70,7 +86,11 @@ void ABMarker::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
         painter->drawRect(rect);
         painter->drawText(rect,0,QString("%1/%2").arg(m_p.x(),3,'g',3).arg(m_p.y(),3,'g',3));
         // draw cross
-        painter->setPen(Qt::red);
+        if(m_isB){
+            painter->setPen(Qt::red);
+        }else{
+            painter->setPen(Qt::green);
+        }
         painter->drawLine(-w-d,0,-d,0);
         painter->drawLine(0,-w-d,0,-d);
         painter->drawLine(w+d,0,+d,0);

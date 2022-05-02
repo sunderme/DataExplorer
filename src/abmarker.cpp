@@ -6,7 +6,7 @@
 
 
 ABMarker::ABMarker(QGraphicsItem *parent):
-    QGraphicsItem(parent),m_series(nullptr),m_chart(nullptr)
+    QGraphicsItem(parent),m_series(nullptr),m_chart(nullptr),m_anchorPoint(nullptr)
 {
     setFlag(QGraphicsItem::ItemIsMovable,true);
     setFlag(QGraphicsItem::ItemIsSelectable,true);
@@ -47,6 +47,11 @@ void ABMarker::setMarkerType(bool isB)
 bool ABMarker::getMarkerType() const
 {
     return m_isB;
+}
+
+void ABMarker::setAnchor(ABMarker *anchor)
+{
+    m_anchorPoint=anchor;
 }
 
 QRectF ABMarker::boundingRect() const

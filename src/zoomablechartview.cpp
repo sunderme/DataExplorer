@@ -414,6 +414,10 @@ void ZoomableChartView::addMarker(bool markerB)
         QGraphicsScene *scene=chart()->scene();
         scene->addItem(item);
         m_markers.append(item);
+        if(m_markers.size()==2){
+            m_markers[0]->setAnchor(m_markers[1]);
+            m_markers[1]->setAnchor(m_markers[0]);
+        }
     }
     item->setChart(m_chart);
     item->setVal(newPos);
@@ -421,7 +425,10 @@ void ZoomableChartView::addMarker(bool markerB)
     item->setMarkerType(markerB);
     item->setPos(p);
 }
-
+/*!
+ * \brief delete selected marker
+ * \return successful
+ */
 bool ZoomableChartView::deleteSelectedMarker()
 {
     for(int i=0;i<m_verticalMarkers.size();++i){
@@ -442,6 +449,10 @@ bool ZoomableChartView::deleteSelectedMarker()
         if(m_markers[i]->isSelected()){
             ABMarker *item=m_markers.takeAt(i);
             scene()->removeItem(item);
+            if(!m_markers.isEmpty()){
+                // remove reference to other marker if still one marker present
+                m_markers[0]->setAnchor(nullptr);
+            }
             return true;
         }
     }

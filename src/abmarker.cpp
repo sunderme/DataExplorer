@@ -60,6 +60,13 @@ QRectF ABMarker::boundingRect() const
     if(isSelected() || m_lastStateSelected){
         //rect=m_chart->plotArea();
         rect.setRect(-30,-30,180,60);
+        if(m_anchorPoint){
+            QPointF p=m_anchorPoint->pos();
+            p=p-pos();
+            qreal dx=abs(p.x());
+            qreal dy=abs(p.y());
+            rect.adjust(-dx,-dy,dx,dy);
+        }
     }else{
         rect.setRect(-30,-30,60,60);
     }
@@ -78,6 +85,7 @@ void ABMarker::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
     if(isSelected()){
         int textHeight=painter->fontMetrics().height();
         int textWidth=painter->fontMetrics().horizontalAdvance("0000000000000000");
+        int textWidth2=painter->fontMetrics().horizontalAdvance("00000000");
         // get crossing series with line
         painter->save();
         QBrush brush(Qt::SolidPattern);
@@ -90,6 +98,29 @@ void ABMarker::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
         rect.translate(QPointF(2,-textHeight-2));
         painter->drawRect(rect);
         painter->drawText(rect,0,QString("%1/%2").arg(m_p.x(),3,'g',3).arg(m_p.y(),3,'g',3));
+        // draw delta marker
+        if(m_anchorPoint){
+            QPointF p0=m_anchorPoint->pos();
+            QPointF v0=m_anchorPoint->val();
+            p0=p0-pos();
+            QPointF p1=QPointF(0,p0.y());
+            painter->drawLine(p0,p1);
+            painter->drawLine(p1,QPointF());
+            QRectF rect(anchor,anchor);
+            rect.setWidth(textWidth2);
+            rect.setHeight(textHeight);
+            rect.translate(QPointF(-2-textWidth2,p0.y()/2-textHeight/2-2));
+            painter->drawRect(rect);
+            painter->drawText(rect,0,QString("dy: %1").arg(m_p.y()-v0.y(),3,'g',3));
+            if(m_p.y()-v0.y()<0){
+                rect.translate(QPointF(p0.x()/2+textWidth2/2,p0.y()/2-textHeight/2-2));
+            }else{
+                rect.translate(QPointF(p0.x()/2+textWidth2/2,p0.y()/2+textHeight/2+4));
+            }
+            painter->drawRect(rect);
+            painter->drawText(rect,0,QString("dx: %1").arg(m_p.x()-v0.x(),3,'g',3));
+
+        }
         // draw cross
         if(m_isB){
             painter->setPen(Qt::red);

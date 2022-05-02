@@ -19,6 +19,7 @@ public:
     void setAnchor(ABMarker *anchor);
 
     virtual QRectF boundingRect()const override;
+    virtual QPainterPath shape() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,QWidget *widget) override;
 protected:
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;

@@ -73,7 +73,25 @@ QRectF ABMarker::boundingRect() const
 
     return rect;
 }
-
+/*!
+ * \brief tighter shape for cursor collision detection (click on/outside marker)
+ * \return
+ */
+QPainterPath ABMarker::shape() const
+{
+    QPainterPath path;
+    path.addRect(-12,-2,12,2);
+    path.addRect(-2,12,2,-12);
+    return path;
+}
+/*!
+ * \brief complete custom painting
+ * In case of selected, show text for position
+ * In case of a second marker present, show delta x/y
+ * \param painter
+ * \param option
+ * \param widget
+ */
 void ABMarker::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(option)

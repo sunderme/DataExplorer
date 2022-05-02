@@ -54,7 +54,7 @@ QRectF ABMarker::boundingRect() const
     QRectF rect;
     if(isSelected() || m_lastStateSelected){
         //rect=m_chart->plotArea();
-        rect.setRect(-30,-30,120,60);
+        rect.setRect(-30,-30,180,60);
     }else{
         rect.setRect(-30,-30,60,60);
     }
@@ -72,7 +72,7 @@ void ABMarker::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
 
     if(isSelected()){
         int textHeight=painter->fontMetrics().height();
-        int textWidth=painter->fontMetrics().horizontalAdvance("0000000000");
+        int textWidth=painter->fontMetrics().horizontalAdvance("0000000000000000");
         // get crossing series with line
         painter->save();
         QBrush brush(Qt::SolidPattern);

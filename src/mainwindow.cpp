@@ -83,6 +83,22 @@ void MainWindow::setupMenus()
     connect(m_exitAct, &QAction::triggered, this, &MainWindow::close);
     m_fileMenu->addAction(m_exitAct);
 
+    m_editMenu = menuBar()->addMenu(tr("&Edit"));
+
+    QAction *copyAction=new QAction(tr("Copy cell content"),this);
+    connect(copyAction, &QAction::triggered, this, &MainWindow::copyCell);
+    m_editMenu->addAction(copyAction);
+#if  QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    copyAction->setShortcut(Qt::ControlModifier|Qt::Key_C);
+#else
+    copyAction->setShortcut(Qt::ControlModifier+Qt::Key_C);
+#endif
+
+    QAction *copyHAction=new QAction(tr("Copy header"),this);
+    connect(copyHAction, &QAction::triggered, this, &MainWindow::copyHeader);
+    m_editMenu->addAction(copyHAction);
+    copyHAction->setShortcut(Qt::Key_C);
+
     QToolBar *plotToolBar = addToolBar(tr("Plot"));
     m_plotMenu = menuBar()->addMenu(tr("&Plot"));
     m_plotAct = new QAction(tr("&Plot"), this);
@@ -160,7 +176,7 @@ void MainWindow::setupMenus()
     connect(act,&QAction::triggered,this,&MainWindow::addMarkerB);
     m_plotMenu->addAction(act);
 
-    act=new QAction("delete",this);
+    act=new QAction(tr("delete"),this);
     act->setShortcut(QKeySequence::Delete);
     m_plotMenu->addAction(act);
     connect(act,&QAction::triggered,this,&MainWindow::deleteVar);
@@ -569,6 +585,12 @@ void MainWindow::headerMenuRequested(QPoint pt)
         menu->addAction(act);
         menu->addSeparator();
     }
+    act=new QAction(tr("copy header"), this);
+    act->setData(column);
+    connect(act,&QAction::triggered,this,&MainWindow::copyHeader);
+    menu->addAction(act);
+    menu->addSeparator();
+
     act=new QAction(tr("show all"), this);
     act->setData(column);
     connect(act,&QAction::triggered,this,&MainWindow::columnShowAll);
@@ -932,6 +954,41 @@ void MainWindow::test()
     vars.clear();
     lits=groupBy(vars);
     qDebug()<<"by none:"<<lits;
+}
+/*!
+ * \brief copy content of cell to clipboard
+ * For now, copies only first cell
+ */
+void MainWindow::copyCell()
+{
+    auto items=tableWidget->selectedItems();
+    if(!items.isEmpty()){
+        QString txt=items[0]->text();
+        QClipboard *clipboard = QGuiApplication::clipboard();
+        clipboard->setText(txt);
+    }
+}
+/*!
+ * \brief copy header text to clipboard
+ */
+void MainWindow::copyHeader()
+{
+    QAction *act=qobject_cast<QAction*>(sender());
+    bool ok;
+    int col=act->data().toInt(&ok);
+    if(!ok){
+        auto items=tableWidget->selectedItems();
+        if(!items.isEmpty()){
+            col=tableWidget->column(items[0]);
+        }else{
+            col=-1;
+        }
+    }
+    if(col>=0){
+        QString txt=columns.value(col);
+        QClipboard *clipboard = QGuiApplication::clipboard();
+        clipboard->setText(txt);
+    }
 }
 /*!
  * \brief check if data consists only of ints

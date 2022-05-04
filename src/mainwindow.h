@@ -71,6 +71,8 @@ protected:
     void filterRowsForColumnValues(ColumnFilter cf);
     void filterElementChanged(bool checked);
     void test();
+    void copyCell();
+    void copyHeader();
     bool isIntOnlyData(int column);
     int getIntegerWidth(int column);
     void showDecimal();
@@ -88,6 +90,7 @@ protected:
 private:
     QMenu *m_fileMenu;
     QMenu *m_plotMenu;
+    QMenu *m_editMenu;
     QMenu *m_recentFilesMenu,*m_recentTemplatesMenu;
 
     QAction *m_openAct;

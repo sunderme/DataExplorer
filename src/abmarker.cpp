@@ -117,7 +117,7 @@ void ABMarker::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
         painter->drawRect(rect);
         painter->drawText(rect,0,QString("%1/%2").arg(m_p.x(),3,'g',3).arg(m_p.y(),3,'g',3));
         // draw delta marker
-        if(m_anchorPoint){
+        if(m_anchorPoint && (m_isB || !m_anchorPoint->isSelected() )){
             QPointF p0=m_anchorPoint->pos();
             QPointF v0=m_anchorPoint->val();
             p0=p0-pos();

@@ -419,6 +419,7 @@ void ZoomableChartView::addMarker(bool markerB)
             m_markers[1]->setAnchor(m_markers[0]);
         }
     }
+    item->setSelected(true);
     item->setChart(m_chart);
     item->setVal(newPos);
     item->setSeries(bestSeries);

@@ -1173,6 +1173,7 @@ QStringList MainWindow::getUniqueValues(const QString &var, const std::vector<bo
 {
     int index=getIndex(var);
     QStringList result;
+    if(index<0) return result;
     for(std::size_t i=0;i<indices.size();++i){
         if(indices[i]){
             result<<csv[index][i];
@@ -1237,6 +1238,5 @@ QList<LoopIteration> MainWindow::groupBy(QStringList sweepVar,std::vector<bool> 
 
 /* TODO
 Unit tests
-cursor in plot
 */
 

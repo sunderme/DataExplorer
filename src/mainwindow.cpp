@@ -504,10 +504,12 @@ void MainWindow::plotSelected()
     QStringList vars=sweeps;
     QString xn=vars.takeLast();
     int index_x=getIndex(xn);
+    if(index_x<0) return;
     bool multiPlot=plotValues.size()>1;
     chartView->clear();
     for(const QString &yn:plotValues){
         int index_y=getIndex(yn);
+        if(index_y<0) continue;
 
         QList<LoopIteration> lits=groupBy(vars,visibleRows);
         foreach(LoopIteration lit,lits){

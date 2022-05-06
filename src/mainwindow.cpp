@@ -79,6 +79,10 @@ void MainWindow::setupMenus()
     QAction *saveTemplateAct=new QAction(tr("&Save Template"), this);
     connect(saveTemplateAct, &QAction::triggered, this, &MainWindow::saveTemplate);
     m_fileMenu->addAction(saveTemplateAct);
+    QAction *act=new QAction(tr("Export Plot as Image"),this);
+    connect(act,&QAction::triggered,this,&MainWindow::exportPlotImage);
+    m_fileMenu->addAction(act);
+
     m_exitAct = new QAction(tr("&Quit"), this);
     connect(m_exitAct, &QAction::triggered, this, &MainWindow::close);
     m_fileMenu->addAction(m_exitAct);
@@ -107,7 +111,7 @@ void MainWindow::setupMenus()
     connect(m_plotAct, &QAction::triggered, this, &MainWindow::plotSelected);
     m_plotMenu->addAction(m_plotAct);
 
-    QAction *act=new QAction(tr("Copy plot to clipboard"),this);
+    act=new QAction(tr("Copy plot to clipboard"),this);
     act->setIcon(QIcon(":/icons/edit-copy.svg"));
     connect(act,&QAction::triggered,this,&MainWindow::copyPlotToClipboard);
     m_plotMenu->addAction(act);
@@ -347,10 +351,10 @@ void MainWindow::openTemplate()
  */
 void MainWindow::saveTemplate()
 {
-    m_fileName = QFileDialog::getSaveFileName(this,
+    QString fileName = QFileDialog::getSaveFileName(this,
         tr("Save template"), m_fileName+".deTemplate", tr("Template File (*.deTemplate)"));
-    if(m_fileName.isEmpty()) return;
-    QFile saveFile(m_fileName);
+    if(fileName.isEmpty()) return;
+    QFile saveFile(fileName);
     if (!saveFile.open(QIODevice::WriteOnly)) {
         qWarning("Couldn't open save file.");
         return;
@@ -1003,7 +1007,9 @@ void MainWindow::copyHeader()
         clipboard->setText(txt);
     }
 }
-
+/*!
+ * \brief render plot to image and copy it to clipboard
+ */
 void MainWindow::copyPlotToClipboard()
 {
     if(tabWidget->isTabVisible(1)){
@@ -1011,13 +1017,54 @@ void MainWindow::copyPlotToClipboard()
         QGraphicsScene *scene=chartView->scene();
         QClipboard *clipboard = QGuiApplication::clipboard();
         QRectF rect=scene->itemsBoundingRect();
-        QPixmap pixmap(rect.width(),rect.height());
+        int w=rect.width();
+        int h=rect.height();
+        if(w<2048){
+            // force higher resolution
+            w=4096;
+            h=4096.*rect.height()/rect.width();
+        }
+        QPixmap pixmap(w,h);
         pixmap.fill();
         QPainter painter(&pixmap);
         painter.setRenderHint(QPainter::Antialiasing);
         scene->render(&painter,QRectF(),rect);
         painter.end();
         clipboard->setPixmap(pixmap);
+    }
+}
+/*!
+ * \brief render plot to image and save it as file
+ */
+void MainWindow::exportPlotImage()
+{
+    if(tabWidget->isTabVisible(1)){
+        // plot is visible
+        QString fileName = QFileDialog::getSaveFileName(this,
+            tr("Export image"), m_fileName+".png", tr("PNG File (*.png)"));
+        if(fileName.isEmpty()) return;
+        QFile saveFile(fileName);
+        if (!saveFile.open(QIODevice::WriteOnly)) {
+            qWarning("Couldn't open save file.");
+            return;
+        }
+        QGraphicsScene *scene=chartView->scene();
+        QRectF rect=scene->itemsBoundingRect();
+        int w=rect.width();
+        int h=rect.height();
+        if(w<2048){
+            // force higher resolution
+            w=4096;
+            h=4096.*rect.height()/rect.width();
+        }
+        QPixmap pixmap(w,h);
+        pixmap.fill();
+        QPainter painter(&pixmap);
+        painter.setRenderHint(QPainter::Antialiasing);
+        scene->render(&painter,QRectF(),rect);
+        painter.end();
+
+        pixmap.save(fileName,"PNG");
     }
 }
 /*!

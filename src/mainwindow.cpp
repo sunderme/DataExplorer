@@ -420,6 +420,7 @@ void MainWindow::readTemplate(const QString &fileName)
         if(cf.column<0) continue; // name not present in current data
         QJsonArray jValues=jCF["values"].toArray();
         for(int k=0;k<jValues.size();++k){
+            // todo: check values !
             cf.allowedValues<<jValues[k].toString();
         }
         m_columnFilters.append(cf);

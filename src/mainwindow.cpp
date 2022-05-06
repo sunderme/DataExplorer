@@ -393,6 +393,8 @@ void MainWindow::readTemplate(const QString &fileName)
 
     QJsonDocument loadDoc(QJsonDocument::fromJson(data));
     QJsonObject jo=loadDoc.object();
+
+    // handle variables (sweep/plot)
     QJsonArray ja=jo["sweeps"].toArray();
     m_sweeps.clear();
     for(int i = 0; i < ja.size(); ++i) {
@@ -403,13 +405,28 @@ void MainWindow::readTemplate(const QString &fileName)
     for(int i = 0; i < ja.size(); ++i) {
         m_plotValues<<ja[i].toString();
     }
-    ja=jo["filters"].toArray();
-
-    for(int i = 0; i < ja.size(); ++i) {
-
+    // handle filters
+    // reset old filter
+    for(const ColumnFilter &cf:m_columnFilters){
+        updateColBackground(cf.column,false);
     }
-
+    m_columnFilters.clear();
+    // load new filter
+    ja=jo["filters"].toArray();
+    for(int i = 0; i < ja.size(); ++i) {
+        ColumnFilter cf;
+        QJsonObject jCF=ja[i].toObject();
+        cf.column=getIndex(jCF["name"].toString());
+        if(cf.column<0) continue; // name not present in current data
+        QJsonArray jValues=jCF["values"].toArray();
+        for(int k=0;k<jValues.size();++k){
+            cf.allowedValues<<jValues[k].toString();
+        }
+        m_columnFilters.append(cf);
+        updateColBackground(cf.column,true);
+    }
     updateSweepGUI();
+    updateFilteredTable();
 }
 /*!
  * \brief read in CSV
@@ -816,7 +833,7 @@ void MainWindow::filterPlotToggled(bool checked)
             tableWidget->showColumn(i);
         }else{
             QString text=m_columns.value(i);
-            if(m_sweeps.contains(text) |m_plotValueses.contains(text)||hasColumnFilter(i)){
+            if(m_sweeps.contains(text) || m_plotValues.contains(text) || hasColumnFilter(i)){
                 tableWidget->showColumn(i);
             }else{
                 tableWidget->hideColumn(i);

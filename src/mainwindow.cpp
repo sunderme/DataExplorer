@@ -342,7 +342,7 @@ void MainWindow::openTemplate()
 void MainWindow::saveTemplate()
 {
     m_fileName = QFileDialog::getSaveFileName(this,
-        tr("Save template"), "", tr("Template File (*.deTemplate)"));
+        tr("Save template"), m_fileName+".deTemplate", tr("Template File (*.deTemplate)"));
     if(m_fileName.isEmpty()) return;
     QFile saveFile(m_fileName);
     if (!saveFile.open(QIODevice::WriteOnly)) {
@@ -629,6 +629,7 @@ void MainWindow::addSweepVar()
 {
     QAction *act=qobject_cast<QAction*>(sender());
     QString var=act->data().toString();
+    updateSweeps(false);
     sweeps.prepend(var);
     updateSweepGUI();
 }

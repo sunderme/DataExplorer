@@ -106,7 +106,13 @@ void MainWindow::setupMenus()
     plotToolBar->addAction(m_plotAct);
     connect(m_plotAct, &QAction::triggered, this, &MainWindow::plotSelected);
     m_plotMenu->addAction(m_plotAct);
-    QAction *act=new QAction(tr("Zoom area"),this);
+
+    QAction *act=new QAction(tr("Copy plot to clipboard"),this);
+    act->setIcon(QIcon(":/icons/edit-copy.svg"));
+    connect(act,&QAction::triggered,this,&MainWindow::copyPlotToClipboard);
+    m_plotMenu->addAction(act);
+    plotToolBar->addAction(act);
+    act=new QAction(tr("Zoom area"),this);
     act->setIcon(QIcon(":/icons/zoom.svg"));
     act->setShortcut(Qt::Key_Z);
     connect(act,&QAction::triggered,this,&MainWindow::zoomAreaMode);
@@ -979,6 +985,7 @@ void MainWindow::copyCell()
  */
 void MainWindow::copyHeader()
 {
+    if(tabWidget->isTabVisible(1)) return; // plot is visible, no table action
     QAction *act=qobject_cast<QAction*>(sender());
     bool ok;
     int col=act->data().toInt(&ok);
@@ -994,6 +1001,23 @@ void MainWindow::copyHeader()
         QString txt=columns.value(col);
         QClipboard *clipboard = QGuiApplication::clipboard();
         clipboard->setText(txt);
+    }
+}
+
+void MainWindow::copyPlotToClipboard()
+{
+    if(tabWidget->isTabVisible(1)){
+        // plot is visivle
+        QGraphicsScene *scene=chartView->scene();
+        QClipboard *clipboard = QGuiApplication::clipboard();
+        QRectF rect=scene->itemsBoundingRect();
+        QPixmap pixmap(rect.width(),rect.height());
+        pixmap.fill();
+        QPainter painter(&pixmap);
+        painter.setRenderHint(QPainter::Antialiasing);
+        scene->render(&painter,QRectF(),rect);
+        painter.end();
+        clipboard->setPixmap(pixmap);
     }
 }
 /*!
@@ -1242,5 +1266,9 @@ QList<LoopIteration> MainWindow::groupBy(QStringList sweepVar,std::vector<bool> 
 
 /* TODO
 Unit tests
+copy plot
+drag'n'drop series
+col annotated when all filtered
+save filter into template
 */
 

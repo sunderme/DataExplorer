@@ -73,6 +73,7 @@ protected:
     void test();
     void copyCell();
     void copyHeader();
+    void copyPlotToClipboard();
     bool isIntOnlyData(int column);
     int getIntegerWidth(int column);
     void showDecimal();

@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
+	    <file>icons/edit-copy.svg</file>
         <file>icons/view-filter.svg</file>
         <file>icons/view-filter-checked.svg</file>
         <file>icons/view-filter-plot.svg</file>

@@ -113,11 +113,11 @@ private:
 
     QStringList m_recentFiles,m_recentTemplates;
 
-    QStringList columns;
-    QVector<QStringList> csv;
-    QStringList sweeps,plotValues;
+    QStringList m_columns;
+    QVector<QStringList> m_csv;
+    QStringList m_sweeps,m_plotValues;
 
-    QList<ColumnFilter> columnFilters;
-    std::vector<bool>visibleRows;
+    QList<ColumnFilter> m_columnFilters;
+    std::vector<bool>m_visibleRows;
 };
 #endif // MAINWINDOW_H

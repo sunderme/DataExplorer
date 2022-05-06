@@ -313,20 +313,20 @@ void MainWindow::readFile()
     bool ok=readInCSV(m_fileName);
     if(!ok) return;
     buildTable();
-    sweeps.clear();
-    plotValues.clear();
-    if(columns.size()==2){
+    m_sweeps.clear();
+    m_plotValues.clear();
+    if(m_columns.size()==2){
         //assume first x, second y
-        sweeps<<columns[0];
-        plotValues<<columns[1];
+        m_sweeps<<m_columns[0];
+        m_plotValues<<m_columns[1];
     }else{
-        if(columns.contains("x")){
+        if(m_columns.contains("x")){
             // add x to sweeps
-            sweeps<<"x";
+            m_sweeps<<"x";
         }
-        if(columns.contains("y")){
+        if(m_columns.contains("y")){
             // add y to plot values
-            plotValues<<"y";
+            m_plotValues<<"y";
         }
     }
     updateSweepGUI();
@@ -361,8 +361,18 @@ void MainWindow::saveTemplate()
     }
 
     QJsonObject jo;
-    jo["sweeps"]=QJsonArray::fromStringList(sweeps);
-    jo["plots"]=QJsonArray::fromStringList(plotValues);
+    jo["sweeps"]=QJsonArray::fromStringList(m_sweeps);
+    jo["plots"]=QJsonArray::fromStringList(m_plotValues);
+    // columnFilter
+    QJsonArray jFilters;
+    for(int i=0;i<m_columnFilters.size();++i){
+        const ColumnFilter& cf=m_columnFilters[i];
+        QJsonObject jCF;
+        jCF["name"]=m_columns.value(cf.column);
+        jCF["values"]=QJsonArray::fromStringList(cf.allowedValues);
+        jFilters.append(jCF);
+    }
+    jo["filters"]=jFilters;
 
     QJsonDocument saveDoc(jo);
     saveFile.write(saveDoc.toJson());
@@ -384,15 +394,21 @@ void MainWindow::readTemplate(const QString &fileName)
     QJsonDocument loadDoc(QJsonDocument::fromJson(data));
     QJsonObject jo=loadDoc.object();
     QJsonArray ja=jo["sweeps"].toArray();
-    sweeps.clear();
+    m_sweeps.clear();
     for(int i = 0; i < ja.size(); ++i) {
-        sweeps<<ja[i].toString();
+        m_sweeps<<ja[i].toString();
     }
     ja=jo["plots"].toArray();
-    plotValues.clear();
+    m_plotValues.clear();
     for(int i = 0; i < ja.size(); ++i) {
-        plotValues<<ja[i].toString();
+        m_plotValues<<ja[i].toString();
     }
+    ja=jo["filters"].toArray();
+
+    for(int i = 0; i < ja.size(); ++i) {
+
+    }
+
     updateSweepGUI();
 }
 /*!
@@ -412,15 +428,15 @@ bool MainWindow::readInCSV(const QString &fileName)
         while(stream.readLineInto(&line)){
             if(line.startsWith('!') || line.isEmpty())
                 continue;
-            columns=line.split(',');
-            if(columns.size()>1)
+            m_columns=line.split(',');
+            if(m_columns.size()>1)
                 break;
         }
-        QVector<QStringList> data(columns.size());
+        QVector<QStringList> data(m_columns.size());
         bool errorOccured=false;
         while (stream.readLineInto(&line)) {
             QStringList elements=line.split(',');
-            if(elements.size()!=columns.size() ){ //
+            if(elements.size()!=m_columns.size() ){ //
                 // columns estimate wrong but ignore empty lines or lines without comma (e.g. END at end of csv)
                 if(!line.isEmpty() && elements.size()>1){
                     errorOccured=true;
@@ -438,8 +454,8 @@ bool MainWindow::readInCSV(const QString &fileName)
         if(errorOccured){
             return false;
         }
-        csv=data;
-        columnFilters.clear();
+        m_csv=data;
+        m_columnFilters.clear();
         return true;
     }
     return false;
@@ -450,17 +466,17 @@ bool MainWindow::readInCSV(const QString &fileName)
 void MainWindow::buildTable()
 {
     tableWidget->clear();
-    if(csv.isEmpty()) return;
-    tableWidget->setRowCount(csv[0].size());
-    tableWidget->setColumnCount(columns.size());
+    if(m_csv.isEmpty()) return;
+    tableWidget->setRowCount(m_csv[0].size());
+    tableWidget->setColumnCount(m_columns.size());
     //tableWidget->setHorizontalHeaderLabels(columns);
-    for(int i=0;i<columns.size();++i){
-        QTableWidgetItem *hdr=new QTableWidgetItem(columns[i]);
+    for(int i=0;i<m_columns.size();++i){
+        QTableWidgetItem *hdr=new QTableWidgetItem(m_columns[i]);
         hdr->setFlags(Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
         hdr->setCheckState(Qt::Unchecked);
         tableWidget->setHorizontalHeaderItem(i,hdr);
-        for(int row=0;row<csv[i].size();++row){
-            QTableWidgetItem *newItem = new QTableWidgetItem(csv[i].value(row));
+        for(int row=0;row<m_csv[i].size();++row){
+            QTableWidgetItem *newItem = new QTableWidgetItem(m_csv[i].value(row));
 
             tableWidget->setItem(row, i, newItem);
         }
@@ -475,11 +491,11 @@ void MainWindow::updateSweepGUI()
 {
     lstSweeps->clear();
     lstData->clear();
-    foreach(const QString &elem,sweeps){
+    foreach(const QString &elem,m_sweeps){
         QListWidgetItem *item=new QListWidgetItem(elem,lstSweeps);
         item->setCheckState(Qt::Checked);
     }
-    foreach(const QString &elem,plotValues){
+    foreach(const QString &elem,m_plotValues){
         QListWidgetItem *item=new QListWidgetItem(elem,lstData);
         item->setCheckState(Qt::Checked);
     }
@@ -489,17 +505,17 @@ void MainWindow::updateSweepGUI()
  */
 void MainWindow::updateSweeps(bool filterChecked)
 {
-    sweeps.clear();
-    plotValues.clear();
+    m_sweeps.clear();
+    m_plotValues.clear();
     for(int i=0;i<lstSweeps->count();++i){
         if(filterChecked && lstSweeps->item(i)->checkState()!=Qt::Checked)
             continue;
-        sweeps<<lstSweeps->item(i)->text();
+        m_sweeps<<lstSweeps->item(i)->text();
     }
     for(int i=0;i<lstData->count();++i){
         if(filterChecked && lstData->item(i)->checkState()!=Qt::Checked)
             continue;
-        plotValues<<lstData->item(i)->text();
+        m_plotValues<<lstData->item(i)->text();
     }
 }
 /*!
@@ -509,19 +525,19 @@ void MainWindow::updateSweeps(bool filterChecked)
 void MainWindow::plotSelected()
 {
     updateSweeps();
-    if(plotValues.isEmpty()) return;
-    if(sweeps.isEmpty()) return;
-    QStringList vars=sweeps;
+    if(m_plotValues.isEmpty()) return;
+    if(m_sweeps.isEmpty()) return;
+    QStringList vars=m_sweeps;
     QString xn=vars.takeLast();
     int index_x=getIndex(xn);
     if(index_x<0) return;
-    bool multiPlot=plotValues.size()>1;
+    bool multiPlot=m_plotValues.size()>1;
     chartView->clear();
-    for(const QString &yn:plotValues){
+    for(const QString &yn:m_plotValues){
         int index_y=getIndex(yn);
         if(index_y<0) continue;
 
-        QList<LoopIteration> lits=groupBy(vars,visibleRows);
+        QList<LoopIteration> lits=groupBy(vars,m_visibleRows);
         foreach(LoopIteration lit,lits){
             QLineSeries *series = new QLineSeries();
             if(!lit.value.isEmpty()){
@@ -535,8 +551,8 @@ void MainWindow::plotSelected()
             for(std::size_t i=0;i<lit.indices.size();++i){
                 if(lit.indices[i]){
                     bool ok_x,ok_y;
-                    qreal x=csv[index_x].value(i).toDouble(&ok_x);
-                    qreal y=csv[index_y].value(i).toDouble(&ok_y);
+                    qreal x=m_csv[index_x].value(i).toDouble(&ok_x);
+                    qreal y=m_csv[index_y].value(i).toDouble(&ok_y);
                     if(ok_x && ok_y){
                         QPointF pt(x,y);
                         series->append(pt);
@@ -574,11 +590,11 @@ void MainWindow::headerMenuRequested(QPoint pt)
 
     QMenu *menu=new QMenu(this);
     QAction *act=new QAction(tr("add as sweep var"), this);
-    act->setData(columns[column]);
+    act->setData(m_columns[column]);
     connect(act,&QAction::triggered,this,&MainWindow::addSweepVar);
     menu->addAction(act);
     act=new QAction(tr("add as plot var"), this);
-    act->setData(columns[column]);
+    act->setData(m_columns[column]);
     connect(act,&QAction::triggered,this,&MainWindow::addPlotVar);
     menu->addAction(act);
     menu->addSeparator();
@@ -611,7 +627,7 @@ void MainWindow::headerMenuRequested(QPoint pt)
     act->setData(column);
     connect(act,&QAction::triggered,this,&MainWindow::columnShowNone);
     menu->addAction(act);
-    QStringList lst=csv[column];
+    QStringList lst=m_csv[column];
     lst.removeDuplicates();
     if(lst.size()<20){
         int cfi=getColumnFilter(column);
@@ -620,7 +636,7 @@ void MainWindow::headerMenuRequested(QPoint pt)
             act->setCheckable(true);
             bool check=true;
             if(cfi>=0){
-                if(!columnFilters[cfi].allowedValues.contains(elem))
+                if(!m_columnFilters[cfi].allowedValues.contains(elem))
                     check=false;
             }
             act->setChecked(check);
@@ -639,7 +655,7 @@ void MainWindow::addSweepVar()
 {
     QAction *act=qobject_cast<QAction*>(sender());
     QString var=act->data().toString();
-    sweeps.prepend(var);
+    m_sweeps.prepend(var);
     QListWidgetItem *item=new QListWidgetItem(var);
     item->setCheckState(Qt::Checked);
     lstSweeps->insertItem(0,item);
@@ -654,7 +670,7 @@ void MainWindow::deleteVar()
         auto lst=lstSweeps->selectedItems();
         for(auto elem:lst){
             QString var=elem->text();
-            sweeps.removeAll(var);
+            m_sweeps.removeAll(var);
             delete elem;
         }
     }
@@ -662,7 +678,7 @@ void MainWindow::deleteVar()
         auto lst=lstData->selectedItems();
         for(auto elem:lst){
             QString var=elem->text();
-            plotValues.removeAll(var);
+            m_plotValues.removeAll(var);
             delete elem;
         }
     }
@@ -677,7 +693,7 @@ void MainWindow::addPlotVar()
 {
     QAction *act=qobject_cast<QAction*>(sender());
     QString var=act->data().toString();
-    plotValues.prepend(var);
+    m_plotValues.prepend(var);
     QListWidgetItem *item=new QListWidgetItem(var);
     item->setCheckState(Qt::Checked);
     lstData->insertItem(0,item);
@@ -770,7 +786,7 @@ void MainWindow::filterToggled(bool checked)
         btFilterPlot->setChecked(false);
     // filter columns
     if(!checked){
-        for(int i=0;i<columns.size();++i){
+        for(int i=0;i<m_columns.size();++i){
             tableWidget->showColumn(i);
         }
     }else{
@@ -795,12 +811,12 @@ void MainWindow::filterPlotToggled(bool checked)
         btFilter->setChecked(false);
     updateSweeps(false);
     // filter columns
-    for(int i=0;i<columns.size();++i){
+    for(int i=0;i<m_columns.size();++i){
         if(!checked){
             tableWidget->showColumn(i);
         }else{
-            QString text=columns.value(i);
-            if(sweeps.contains(text) || plotValues.contains(text)||hasColumnFilter(i)){
+            QString text=m_columns.value(i);
+            if(m_sweeps.contains(text) |m_plotValueses.contains(text)||hasColumnFilter(i)){
                 tableWidget->showColumn(i);
             }else{
                 tableWidget->hideColumn(i);
@@ -819,8 +835,8 @@ void MainWindow::filterTextChanged(const QString &text)
         btFilter->setChecked(true);
     }
     if(btFilter->isChecked()){
-        for(int i=0;i<columns.size();++i){
-            if(columns.value(i).contains(text, Qt::CaseInsensitive)){
+        for(int i=0;i<m_columns.size();++i){
+            if(m_columns.value(i).contains(text, Qt::CaseInsensitive)){
                 tableWidget->showColumn(i);
             }else{
                 tableWidget->hideColumn(i);
@@ -835,7 +851,7 @@ void MainWindow::columnShowAll()
     int column=act->data().toInt();
     int cfi=getColumnFilter(column);
     if(cfi>=0){
-        columnFilters.removeAt(cfi);
+        m_columnFilters.removeAt(cfi);
         updateFilteredTable();
         updateColBackground(column,false);
     }
@@ -858,11 +874,11 @@ void MainWindow::columnShowNone()
     int column=act->data().toInt();
     int cfi=getColumnFilter(column);
     if(cfi>=0){
-        columnFilters[cfi].allowedValues.clear();
+        m_columnFilters[cfi].allowedValues.clear();
     }else{
         ColumnFilter cf;
         cf.column=column;
-        columnFilters.append(cf);
+        m_columnFilters.append(cf);
         updateColBackground(column,true);
     }
     updateFilteredTable();
@@ -870,16 +886,16 @@ void MainWindow::columnShowNone()
 
 void MainWindow::updateFilteredTable()
 {
-    int sz=csv[0].size();
-    visibleRows.resize(sz);
-    std::fill(visibleRows.begin(),visibleRows.end(),true);
+    int sz=m_csv[0].size();
+    m_visibleRows.resize(sz);
+    std::fill(m_visibleRows.begin(),m_visibleRows.end(),true);
     QList<int> colsFiltered;
-    for(const ColumnFilter &cf:columnFilters){
+    for(const ColumnFilter &cf:m_columnFilters){
         filterRowsForColumnValues(cf);
         colsFiltered.append(cf.column);
     }
     for(int i=0;i<tableWidget->rowCount();++i){
-        bool hide = !visibleRows.at(i);
+        bool hide = !m_visibleRows.at(i);
         tableWidget->setRowHidden(i,hide);
     }
 
@@ -888,11 +904,11 @@ void MainWindow::updateFilteredTable()
 void MainWindow::filterRowsForColumnValues(ColumnFilter cf)
 {
     int column=cf.column;
-    QStringList &colVals=csv[column];
+    QStringList &colVals=m_csv[column];
     for(int i=0;i<colVals.size();++i){
-        if(visibleRows[i]){
+        if(m_visibleRows[i]){
             if(!cf.allowedValues.contains(colVals[i])){
-                visibleRows[i]=false;
+                m_visibleRows[i]=false;
             }
         }
     }
@@ -907,25 +923,25 @@ void MainWindow::filterElementChanged(bool checked)
     if(cfi<0){
         ColumnFilter cf;
         cf.column=column;
-        QStringList lst=csv[column];
+        QStringList lst=m_csv[column];
         lst.removeDuplicates();
         cf.allowedValues=lst;
-        columnFilters.append(cf);
-        cfi=columnFilters.size()-1;
+        m_columnFilters.append(cf);
+        cfi=m_columnFilters.size()-1;
         updateColBackground(column,true);
     }
     if(checked){
-        columnFilters[cfi].allowedValues.append(value);
+        m_columnFilters[cfi].allowedValues.append(value);
         //remove filter if all is allowed
-        QStringList lst=csv[column];
+        QStringList lst=m_csv[column];
         lst.removeDuplicates();
-        if(lst.size()==columnFilters[cfi].allowedValues.size()){
+        if(lst.size()==m_columnFilters[cfi].allowedValues.size()){
             // assume identical
             updateColBackground(column,false);
-            columnFilters.takeAt(cfi);
+            m_columnFilters.takeAt(cfi);
         }
     }else{
-        columnFilters[cfi].allowedValues.removeOne(value);
+        m_columnFilters[cfi].allowedValues.removeOne(value);
     }
     updateFilteredTable();
 }
@@ -946,9 +962,9 @@ QDebug operator<< (QDebug d, const QList<LoopIteration>& dt) {
  */
 void MainWindow::test()
 {
-    if(csv.isEmpty()) return;
-    std::vector<bool> providedIndices(csv[0].size());
-    for(int i=0;i<csv[0].size();++i){
+    if(m_csv.isEmpty()) return;
+    std::vector<bool> providedIndices(m_csv[0].size());
+    for(int i=0;i<m_csv[0].size();++i){
         providedIndices[i]=true;
     }
     QStringList vals=getUniqueValues("x",providedIndices);
@@ -1002,7 +1018,7 @@ void MainWindow::copyHeader()
         }
     }
     if(col>=0){
-        QString txt=columns.value(col);
+        QString txt=m_columns.value(col);
         QClipboard *clipboard = QGuiApplication::clipboard();
         clipboard->setText(txt);
     }
@@ -1075,8 +1091,8 @@ void MainWindow::exportPlotImage()
 bool MainWindow::isIntOnlyData(int column)
 {
     bool ok=true;
-    for(qsizetype row=0;row<csv[column].count();++row){
-        QString cell=csv[column].value(row);
+    for(qsizetype row=0;row<m_csv[column].count();++row){
+        QString cell=m_csv[column].value(row);
         if(cell.startsWith("0b")){
             cell.mid(2).toInt(&ok,2);
         }else{
@@ -1100,8 +1116,8 @@ int MainWindow::getIntegerWidth(int column)
 {
     int bits=0;
     bool negative=false;
-    for(qsizetype row=0;row<csv[column].count();++row){
-        QString cell=csv[column].value(row);
+    for(qsizetype row=0;row<m_csv[column].count();++row){
+        QString cell=m_csv[column].value(row);
         bool ok;
         qlonglong value=convertStringToLong(cell,ok);
         if(!ok) break;
@@ -1126,8 +1142,8 @@ void MainWindow::showDecimal()
     QAction *act=qobject_cast<QAction*>(sender());
     int column=act->data().toInt();
     bool ok;
-    for(qsizetype row=0;row<csv[column].count();++row){
-        QString cell=csv[column].value(row);
+    for(qsizetype row=0;row<m_csv[column].count();++row){
+        QString cell=m_csv[column].value(row);
         qlonglong value=convertStringToLong(cell,ok);
         if(!ok) break;
         QTableWidgetItem *item=tableWidget->item(row,column);
@@ -1144,8 +1160,8 @@ void MainWindow::showBinary()
     int column=act->data().toInt();
     int bits=getIntegerWidth(column);
     bool ok;
-    for(qsizetype row=0;row<csv[column].count();++row){
-        QString cell=csv[column].value(row);
+    for(qsizetype row=0;row<m_csv[column].count();++row){
+        QString cell=m_csv[column].value(row);
         qlonglong value=convertStringToLong(cell,ok);
         if(value<0){
             // 2er complement
@@ -1167,8 +1183,8 @@ void MainWindow::showHex()
     int bits=getIntegerWidth(column);
     int digits=bits/4 + (bits%4==0 ? 0 : 1);
     bool ok;
-    for(qsizetype row=0;row<csv[column].count();++row){
-        QString cell=csv[column].value(row);
+    for(qsizetype row=0;row<m_csv[column].count();++row){
+        QString cell=m_csv[column].value(row);
         qlonglong value=convertStringToLong(cell,ok);
         if(!ok) break;
         if(value<0){
@@ -1208,7 +1224,7 @@ qlonglong MainWindow::convertStringToLong(QString text, bool &ok)
  */
 int MainWindow::getIndex(const QString &name)
 {
-    int result=columns.indexOf(name);
+    int result=m_columns.indexOf(name);
     return result;
 }
 /*!
@@ -1218,7 +1234,7 @@ int MainWindow::getIndex(const QString &name)
  */
 bool MainWindow::hasColumnFilter(int column) const
 {
-    for(const ColumnFilter& cf:columnFilters){
+    for(const ColumnFilter& cf:m_columnFilters){
         if(cf.column==column)
             return true;
     }
@@ -1231,8 +1247,8 @@ bool MainWindow::hasColumnFilter(int column) const
  */
 int MainWindow::getColumnFilter(int column) const
 {
-    for(int i=0;i<columnFilters.size();++i){
-        const ColumnFilter& cf=columnFilters[i];
+    for(int i=0;i<m_columnFilters.size();++i){
+        const ColumnFilter& cf=m_columnFilters[i];
         if(cf.column==column)
             return i;
     }
@@ -1251,7 +1267,7 @@ QStringList MainWindow::getUniqueValues(const QString &var, const std::vector<bo
     if(index<0) return result;
     for(std::size_t i=0;i<indices.size();++i){
         if(indices[i]){
-            result<<csv[index][i];
+            result<<m_csv[index][i];
         }
     }
     result.removeDuplicates();
@@ -1269,7 +1285,7 @@ std::vector<bool> MainWindow::filterIndices(const QString &var, const QString &v
     int index=getIndex(var);
     std::vector<bool> result=providedIndices;
     for(std::size_t i=0;i<result.size();++i){
-        if(csv[index][i]!=value){
+        if(m_csv[index][i]!=value){
             result[i]=false;
         }
     }
@@ -1286,9 +1302,9 @@ QList<LoopIteration> MainWindow::groupBy(QStringList sweepVar,std::vector<bool> 
     QList<LoopIteration> result;
     if(providedIndices.size()==0){
         // fill from 0 to size(csv)-1
-        int sz=csv[0].size();
+        int sz=m_csv[0].size();
         providedIndices.resize(sz);
-        for(int i=0;i<csv[0].size();++i){
+        for(int i=0;i<m_csv[0].size();++i){
             providedIndices[i]=true;
         }
     }
@@ -1313,7 +1329,7 @@ QList<LoopIteration> MainWindow::groupBy(QStringList sweepVar,std::vector<bool> 
 
 /* TODO
 Unit tests
-copy plot
+better abmarker texts
 drag'n'drop series
 col annotated when all filtered
 save filter into template

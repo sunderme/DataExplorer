@@ -668,7 +668,9 @@ void MainWindow::addPlotVar()
     QAction *act=qobject_cast<QAction*>(sender());
     QString var=act->data().toString();
     plotValues.prepend(var);
-    updateSweepGUI();
+    QListWidgetItem *item=new QListWidgetItem(var);
+    item->setCheckState(Qt::Checked);
+    lstData->insertItem(0,item);
 }
 /*!
  * \brief set zoomAreaMode

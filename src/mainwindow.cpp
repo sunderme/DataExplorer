@@ -416,12 +416,21 @@ void MainWindow::readTemplate(const QString &fileName)
     for(int i = 0; i < ja.size(); ++i) {
         ColumnFilter cf;
         QJsonObject jCF=ja[i].toObject();
-        cf.column=getIndex(jCF["name"].toString());
+        QString columnName=jCF["name"].toString();
+        cf.column=getIndex(columnName);
         if(cf.column<0) continue; // name not present in current data
+        std::vector<bool> providedIndices(m_csv[0].size());
+        for(int i=0;i<m_csv[0].size();++i){
+            providedIndices[i]=true;
+        }
+        QStringList presentValues=getUniqueValues(columnName,providedIndices);
+        presentValues.sort();
         QJsonArray jValues=jCF["values"].toArray();
         for(int k=0;k<jValues.size();++k){
-            // todo: check values !
-            cf.allowedValues<<jValues[k].toString();
+            QString val=jValues[k].toString();
+            if(std::binary_search(presentValues.constBegin(),presentValues.constEnd(),val)){
+                cf.allowedValues<<val;
+            }
         }
         m_columnFilters.append(cf);
         updateColBackground(cf.column,true);

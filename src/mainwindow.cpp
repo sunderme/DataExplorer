@@ -629,9 +629,10 @@ void MainWindow::addSweepVar()
 {
     QAction *act=qobject_cast<QAction*>(sender());
     QString var=act->data().toString();
-    updateSweeps(false);
     sweeps.prepend(var);
-    updateSweepGUI();
+    QListWidgetItem *item=new QListWidgetItem(var);
+    item->setCheckState(Qt::Checked);
+    lstSweeps->insertItem(0,item);
 }
 /*!
  * \brief remove var from sweepvar/plotvar, depending which one is focused

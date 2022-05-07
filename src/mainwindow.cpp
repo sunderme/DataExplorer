@@ -1359,6 +1359,5 @@ Unit tests
 better abmarker texts
 drag'n'drop series
 col annotated when all filtered
-save filter into template
 */
 

@@ -124,19 +124,20 @@ void ABMarker::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
             QPointF p1=QPointF(0,p0.y());
             painter->drawLine(p0,p1);
             painter->drawLine(p1,QPointF());
+
+            QString txt=QString("dx: %1  dy: %2").arg(m_p.x()-v0.x(),3,'g',3).arg(m_p.y()-v0.y(),3,'g',3);
+            int tw=painter->fontMetrics().horizontalAdvance(txt);
             QRectF rect(anchor,anchor);
-            rect.setWidth(textWidth2);
+            rect.setWidth(tw);
             rect.setHeight(textHeight);
-            rect.translate(QPointF(-2-textWidth2,p0.y()/2-textHeight/2-2));
-            painter->drawRect(rect);
-            painter->drawText(rect,0,QString("dy: %1").arg(m_p.y()-v0.y(),3,'g',3));
+            rect.translate(QPointF(-2-tw,p0.y()/2-textHeight/2-2));
             if(m_p.y()-v0.y()<0){
-                rect.translate(QPointF(p0.x()/2+textWidth2/2,p0.y()/2-textHeight/2-2));
+                rect.translate(QPointF(p0.x()/2+tw/2,p0.y()/2-textHeight/2-2));
             }else{
-                rect.translate(QPointF(p0.x()/2+textWidth2/2,p0.y()/2+textHeight/2+4));
+                rect.translate(QPointF(p0.x()/2+tw/2,p0.y()/2+textHeight/2+4));
             }
             painter->drawRect(rect);
-            painter->drawText(rect,0,QString("dx: %1").arg(m_p.x()-v0.x(),3,'g',3));
+            painter->drawText(rect,0,txt);
 
         }
         // draw cross

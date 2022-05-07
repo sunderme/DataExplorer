@@ -890,8 +890,18 @@ void MainWindow::updateColBackground(int col,bool filtered){
         QTableWidgetItem *item=tableWidget->item(row,col);
         if(filtered)
             item->setBackground(Qt::cyan);
-        else
-            item->setBackground(Qt::white);
+        else{
+            QColor color=QApplication::palette().color(QPalette::Base);
+            item->setBackground(color);
+        }
+    }
+    // color header
+    QTableWidgetItem *item=tableWidget->horizontalHeaderItem(col);
+    if(filtered)
+        item->setBackground(Qt::darkCyan);
+    else{
+        QColor color=QApplication::palette().color(QPalette::Button);
+        item->setBackground(color);
     }
 }
 
@@ -1356,7 +1366,6 @@ QList<LoopIteration> MainWindow::groupBy(QStringList sweepVar,std::vector<bool> 
 
 /* TODO
 Unit tests
-better abmarker texts
 drag'n'drop series
 col annotated when all filtered
 */

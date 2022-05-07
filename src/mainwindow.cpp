@@ -202,6 +202,11 @@ void MainWindow::setupMenus()
     QAction *testAction=new QAction("test",this);
     connect(testAction, &QAction::triggered, this, &MainWindow::test);
     m_plotMenu->addAction(testAction);
+
+    QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
+    act=new QAction(tr("About"),this);
+    helpMenu->addAction(act);
+    connect(act,&QAction::triggered,this,&MainWindow::about);
 }
 /*!
  * \brief generate GUI
@@ -769,6 +774,18 @@ void MainWindow::zoomOut()
 void MainWindow::zoomReset()
 {
     chartView->zoomReset();
+}
+/*!
+ * \brief show about message
+ */
+
+void MainWindow::about()
+{
+    QString DE_VERSION="1.0";
+    QMessageBox::about(this, tr("About DataExplorer"),
+                           tr("Version %1\n"
+                               "Written by Jan Sundermeyer (C) 2022\n"
+                              "Data browsing and plotting app.").arg(DE_VERSION));
 }
 
 void MainWindow::addVerticalMarker()

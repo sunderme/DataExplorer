@@ -72,24 +72,25 @@ void ZoomableChartView::mousePressEvent(QMouseEvent *event)
 #endif
     m_startMousePos=m_lastMousePos;
 
-    // drag 'n'drop
-    QByteArray itemData;
-    QDataStream dataStream(&itemData, QIODevice::WriteOnly);
-    QList<QAbstractSeries *> series=m_chart->series();
-    QXYSeries *xyseries=qobject_cast<QXYSeries*>(series.at(0));
-    dataStream << xyseries->count();
-    for(int i=0;i<xyseries->count();++i){
-        dataStream << xyseries->at(i);
+    if(m_tooltip){
+        // drag 'n'drop
+        QByteArray itemData;
+        QDataStream dataStream(&itemData, QIODevice::WriteOnly);
+        QXYSeries *xyseries=qobject_cast<QXYSeries*>(m_tooltip->series());
+        dataStream << xyseries->count();
+        for(int i=0;i<xyseries->count();++i){
+            dataStream << xyseries->at(i);
+        }
+
+        QMimeData *mimeData = new QMimeData;
+        mimeData->setData("application/x-de-series", itemData);
+
+        m_drag = new QDrag(this);
+        m_drag->setMimeData(mimeData);
+        m_drag->setPixmap(QIcon(":/icons/labplot-xy-curve-segments.svg").pixmap(32));
+        //m_drag->setHotSpot(event->position().toPoint());
+        m_drag->exec();
     }
-
-    QMimeData *mimeData = new QMimeData;
-    mimeData->setData("application/x-de-series", itemData);
-
-    m_drag = new QDrag(this);
-    m_drag->setMimeData(mimeData);
-    m_drag->setPixmap(QIcon(":/icons/labplot-xy-curve-segments.svg").pixmap(32));
-    //m_drag->setHotSpot(event->position().toPoint());
-    m_drag->exec();
     QGraphicsView::mousePressEvent(event);
 }
 

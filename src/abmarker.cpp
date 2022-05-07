@@ -59,7 +59,7 @@ QRectF ABMarker::boundingRect() const
     QRectF rect;
     if(isSelected() || m_lastStateSelected){
         //rect=m_chart->plotArea();
-        rect.setRect(-30,-30,180,60);
+        rect.setRect(-60,-30,210,60);
         if(m_anchorPoint){
             QPointF p=m_anchorPoint->pos();
             p=p-pos();
@@ -121,7 +121,7 @@ void ABMarker::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
             QPointF p0=m_anchorPoint->pos();
             QPointF v0=m_anchorPoint->val();
             p0=p0-pos();
-            QPointF p1=QPointF(0,p0.y());
+            QPointF p1=QPointF(p0.x(),0);
             painter->drawLine(p0,p1);
             painter->drawLine(p1,QPointF());
 
@@ -130,11 +130,11 @@ void ABMarker::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
             QRectF rect(anchor,anchor);
             rect.setWidth(tw);
             rect.setHeight(textHeight);
-            rect.translate(QPointF(-2-tw,p0.y()/2-textHeight/2-2));
-            if(m_p.y()-v0.y()<0){
-                rect.translate(QPointF(p0.x()/2+tw/2,p0.y()/2-textHeight/2-2));
+            rect.translate(QPointF(-2-tw,-textHeight/2-2));
+            if(m_p.y()-v0.y()>0){
+                rect.translate(QPointF(p0.x()/2+tw/2,-textHeight/2-2));
             }else{
-                rect.translate(QPointF(p0.x()/2+tw/2,p0.y()/2+textHeight/2+4));
+                rect.translate(QPointF(p0.x()/2+tw/2,+textHeight/2+4));
             }
             painter->drawRect(rect);
             painter->drawText(rect,0,txt);

@@ -1,3 +1,12 @@
+/****************************************************************************
+**
+** Copyright (C) 2022 Jan Sundermeyer
+**
+** License: GLP v3
+**
+****************************************************************************/
+
+
 #include "verticalmarker.h"
 #include "qgraphicssceneevent.h"
 #include "qpainter.h"

@@ -1,3 +1,12 @@
+/****************************************************************************
+**
+** Copyright (C) 2022 Jan Sundermeyer
+**
+** License: GLP v3
+**
+****************************************************************************/
+
+
 #include "zoomablechartview.h"
 #include <QtGui/QGuiApplication>
 #include <QtGui/QMouseEvent>

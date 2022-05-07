@@ -136,6 +136,13 @@ void ABMarker::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
             }else{
                 rect.translate(QPointF(p0.x()/2+tw/2,+textHeight/2+4));
             }
+            QRectF pr=mapFromParent(m_chart->plotArea()).boundingRect();
+            if(rect.left()<pr.left()){
+                rect.translate(QPointF(pr.left()-rect.left(),0));
+            }
+            if(rect.right()>pr.right()){
+                rect.translate(QPointF(pr.right()-rect.right(),0));
+            }
             painter->drawRect(rect);
             painter->drawText(rect,0,txt);
 

@@ -924,6 +924,7 @@ void MainWindow::columnShowNone()
 
 void MainWindow::updateFilteredTable()
 {
+    if(m_csv.isEmpty()) return;
     int sz=m_csv[0].size();
     m_visibleRows.resize(sz);
     std::fill(m_visibleRows.begin(),m_visibleRows.end(),true);

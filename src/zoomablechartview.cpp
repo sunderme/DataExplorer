@@ -7,7 +7,7 @@
 #include <QDebug>
 
 ZoomableChartView::ZoomableChartView(QWidget *parent) :
-    QGraphicsView(new QGraphicsScene, parent),m_chart(nullptr),m_tooltip(nullptr)
+    QGraphicsView(new QGraphicsScene, parent),m_chart(nullptr),m_tooltip(nullptr),m_drag(nullptr)
 {
     setDragMode(QGraphicsView::NoDrag);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -31,6 +31,7 @@ ZoomableChartView::ZoomableChartView(QWidget *parent) :
     m_coordY->setText("Y: ");
 
     this->setMouseTracking(true);
+    this->setAcceptDrops(true);
     setZoomMode(RectangleZoom);
 }
 /*!
@@ -70,6 +71,25 @@ void ZoomableChartView::mousePressEvent(QMouseEvent *event)
     m_lastMousePos = event->localPos();
 #endif
     m_startMousePos=m_lastMousePos;
+
+    // drag 'n'drop
+    QByteArray itemData;
+    QDataStream dataStream(&itemData, QIODevice::WriteOnly);
+    QList<QAbstractSeries *> series=m_chart->series();
+    QXYSeries *xyseries=qobject_cast<QXYSeries*>(series.at(0));
+    dataStream << xyseries->count();
+    for(int i=0;i<xyseries->count();++i){
+        dataStream << xyseries->at(i);
+    }
+
+    QMimeData *mimeData = new QMimeData;
+    mimeData->setData("application/x-de-series", itemData);
+
+    m_drag = new QDrag(this);
+    m_drag->setMimeData(mimeData);
+    m_drag->setPixmap(QIcon(":/icons/labplot-xy-curve-segments.svg").pixmap(32));
+    //m_drag->setHotSpot(event->position().toPoint());
+    m_drag->exec();
     QGraphicsView::mousePressEvent(event);
 }
 
@@ -616,6 +636,49 @@ void ZoomableChartView::resizeEvent(QResizeEvent *event)
     QGraphicsView::resizeEvent(event);
 }
 
+void ZoomableChartView::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (event->mimeData()->hasFormat("application/x-de-series")){
+        if (event->source() == this) {
+            event->setDropAction(Qt::MoveAction);
+            event->accept();
+        } else {
+            event->acceptProposedAction();
+        }
+    }
+}
+
+void ZoomableChartView::dragMoveEvent(QDragMoveEvent *event)
+{
+    if (event->mimeData()->hasFormat("application/x-de-series")){
+        if (event->source() == this) {
+            event->setDropAction(Qt::MoveAction);
+            event->accept();
+        } else {
+            event->acceptProposedAction();
+        }
+    }
+}
+
+void ZoomableChartView::dropEvent(QDropEvent *event)
+{
+    if(event->source()==this) return;
+    QByteArray data = event->mimeData()->data("application/x-de-series");
+    // parse text to get plot/series data and add to plot
+    QDataStream dataStream(&data, QIODevice::ReadOnly);
+    int n;
+    dataStream>>n;
+    QLineSeries *series=new QLineSeries();
+    for(int i=0;i<n;++i){
+        QPointF p;
+        dataStream>>p;
+        *series<<p;
+    }
+    addSeries(series);
+    m_droppedSeries.append(series);
+    event->acceptProposedAction();
+}
+
 /*!
  * \brief mouseReleaseEvent for local zoom
  * \param event
@@ -733,7 +796,16 @@ void ZoomableChartView::legendMarkerHovered(bool hover)
 void ZoomableChartView::seriesClicked(const QPointF &point)
 {
     auto *series=qobject_cast<QXYSeries*>(sender());
-    //emphasisSeries(series);
+    QByteArray itemData;
+    QDataStream dataStream(&itemData, QIODevice::WriteOnly);
+    dataStream << "test";
+    QMimeData *mimeData = new QMimeData;
+    mimeData->setData("application/x-de-series", itemData);
+    QDrag *drag = new QDrag(this);
+    drag->setMimeData(mimeData);
+    drag->setPixmap(QIcon(":/icons/labplot-xy-curve-segments.svg").pixmap(32));
+
+    emphasisSeries(series);
 }
 /*!
  * \brief slot for hover over series

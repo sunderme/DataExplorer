@@ -60,12 +60,15 @@ protected slots:
     void tooltip(QPointF point, bool state);
 
 protected:
-    void mousePressEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-    void keyPressEvent(QKeyEvent *event);
-    void wheelEvent(QWheelEvent *event);
-    void resizeEvent(QResizeEvent *event);
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dragMoveEvent(QDragMoveEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
 
     void setSeriesVisible(QAbstractSeries *series, bool visible = true);
     void emphasisSeries(QXYSeries *series, bool emphasis = true);
@@ -94,6 +97,8 @@ private:
     void movePointOnSeries(QPointF &p,QXYSeries *series) const;
     bool isMarkerSelected();
     ABMarker *getMarker(bool markerB);
+    QDrag *m_drag;
+    QList<QAbstractSeries*> m_droppedSeries; // data from other instances via dragndrop
 };
 
 #endif

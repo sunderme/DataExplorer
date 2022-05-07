@@ -33,7 +33,7 @@ public:
     void zoom(qreal factor, QPointF center);
     void zoomReset();
 
-    void clear();
+    void clear(bool recreateDroppedSeries=true);
     void addSeries(QXYSeries *series);
     void removeSeries(QXYSeries *series);
     void setTitle(const QString &title);
@@ -97,8 +97,6 @@ private:
     void movePointOnSeries(QPointF &p,QXYSeries *series) const;
     bool isMarkerSelected();
     ABMarker *getMarker(bool markerB);
-    QDrag *m_drag;
-    QList<QAbstractSeries*> m_droppedSeries; // data from other instances via dragndrop
 };
 
 #endif

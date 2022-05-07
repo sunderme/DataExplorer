@@ -7,7 +7,7 @@
 #include <QDebug>
 
 ZoomableChartView::ZoomableChartView(QWidget *parent) :
-    QGraphicsView(new QGraphicsScene, parent),m_chart(nullptr),m_tooltip(nullptr),m_drag(nullptr)
+    QGraphicsView(new QGraphicsScene, parent),m_chart(nullptr),m_tooltip(nullptr)
 {
     setDragMode(QGraphicsView::NoDrag);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -85,10 +85,10 @@ void ZoomableChartView::mousePressEvent(QMouseEvent *event)
         QMimeData *mimeData = new QMimeData;
         mimeData->setData("application/x-de-series", itemData);
 
-        m_drag = new QDrag(this);
-        m_drag->setMimeData(mimeData);
-        m_drag->setPixmap(QIcon(":/icons/labplot-xy-curve-segments.svg").pixmap(32));
-        m_drag->exec();
+        QDrag *drag = new QDrag(this);
+        drag->setMimeData(mimeData);
+        drag->setPixmap(QIcon(":/icons/labplot-xy-curve-segments.svg").pixmap(32));
+        drag->exec();
     }
     QGraphicsView::mousePressEvent(event);
 }
@@ -563,10 +563,20 @@ void ZoomableChartView::zoomReset()
 /*!
  * \brief remove all series from chart
  */
-void ZoomableChartView::clear()
+void ZoomableChartView::clear(bool recreateDroppedSeries)
 {
-    m_chart->removeAllSeries();
-    m_chart->legend()->hide();
+    if(recreateDroppedSeries){
+        // keep dropped series
+        for(int i=0;i<m_chart->series().count();++i){
+            auto *series=m_chart->series().at(i);
+            if(series->name().startsWith("ext: ")) continue; // keep dropped series
+            m_chart->removeSeries(series);
+            --i;
+        }
+    }else{
+        m_chart->removeAllSeries();
+        m_chart->legend()->hide();
+    }
 }
 /*!
  * \brief add series to chart and connect legend marker for hide/hover
@@ -635,7 +645,10 @@ void ZoomableChartView::resizeEvent(QResizeEvent *event)
     }
     QGraphicsView::resizeEvent(event);
 }
-
+/*!
+ * \brief drop event to accept series from other dataexplorer instance
+ * \param event
+ */
 void ZoomableChartView::dragEnterEvent(QDragEnterEvent *event)
 {
     if (event->mimeData()->hasFormat("application/x-de-series")){
@@ -647,7 +660,10 @@ void ZoomableChartView::dragEnterEvent(QDragEnterEvent *event)
         }
     }
 }
-
+/*!
+ * \brief drop event to accept series from other dataexplorer instance
+ * \param event
+ */
 void ZoomableChartView::dragMoveEvent(QDragMoveEvent *event)
 {
     if (event->mimeData()->hasFormat("application/x-de-series")){
@@ -659,7 +675,10 @@ void ZoomableChartView::dragMoveEvent(QDragMoveEvent *event)
         }
     }
 }
-
+/*!
+ * \brief drop event to accept series from other dataexplorer instance
+ * \param event
+ */
 void ZoomableChartView::dropEvent(QDropEvent *event)
 {
     if(event->source()==this) return;
@@ -677,7 +696,6 @@ void ZoomableChartView::dropEvent(QDropEvent *event)
     }
     series->setName("ext: "+name);
     addSeries(series);
-    m_droppedSeries.append(series);
     event->acceptProposedAction();
 }
 

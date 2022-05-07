@@ -1368,6 +1368,5 @@ QList<LoopIteration> MainWindow::groupBy(QStringList sweepVar,std::vector<bool> 
 
 /* TODO
 Unit tests
-drag'n'drop series
 */
 

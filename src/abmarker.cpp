@@ -102,8 +102,8 @@ void ABMarker::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
 
     if(isSelected()){
         int textHeight=painter->fontMetrics().height();
-        int textWidth=painter->fontMetrics().horizontalAdvance("0000000000000000");
-        int textWidth2=painter->fontMetrics().horizontalAdvance("00000000");
+        QString textPos=QString("%1/%2").arg(m_p.x(),3,'g',3).arg(m_p.y(),3,'g',3);
+        int textWidth=painter->fontMetrics().horizontalAdvance(textPos);
         // get crossing series with line
         painter->save();
         QBrush brush(Qt::SolidPattern);
@@ -115,7 +115,7 @@ void ABMarker::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
         rect.setHeight(textHeight);
         rect.translate(QPointF(2,-textHeight-2));
         painter->drawRect(rect);
-        painter->drawText(rect,0,QString("%1/%2").arg(m_p.x(),3,'g',3).arg(m_p.y(),3,'g',3));
+        painter->drawText(rect,0,textPos);
         // draw delta marker
         if(m_anchorPoint && (m_isB || !m_anchorPoint->isSelected() )){
             QPointF p0=m_anchorPoint->pos();

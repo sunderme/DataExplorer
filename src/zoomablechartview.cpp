@@ -77,7 +77,7 @@ void ZoomableChartView::mousePressEvent(QMouseEvent *event)
         QByteArray itemData;
         QDataStream dataStream(&itemData, QIODevice::WriteOnly);
         QXYSeries *xyseries=qobject_cast<QXYSeries*>(m_tooltip->series());
-        dataStream << xyseries->count();
+        dataStream << xyseries->name() << xyseries->count();
         for(int i=0;i<xyseries->count();++i){
             dataStream << xyseries->at(i);
         }
@@ -88,7 +88,6 @@ void ZoomableChartView::mousePressEvent(QMouseEvent *event)
         m_drag = new QDrag(this);
         m_drag->setMimeData(mimeData);
         m_drag->setPixmap(QIcon(":/icons/labplot-xy-curve-segments.svg").pixmap(32));
-        //m_drag->setHotSpot(event->position().toPoint());
         m_drag->exec();
     }
     QGraphicsView::mousePressEvent(event);
@@ -667,14 +666,16 @@ void ZoomableChartView::dropEvent(QDropEvent *event)
     QByteArray data = event->mimeData()->data("application/x-de-series");
     // parse text to get plot/series data and add to plot
     QDataStream dataStream(&data, QIODevice::ReadOnly);
+    QString name;
     int n;
-    dataStream>>n;
+    dataStream>>name>>n;
     QLineSeries *series=new QLineSeries();
     for(int i=0;i<n;++i){
         QPointF p;
         dataStream>>p;
         *series<<p;
     }
+    series->setName("ext: "+name);
     addSeries(series);
     m_droppedSeries.append(series);
     event->acceptProposedAction();

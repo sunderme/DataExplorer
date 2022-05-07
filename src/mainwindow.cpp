@@ -897,9 +897,10 @@ void MainWindow::updateColBackground(int col,bool filtered){
     }
     // color header
     QTableWidgetItem *item=tableWidget->horizontalHeaderItem(col);
-    if(filtered)
-        item->setBackground(Qt::darkCyan);
-    else{
+    if(filtered){
+        QColor color=QApplication::palette().color(QPalette::Midlight);
+        item->setBackground(color);
+    }else{
         QColor color=QApplication::palette().color(QPalette::Button);
         item->setBackground(color);
     }
@@ -1367,6 +1368,5 @@ QList<LoopIteration> MainWindow::groupBy(QStringList sweepVar,std::vector<bool> 
 /* TODO
 Unit tests
 drag'n'drop series
-col annotated when all filtered
 */
 

@@ -282,7 +282,7 @@ void MainWindow::setupGUI()
 void MainWindow::openFile()
 {
     m_fileName = QFileDialog::getOpenFileName(this,
-        tr("Open CSV"), "", tr("CSV Files (*.csv)"));
+        tr("Open CSV"), "", tr("CSV Files (*.csv);;S2P Files (*.s2p);;S3P Files (*.s3p);;S4P Files (*.s4p)"));
     if(m_fileName.isEmpty()) return;
     readFile();
     m_recentFiles.removeOne(m_fileName);
@@ -323,7 +323,12 @@ void MainWindow::openRecentTemplate()
 void MainWindow::readFile()
 {
     if(m_fileName.isEmpty()) return;
-    bool ok=readInCSV(m_fileName);
+    bool ok;
+    if(m_fileName.endsWith(".s2p")){
+        ok=readInSNP(m_fileName,2);
+    }else{
+        ok=readInCSV(m_fileName);
+    }
     if(!ok) return;
     buildTable();
     m_sweeps.clear();
@@ -476,6 +481,64 @@ bool MainWindow::readInCSV(const QString &fileName)
         bool errorOccured=false;
         while (stream.readLineInto(&line)) {
             QStringList elements=line.split(',');
+            if(elements.size()!=m_columns.size() ){ //
+                // columns estimate wrong but ignore empty lines or lines without comma (e.g. END at end of csv)
+                if(!line.isEmpty() && elements.size()>1){
+                    errorOccured=true;
+                    QErrorMessage *msg=new QErrorMessage(this);
+                    msg->showMessage(tr("CSV read in failed!\nColumns don't match."));
+                    msg->exec();
+                    delete msg;
+                }
+                break;
+            }
+            for(int i=0;i<elements.size();++i){
+                data[i].append(elements[i]);
+            }
+        }
+        if(errorOccured){
+            return false;
+        }
+        m_csv=data;
+        m_columnFilters.clear();
+        return true;
+    }
+    return false;
+}
+/*!
+ * \brief read touchstone file
+ * \param fileName
+ * \return success
+ */
+bool MainWindow::readInSNP(const QString &fileName,int nrPorts)
+{
+    QFile dataFile(fileName);
+    if (dataFile.open(QFile::ReadOnly)){
+        QTextStream stream(&dataFile);
+        QString line;
+        // first line with commas is column names
+        QString prevLine;
+        while(stream.readLineInto(&line)){
+            if(line.startsWith('!') || line.isEmpty() || line.startsWith('[')){
+                prevLine=line;
+                continue;
+            }
+            if(line.startsWith('#')){
+                // get data infor
+                prevLine=line;
+                continue;
+            }
+            break;
+        }
+        if(prevLine.startsWith("!")){
+            //assume port definition
+            prevLine=prevLine.mid(1);
+            m_columns=prevLine.split(QRegularExpression("\\s+"),Qt::SkipEmptyParts);
+        }
+        QVector<QStringList> data(nrPorts*nrPorts*2+1);
+        bool errorOccured=false;
+        while (stream.readLineInto(&line)) {
+            QStringList elements=line.split(QRegularExpression("\\s+"),Qt::SkipEmptyParts);
             if(elements.size()!=m_columns.size() ){ //
                 // columns estimate wrong but ignore empty lines or lines without comma (e.g. END at end of csv)
                 if(!line.isEmpty() && elements.size()>1){

@@ -38,6 +38,7 @@ protected:
     void saveTemplate();
     void readTemplate(const QString &fileName);
     bool readInCSV(const QString &fileName);
+    bool readInSNP(const QString &fileName, int nrPorts=2);
     void buildTable();
     void updateSweepGUI();
     void updateSweeps(bool filterChecked=true);

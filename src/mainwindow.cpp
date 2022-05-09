@@ -1069,7 +1069,7 @@ void MainWindow::copyCell()
  */
 void MainWindow::copyHeader()
 {
-    if(tabWidget->isTabVisible(1)) return; // plot is visible, no table action
+    if(tabWidget->currentIndex()>0) return; // plot is visible, no table action
     QAction *act=qobject_cast<QAction*>(sender());
     bool ok;
     int col=act->data().toInt(&ok);
@@ -1393,5 +1393,8 @@ QList<LoopIteration> MainWindow::groupBy(QStringList sweepVar,std::vector<bool> 
 
 /* TODO
 Unit tests
+chart style in config
+touchstone
+log axis
 */
 

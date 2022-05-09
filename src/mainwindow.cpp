@@ -327,7 +327,15 @@ void MainWindow::readFile()
     if(m_fileName.endsWith(".s2p")){
         ok=readInSNP(m_fileName,2);
     }else{
-        ok=readInCSV(m_fileName);
+        if(m_fileName.endsWith(".s3p")){
+            ok=readInSNP(m_fileName,3);
+        }else{
+            if(m_fileName.endsWith(".s4p")){
+                ok=readInSNP(m_fileName,4);
+            }else{
+                ok=readInCSV(m_fileName);
+            }
+        }
     }
     if(!ok) return;
     buildTable();
@@ -535,24 +543,37 @@ bool MainWindow::readInSNP(const QString &fileName,int nrPorts)
             prevLine=prevLine.mid(1);
             m_columns=prevLine.split(QRegularExpression("\\s+"),Qt::SkipEmptyParts);
         }
+        if(m_columns.size()!=nrPorts*nrPorts*2+1){
+            // set port names to default
+            m_columns.resize(nrPorts*nrPorts*2+1);
+            m_columns[0]="freq";
+            for(int i=0;i<nrPorts;++i){
+                for(int j=0;j<nrPorts;++j){
+                    m_columns[1+2*i*nrPorts+2*j]=QString("dBS%1%2").arg(i+1).arg(j+1);
+                    m_columns[1+2*i*nrPorts+2*j+1]=QString("angS%1%2").arg(i+1).arg(j+1);
+                }
+            }
+        }
         QVector<QStringList> data(nrPorts*nrPorts*2+1);
         bool errorOccured=false;
-        while (stream.readLineInto(&line)) {
+        int lineCount=0;
+        int offset=0;
+        while (!line.isEmpty()) {
             QStringList elements=line.split(QRegularExpression("\\s+"),Qt::SkipEmptyParts);
-            if(elements.size()!=m_columns.size() ){ //
-                // columns estimate wrong but ignore empty lines or lines without comma (e.g. END at end of csv)
-                if(!line.isEmpty() && elements.size()>1){
-                    errorOccured=true;
-                    QErrorMessage *msg=new QErrorMessage(this);
-                    msg->showMessage(tr("CSV read in failed!\nColumns don't match."));
-                    msg->exec();
-                    delete msg;
-                }
-                break;
-            }
             for(int i=0;i<elements.size();++i){
-                data[i].append(elements[i]);
+                data[i+offset].append(elements[i]);
             }
+            if(nrPorts>2){
+                ++lineCount;
+                if(lineCount>=nrPorts){
+                    offset=0;
+                    lineCount=0;
+                }else{
+                    offset+=elements.size();
+                }
+            }
+            if(!stream.readLineInto(&line))
+                break;
         }
         if(errorOccured){
             return false;

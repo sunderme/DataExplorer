@@ -91,6 +91,8 @@ private:
     QList<HorizontalMarker*> m_horizontalMarkers;
     QList<ABMarker*> m_markers;
 
+    QList<QAbstractSeries*> m_selectedSeries;
+
     static bool isAxisTypeZoomableWithMouse(const QAbstractAxis::AxisType type);
     QPointF getSeriesCoordFromChartCoord(const QPointF & mousePos, QAbstractSeries *series) const;
     QPointF getChartCoordFromSeriesCoord(const QPointF & seriesPos, QAbstractSeries *series) const;

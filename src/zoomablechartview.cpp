@@ -81,6 +81,14 @@ void ZoomableChartView::mousePressEvent(QMouseEvent *event)
 #endif
     m_startMousePos=m_lastMousePos;
 
+    if(!m_selectedSeries.isEmpty()){
+        for(auto *series:m_selectedSeries){
+            auto *xyseries=qobject_cast<QXYSeries*>(series);
+            emphasisSeries(xyseries,false);
+        }
+        m_selectedSeries.clear();
+    }
+
     if(m_tooltip){
         // drag 'n'drop
         QByteArray itemData;
@@ -598,7 +606,7 @@ void ZoomableChartView::addSeries(QXYSeries *series)
     if(m_chart->series().length()>1){
         m_chart->legend()->show();
     }
-    //QObject::connect(series, &QLineSeries::clicked,this, &ZoomableChartView::seriesClicked);
+    QObject::connect(series, &QLineSeries::clicked,this, &ZoomableChartView::seriesClicked);
     //QObject::connect(series, &QLineSeries::clicked, this, &ZoomableChartView::keepCallout);
     QObject::connect(series, &QLineSeries::hovered, this, &ZoomableChartView::tooltip);
     const auto markers = m_chart->legend()->markers(series);
@@ -825,6 +833,7 @@ void ZoomableChartView::legendMarkerHovered(bool hover)
 void ZoomableChartView::seriesClicked(const QPointF &point)
 {
     auto *series=qobject_cast<QXYSeries*>(sender());
+    if(m_selectedSeries.contains(series)) return; // already selected
     QByteArray itemData;
     QDataStream dataStream(&itemData, QIODevice::WriteOnly);
     dataStream << "test";
@@ -835,6 +844,7 @@ void ZoomableChartView::seriesClicked(const QPointF &point)
     drag->setPixmap(QIcon(":/icons/labplot-xy-curve-segments.svg").pixmap(32));
 
     emphasisSeries(series);
+    m_selectedSeries.append(series);
 }
 /*!
  * \brief slot for hover over series

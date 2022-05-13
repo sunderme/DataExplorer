@@ -102,7 +102,7 @@ void Callout::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
 
 void Callout::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    event->setAccepted(true);
+    event->setAccepted(false);
 }
 
 void Callout::mouseMoveEvent(QGraphicsSceneMouseEvent *event)

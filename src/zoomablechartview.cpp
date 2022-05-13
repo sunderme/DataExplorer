@@ -503,6 +503,22 @@ bool ZoomableChartView::deleteSelectedMarker()
     }
     return false;
 }
+/*!
+ * \brief delete selected seriess
+ * \return report success
+ */
+bool ZoomableChartView::deleteSelectedSeries()
+{
+    if(!m_selectedSeries.isEmpty()){
+        for(auto *series:m_selectedSeries){
+            auto *xyseries=qobject_cast<QXYSeries*>(series);
+            removeSeries(xyseries);
+        }
+        m_selectedSeries.clear();
+        return true;
+    }
+    return false;
+}
 
 /*!
  * \brief zoom at center point

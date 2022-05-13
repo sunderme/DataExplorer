@@ -49,6 +49,7 @@ public:
     void addMarker(bool markerB=false);
 
     bool deleteSelectedMarker();
+    bool deleteSelectedSeries();
 
 protected slots:
     void legendMarkerClicked();

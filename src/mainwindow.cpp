@@ -793,6 +793,16 @@ void MainWindow::addSweepVar()
 void MainWindow::deleteVar()
 {
     // delete pressed
+    if(tabWidget->currentIndex()>0){
+        // plot visible
+        if(chartView->deleteSelectedMarker()){
+            return;
+        }
+        if(chartView->deleteSelectedSeries()){
+            return;
+        }
+        return;
+    }
     if(lstSweeps->hasFocus()){
         auto lst=lstSweeps->selectedItems();
         for(auto elem:lst){
@@ -809,9 +819,7 @@ void MainWindow::deleteVar()
             delete elem;
         }
     }
-    if(chartView->deleteSelectedMarker()){
-        return;
-    }
+
 }
 /*!
  * \brief add Plot Var

@@ -38,7 +38,7 @@ Callout::Callout(QChart *chart, QAbstractSeries *series):
     QGraphicsItem(chart),
     m_chart(chart),m_series(series)
 {
-    setFlag(QGraphicsItem::ItemIsSelectable,true);
+    setFlag(QGraphicsItem::ItemIsSelectable,false);
 }
 
 QRectF Callout::boundingRect() const

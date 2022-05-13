@@ -106,6 +106,7 @@ void MainWindow::setupMenus()
     copyAction->setShortcut(Qt::ControlModifier+Qt::Key_C);
 #endif
 
+
     QAction *copyHAction=new QAction(tr("Copy header"),this);
     connect(copyHAction, &QAction::triggered, this, &MainWindow::copyHeader);
     m_editMenu->addAction(copyHAction);
@@ -195,8 +196,10 @@ void MainWindow::setupMenus()
     m_plotMenu->addAction(act);
 
     act=new QAction(tr("delete"),this);
+    act->setIcon(QIcon(":/icons/delete.svg"));
     act->setShortcut(QKeySequence::Delete);
     m_plotMenu->addAction(act);
+    plotToolBar->addAction(act);
     connect(act,&QAction::triggered,this,&MainWindow::deleteVar);
 
     QAction *testAction=new QAction("test",this);

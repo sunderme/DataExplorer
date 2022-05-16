@@ -1,5 +1,5 @@
 # DataExplorer
-Specialized data explorer to read csv files, filter and plot data in columns
+Specialized data explorer to read csv files (and toustone files like s2p,s3p&s4p), filter and plot data in columns
 
 CSV with comma as separators can be easily read in. The first line with commas is taken as header, skipping all previous lines.
 <img width="506" alt="Table" src="https://user-images.githubusercontent.com/14033169/163820263-03d0d7ef-a490-46da-aba1-593e14f83c04.png">

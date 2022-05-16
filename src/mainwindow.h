@@ -114,6 +114,7 @@ private:
     QString m_fileName;
 
     QStringList m_recentFiles,m_recentTemplates;
+    QChart::ChartTheme m_chartTheme;
 
     QStringList m_columns;
     QVector<QStringList> m_csv;

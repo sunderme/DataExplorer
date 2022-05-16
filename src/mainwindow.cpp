@@ -31,6 +31,7 @@ MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
     QSettings settings("DataExplorer","DataExplorer");
     m_recentFiles=settings.value("recentFiles").toStringList();
     m_recentTemplates=settings.value("recentTemplates").toStringList();
+    m_chartTheme=static_cast<QChart::ChartTheme>(settings.value("chartTheme",QChart::ChartThemeLight).toInt());
     setupMenus();
     setupGUI();
 
@@ -59,6 +60,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     settings.setValue("windowState", saveState());
     settings.setValue("recentFiles",m_recentFiles);
     settings.setValue("recentTemplates",m_recentTemplates);
+    settings.setValue("chartTheme",m_chartTheme);
     event->accept();
 }
 
@@ -265,6 +267,7 @@ void MainWindow::setupGUI()
     wgt->setLayout(mainLayout);
 
     chartView = new ZoomableChartView();
+    chartView->chart()->setTheme(m_chartTheme);
     //chartView->setZoomMode(ZoomableChartView::RectangleZoom);
     //chartView->setMouseTracking(true);
 

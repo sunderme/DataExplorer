@@ -1194,7 +1194,7 @@ void MainWindow::copyPlotToClipboard()
         // plot is visivle
         QGraphicsScene *scene=chartView->scene();
         QClipboard *clipboard = QGuiApplication::clipboard();
-        QRectF rect=scene->itemsBoundingRect();
+        QRectF rect=chartView->frameRect();
         int w=rect.width();
         int h=rect.height();
         if(w<2048){
@@ -1227,7 +1227,7 @@ void MainWindow::exportPlotImage()
             return;
         }
         QGraphicsScene *scene=chartView->scene();
-        QRectF rect=scene->itemsBoundingRect();
+        QRectF rect=chartView->frameRect();
         int w=rect.width();
         int h=rect.height();
         if(w<2048){

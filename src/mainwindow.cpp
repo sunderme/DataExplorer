@@ -326,7 +326,7 @@ void MainWindow::setupGUI()
 void MainWindow::openFile()
 {
     m_fileName = QFileDialog::getOpenFileName(this,
-        tr("Open CSV"), "", tr("CSV Files (*.csv);;S2P Files (*.s2p);;S3P Files (*.s3p);;S4P Files (*.s4p)"));
+        tr("Open CSV"), "", tr("CSV Files (*.csv);;VCSV Files (*.vcsv);;S2P Files (*.s2p);;S3P Files (*.s3p);;S4P Files (*.s4p)"));
     if(m_fileName.isEmpty()) return;
     readFile();
     m_recentFiles.removeOne(m_fileName);
@@ -524,6 +524,8 @@ bool MainWindow::readInCSV(const QString &fileName)
         // first line with commas is column names
         while(stream.readLineInto(&line)){
             if(line.startsWith('!') || line.isEmpty())
+                continue;
+            if(line.startsWith(';') || line.isEmpty()) // VCSV
                 continue;
             m_columns=line.split(',');
             if(m_columns.size()>1)
@@ -1552,5 +1554,7 @@ Unit tests
 chart style in config
 touchstone
 log axis
+import vcsv
+edit trace name/title
 */
 

@@ -163,6 +163,44 @@ void MainWindow::setupMenus()
 #endif
     connect(act,&QAction::triggered,this,&MainWindow::zoomOut);
     m_plotMenu->addAction(act);
+    act=new QAction(tr("Zoom in X"),this);
+    act->setIcon(QIcon(":/icons/zoomin.svg"));
+#if  QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    act->setShortcut(Qt::ShiftModifier|Qt::Key_X);
+#else
+    act->setShortcut(Qt::ShiftModifier+Qt::Key_X);
+#endif
+    connect(act,&QAction::triggered,this,&MainWindow::zoomInX);
+    m_plotMenu->addAction(act);
+    act=new QAction(tr("Zoom out"),this);
+    act->setIcon(QIcon(":/icons/zoomout.svg"));
+#if  QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    act->setShortcut(Qt::ControlModifier|Qt::Key_X);
+#else
+    act->setShortcut(Qt::ControlModifier+Qt::Key_X);
+#endif
+    connect(act,&QAction::triggered,this,&MainWindow::zoomOutX);
+    m_plotMenu->addAction(act);
+
+    act=new QAction(tr("Zoom in Y"),this);
+    act->setIcon(QIcon(":/icons/zoomin.svg"));
+#if  QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    act->setShortcut(Qt::ShiftModifier|Qt::Key_Y);
+#else
+    act->setShortcut(Qt::ShiftModifier+Qt::Key_Y);
+#endif
+    connect(act,&QAction::triggered,this,&MainWindow::zoomInY);
+    m_plotMenu->addAction(act);
+    act=new QAction(tr("Zoom out Y"),this);
+    act->setIcon(QIcon(":/icons/zoomout.svg"));
+#if  QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    act->setShortcut(Qt::ControlModifier|Qt::Key_Y);
+#else
+    act->setShortcut(Qt::ControlModifier+Qt::Key_Y);
+#endif
+    connect(act,&QAction::triggered,this,&MainWindow::zoomOutY);
+    m_plotMenu->addAction(act);
+
     act=new QAction(tr("Zoom fit"),this);
     act->setIcon(QIcon(":/icons/zoom-fit-best.svg"));
     act->setShortcut(Qt::Key_F);
@@ -869,6 +907,26 @@ void MainWindow::zoomOut()
     chartView->zoom(0.7);
 }
 
+void MainWindow::zoomInX()
+{
+    chartView->zoom(1.2,ZoomableChartView::ZoomDirection::X);
+}
+
+void MainWindow::zoomOutX()
+{
+    chartView->zoom(0.8,ZoomableChartView::ZoomDirection::X);
+}
+
+void MainWindow::zoomInY()
+{
+    chartView->zoom(1.2,ZoomableChartView::ZoomDirection::Y);
+}
+
+void MainWindow::zoomOutY()
+{
+    chartView->zoom(0.8,ZoomableChartView::ZoomDirection::Y);
+}
+
 void MainWindow::zoomReset()
 {
     chartView->zoomReset();
@@ -879,7 +937,7 @@ void MainWindow::zoomReset()
 
 void MainWindow::about()
 {
-    QString DE_VERSION="1.4";
+    QString DE_VERSION="1.5";
     QMessageBox::about(this, tr("About DataExplorer"),
                            tr("Version %1\n"
                                "Written by Jan Sundermeyer (C) 2022\n"

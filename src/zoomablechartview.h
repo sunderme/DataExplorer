@@ -26,11 +26,14 @@ public:
     enum MarkerType{
         Vertical,Horizontal,XY
     };
+    enum ZoomDirection{
+        All,X,Y
+    };
 
     ZoomableChartView(QWidget *parent = 0);
 
-    void zoom(qreal factor);
-    void zoom(qreal factor, QPointF center);
+    void zoom(qreal factor, ZoomDirection direction=All);
+    void zoom(qreal factor, QPointF center,ZoomDirection direction=All);
     void zoomReset();
 
     void clear(bool recreateDroppedSeries=true);

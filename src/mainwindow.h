@@ -54,6 +54,10 @@ protected:
     void zoomY();
     void zoomIn();
     void zoomOut();
+    void zoomInX();
+    void zoomOutX();
+    void zoomInY();
+    void zoomOutY();
     void zoomReset();
     void about();
     void addVerticalMarker();

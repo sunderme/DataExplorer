@@ -47,10 +47,10 @@ ZoomableChartView::ZoomableChartView(QWidget *parent) :
  * \brief zoom in/out at center
  * \param factor
  */
-void ZoomableChartView::zoom(qreal factor)
+void ZoomableChartView::zoom(qreal factor,ZoomDirection direction)
 {
     QPointF center=m_chart->plotArea().center();
-    zoom(factor,center);
+    zoom(factor,center,direction);
     updateMarker();
 }
 /*!
@@ -525,7 +525,7 @@ bool ZoomableChartView::deleteSelectedSeries()
  * \param factor
  * \param center
  */
-void ZoomableChartView::zoom(qreal factor, QPointF center)
+void ZoomableChartView::zoom(qreal factor, QPointF center, ZoomDirection direction)
 {
 
     QRectF rect = chart()->plotArea();
@@ -534,8 +534,12 @@ void ZoomableChartView::zoom(qreal factor, QPointF center)
     const qreal widthOriginal = rect.width();
     const qreal heightOriginal = rect.height();
 
-    rect.setWidth(widthOriginal/factor);
-    rect.setHeight(heightOriginal/factor);
+    if(direction!=ZoomDirection::Y){
+        rect.setWidth(widthOriginal/factor);
+    }
+    if(direction!=ZoomDirection::X){
+        rect.setHeight(heightOriginal/factor);
+    }
 
     rect.moveCenter(center);
     rect.translate(transl);

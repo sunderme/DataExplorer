@@ -1,6 +1,15 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(DataExplorer VERSION 0.6 LANGUAGES CXX)
+project(DataExplorer VERSION 1.4 LANGUAGES CXX)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+find_package(GitInfo)
+git_wc_info(${PROJECT_SOURCE_DIR} VARPREFIX)
+
+message(STATUS "The current git hash is ${VARPREFIX_WC_REVISION_HASH}")
+
+add_definitions(-DDE_VERSION=\"${VARPREFIX_WC_LATEST_TAG_LONG}\")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 

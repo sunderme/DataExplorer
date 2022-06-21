@@ -948,7 +948,6 @@ void MainWindow::zoomReset()
 
 void MainWindow::about()
 {
-    QString DE_VERSION="1.5";
     QMessageBox::about(this, tr("About DataExplorer"),
                            tr("Version %1\n"
                                "Written by Jan Sundermeyer (C) 2022\n"

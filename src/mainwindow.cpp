@@ -522,11 +522,20 @@ bool MainWindow::readInCSV(const QString &fileName)
         QTextStream stream(&dataFile);
         QString line;
         // first line with commas is column names
+        QString rest; // for VCSV
         while(stream.readLineInto(&line)){
             if(line.startsWith('!') || line.isEmpty())
                 continue;
-            if(line.startsWith(';') || line.isEmpty()) // VCSV
+            if(line.startsWith(';') || line.isEmpty()){
+                // VCSV
+                if(fileName.endsWith(".vcsv")){
+                    // try to interpret vcsv as header
+                    m_columns=rest.split(','); // comment before last contains column names  ?
+                    rest=line.mid(1);
+                }
                 continue;
+            }
+            if(fileName.endsWith(".vcsv")) break; // special treatment for VCSV
             m_columns=line.split(',');
             if(m_columns.size()>1)
                 break;

@@ -86,7 +86,7 @@ protected:
     void showDecimal();
     void showBinary();
     void showHex();
-    qlonglong convertStringToLong(QString text,bool &ok);
+    qulonglong convertStringToLong(QString text,bool &ok);
     int getIndex(const QString &name);
     bool hasColumnFilter(int column) const;
     int getColumnFilter(int column) const;

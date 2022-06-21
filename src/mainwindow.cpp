@@ -1324,12 +1324,12 @@ bool MainWindow::isIntOnlyData(int column)
     for(qsizetype row=0;row<m_csv[column].count();++row){
         QString cell=m_csv[column].value(row);
         if(cell.startsWith("0b")){
-            cell.mid(2).toInt(&ok,2);
+            cell.mid(2).toULongLong(&ok,2);
         }else{
             if(cell.startsWith("0x")){
-                cell.mid(2).toInt(&ok);
+                cell.mid(2).toULongLong(&ok);
             }else{
-                cell.toInt(&ok);
+                cell.toULongLong(&ok);
             }
         }
         if(!ok) break;
@@ -1374,7 +1374,7 @@ void MainWindow::showDecimal()
     bool ok;
     for(qsizetype row=0;row<m_csv[column].count();++row){
         QString cell=m_csv[column].value(row);
-        qlonglong value=convertStringToLong(cell,ok);
+        qulonglong value=convertStringToLong(cell,ok);
         if(!ok) break;
         QTableWidgetItem *item=tableWidget->item(row,column);
         item->setText(QString("%1").arg(value,0));
@@ -1392,7 +1392,7 @@ void MainWindow::showBinary()
     bool ok;
     for(qsizetype row=0;row<m_csv[column].count();++row){
         QString cell=m_csv[column].value(row);
-        qlonglong value=convertStringToLong(cell,ok);
+        qulonglong value=convertStringToLong(cell,ok);
         if(value<0){
             // 2er complement
             value=(1<<bits)+value;
@@ -1415,7 +1415,7 @@ void MainWindow::showHex()
     bool ok;
     for(qsizetype row=0;row<m_csv[column].count();++row){
         QString cell=m_csv[column].value(row);
-        qlonglong value=convertStringToLong(cell,ok);
+        qulonglong value=convertStringToLong(cell,ok);
         if(!ok) break;
         if(value<0){
             // 2er complement
@@ -1433,16 +1433,16 @@ void MainWindow::showHex()
  * \param ok
  * \return
  */
-qlonglong MainWindow::convertStringToLong(QString text, bool &ok)
+qulonglong MainWindow::convertStringToLong(QString text, bool &ok)
 {
-    qlonglong value;
+    qulonglong value;
     if(text.startsWith("0b")){
-        value=text.mid(2).toInt(&ok,2);
+        value=text.mid(2).toULongLong(&ok,2);
     }else{
         if(text.startsWith("0x")){
-            value=text.mid(2).toInt(&ok,16);
+            value=text.mid(2).toULongLong(&ok,16);
         }else{
-            value=text.toInt(&ok);
+            value=text.toULongLong(&ok);
         }
     }
     return value;

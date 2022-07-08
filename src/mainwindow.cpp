@@ -523,6 +523,7 @@ bool MainWindow::readInCSV(const QString &fileName)
         QString line;
         // first line with commas is column names
         QString rest; // for VCSV
+        bool found=false;
         while(stream.readLineInto(&line)){
             if(line.startsWith('!') || line.isEmpty())
                 continue;
@@ -537,13 +538,29 @@ bool MainWindow::readInCSV(const QString &fileName)
             }
             if(fileName.endsWith(".vcsv")) break; // special treatment for VCSV
             m_columns=line.split(',');
-            if(m_columns.size()>1)
+            if(m_columns.size()>1){
+                found=true;
                 break;
+            }
         }
+        if(!found){
+            // single column
+            // repeat read
+            stream.seek(0);
+            m_columns[0]="x";
+            m_columns<<"y";
+        }
+        int l=0;
         QVector<QStringList> data(m_columns.size());
         bool errorOccured=false;
         while (stream.readLineInto(&line)) {
             QStringList elements=line.split(',');
+            if(!found){
+                // special treatment single column
+                data[0]<<QString("%1").arg(l++);
+                data[1]<<line;
+                continue;
+            }
             if(elements.size()!=m_columns.size() ){ //
                 // columns estimate wrong but ignore empty lines or lines without comma (e.g. END at end of csv)
                 if(!line.isEmpty() && elements.size()>1){

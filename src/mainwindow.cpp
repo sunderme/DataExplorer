@@ -554,7 +554,7 @@ bool MainWindow::readInCSV(const QString &fileName)
         QVector<QStringList> data(m_columns.size());
         bool errorOccured=false;
         while (stream.readLineInto(&line)) {
-            QStringList elements=line.split(',');
+            QStringList elements=splitAtComma(line);
             if(!found){
                 // special treatment single column
                 data[0]<<QString("%1").arg(l++);
@@ -1537,6 +1537,34 @@ std::vector<bool> MainWindow::filterIndices(const QString &var, const QString &v
         }
     }
     return result;
+}
+/*!
+ * \brief split line at commas but handle quotes correctly
+ * \param line
+ * \return split line
+ */
+QStringList MainWindow::splitAtComma(const QString &line) const
+{
+    if(line.contains("\"")){
+        QStringList result;
+        qsizetype pos=-1;
+        qsizetype oldPos=0;
+        qsizetype posQuote=line.indexOf("\"");
+        qsizetype posQuote2=line.indexOf("\"",posQuote+1);
+        while((pos=line.indexOf(",",pos+1))>=0){
+            if(pos>posQuote && posQuote2>pos){
+                continue; // skip through quote
+            }
+            posQuote=line.indexOf("\"",pos);
+            posQuote2=line.indexOf("\"",posQuote+1);
+            result<<line.mid(oldPos,pos-oldPos);
+            oldPos=pos+1;
+        }
+        result<<line.mid(oldPos);
+        return result;
+    }else{
+        return line.split(",");
+    }
 }
 /*!
  * \brief like groupBy in pandas.

@@ -92,6 +92,7 @@ protected:
     int getColumnFilter(int column) const;
     QStringList getUniqueValues(const QString &var,const std::vector<bool> &indices);
     std::vector<bool> filterIndices(const QString &var,const QString &value,const std::vector<bool> &providedIndices);
+    QStringList splitAtComma(const QString &line) const;
 
     QList<LoopIteration> groupBy(QStringList sweepVar,std::vector<bool> providedIndices=std::vector<bool>() );
 

@@ -26,7 +26,7 @@
  * \param parent
  */
 MainWindow::MainWindow(int argc, char *argv[], QWidget *parent)
-    : QMainWindow(parent)
+    : QMainWindow(parent),m_logx(false),m_logy(false)
 {
     QSettings settings("DataExplorer","DataExplorer");
     m_recentFiles=settings.value("recentFiles").toStringList();
@@ -234,6 +234,17 @@ void MainWindow::setupMenus()
     act->setShortcut(Qt::Key_B);
     connect(act,&QAction::triggered,this,&MainWindow::addMarkerB);
     m_plotMenu->addAction(act);
+
+    m_logyAct=new QAction(tr("Log Y"),this);
+    //act->setIcon(QIcon(":/icons/zoom-select-x.svg"));
+    act->setShortcut(Qt::Key_L);
+    connect(m_logyAct,&QAction::triggered,this,&MainWindow::setLinLogY);
+    m_plotMenu->addAction(m_logyAct);
+    m_logxAct=new QAction(tr("Log X"),this);
+    //act->setIcon(QIcon(":/icons/zoom-select-x.svg"));
+    act->setShortcut(Qt::ShiftModifier | Qt::Key_L);
+    connect(m_logxAct,&QAction::triggered,this,&MainWindow::setLinLogX);
+    m_plotMenu->addAction(m_logxAct);
 
     act=new QAction(tr("delete"),this);
     act->setIcon(QIcon(":/icons/delete.svg"));
@@ -959,6 +970,24 @@ void MainWindow::zoomOutY()
 void MainWindow::zoomReset()
 {
     chartView->zoomReset();
+}
+/*!
+ * \brief set Y-axis log/lin
+ */
+void MainWindow::setLinLogY()
+{
+    m_logy=!m_logy;
+    chartView->setLogY(m_logy);
+    m_logyAct->setText(m_logy ? tr("Lin Y") : tr("Log Y"));
+}
+/*!
+ * \brief set X-axis log/lin
+ */
+void MainWindow::setLinLogX()
+{
+    m_logx=!m_logx;
+    chartView->setLogX(m_logx);
+    m_logxAct->setText(m_logx ? tr("Lin X") : tr("Log X"));
 }
 /*!
  * \brief show about message

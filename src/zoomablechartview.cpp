@@ -14,6 +14,7 @@
 
 #include "rangelimitedvalueaxis.h"
 #include <QDebug>
+#include <QLogValueAxis>
 
 ZoomableChartView::ZoomableChartView(QWidget *parent) :
     QGraphicsView(new QGraphicsScene, parent),m_chart(nullptr),m_tooltip(nullptr)
@@ -518,6 +519,57 @@ bool ZoomableChartView::deleteSelectedSeries()
         return true;
     }
     return false;
+}
+/*!
+ * \brief set Y-axis to log
+ * \param log
+ */
+void ZoomableChartView::setLogY(bool log)
+{
+    for(auto *axs:m_chart->axes(Qt::Vertical)){
+        m_chart->removeAxis(axs);
+    }
+
+    QAbstractAxis *axs=nullptr;
+    if(log){
+        auto *logaxs=new QLogValueAxis;
+        //logaxs->setBase(8.0);
+        logaxs->setMinorTickCount(-1);
+        axs=logaxs;
+
+    }else{
+        axs=new QValueAxis;
+    }
+    m_chart->addAxis(axs,Qt::AlignLeft);
+    for(auto *series:m_chart->series()){
+        series->attachAxis(axs);
+    }
+}
+
+/*!
+ * \brief set X-axis to log
+ * \param log
+ */
+void ZoomableChartView::setLogX(bool log)
+{
+    for(auto *axs:m_chart->axes(Qt::Horizontal)){
+        m_chart->removeAxis(axs);
+    }
+
+    QAbstractAxis *axs=nullptr;
+    if(log){
+        auto *logaxs=new QLogValueAxis;
+        //logaxs->setBase(8.0);
+        logaxs->setMinorTickCount(-1);
+        axs=logaxs;
+
+    }else{
+        axs=new QValueAxis;
+    }
+    m_chart->addAxis(axs,Qt::AlignBottom);
+    for(auto *series:m_chart->series()){
+        series->attachAxis(axs);
+    }
 }
 
 /*!

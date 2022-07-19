@@ -54,6 +54,9 @@ public:
     bool deleteSelectedMarker();
     bool deleteSelectedSeries();
 
+    void setLogY(bool log);
+    void setLogX(bool log);
+
 protected slots:
     void legendMarkerClicked();
     void legendMarkerHovered(bool hover);

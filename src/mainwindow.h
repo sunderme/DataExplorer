@@ -59,6 +59,8 @@ protected:
     void zoomInY();
     void zoomOutY();
     void zoomReset();
+    void setLinLogY();
+    void setLinLogX();
     void about();
     void addVerticalMarker();
     void addHorizontalMarker();
@@ -105,6 +107,7 @@ private:
     QAction *m_openAct;
     QAction *m_exitAct;
     QAction *m_plotAct;
+    QAction *m_logxAct,*m_logyAct;
 
     QTabWidget *tabWidget;
     QTableWidget *tableWidget;
@@ -127,5 +130,6 @@ private:
 
     QList<ColumnFilter> m_columnFilters;
     std::vector<bool>m_visibleRows;
+    bool m_logx,m_logy;
 };
 #endif // MAINWINDOW_H

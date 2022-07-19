@@ -317,6 +317,8 @@ void MainWindow::setupGUI()
 
     chartView = new ZoomableChartView();
     chartView->chart()->setTheme(m_chartTheme);
+    connect(chartView,&ZoomableChartView::changeLinLogY,this,&MainWindow::setLinLogY);
+    connect(chartView,&ZoomableChartView::changeLinLogX,this,&MainWindow::setLinLogX);
     //chartView->setZoomMode(ZoomableChartView::RectangleZoom);
     //chartView->setMouseTracking(true);
 

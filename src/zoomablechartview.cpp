@@ -788,6 +788,16 @@ void ZoomableChartView::dropEvent(QDropEvent *event)
     event->acceptProposedAction();
 }
 
+void ZoomableChartView::contextMenuEvent(QContextMenuEvent *event)
+{
+    QMenu menu;
+    QAction *act=menu.addAction(tr("lin/log y"));
+    connect(act,&QAction::triggered,this,&ZoomableChartView::changeLinLogY);
+    act=menu.addAction(tr("lin/log x"));
+    connect(act,&QAction::triggered,this,&ZoomableChartView::changeLinLogX);
+    menu.exec(event->globalPos());
+}
+
 /*!
  * \brief mouseReleaseEvent for local zoom
  * \param event

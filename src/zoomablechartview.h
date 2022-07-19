@@ -12,6 +12,7 @@
 
 class ZoomableChartView : public QGraphicsView
 {
+   Q_OBJECT
 public:
     enum ZoomMode {
         Pan,
@@ -57,6 +58,10 @@ public:
     void setLogY(bool log);
     void setLogX(bool log);
 
+signals:
+    void changeLinLogX();
+    void changeLinLogY();
+
 protected slots:
     void legendMarkerClicked();
     void legendMarkerHovered(bool hover);
@@ -76,6 +81,7 @@ protected:
     void dragEnterEvent(QDragEnterEvent *event) override;
     void dragMoveEvent(QDragMoveEvent *event) override;
     void dropEvent(QDropEvent *event) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
     void setSeriesVisible(QAbstractSeries *series, bool visible = true);
     void emphasisSeries(QXYSeries *series, bool emphasis = true);

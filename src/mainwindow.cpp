@@ -533,6 +533,7 @@ bool MainWindow::readInCSV(const QString &fileName)
                     // try to interpret vcsv as header
                     m_columns=rest.split(','); // comment before last contains column names  ?
                     rest=line.mid(1);
+                    found=true;
                 }
                 continue;
             }

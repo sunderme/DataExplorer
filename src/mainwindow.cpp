@@ -778,7 +778,13 @@ void MainWindow::plotSelected()
     if(tabWidget->currentIndex()!=1){
         tabWidget->setCurrentIndex(1); // plot tab
     }
-
+    // recreate lin/log
+    if(m_logx){
+        chartView->setLogX(true);
+    }
+    if(m_logy){
+        chartView->setLogY(true);
+    }
 }
 /*!
  * \brief plot if changed to plot tab

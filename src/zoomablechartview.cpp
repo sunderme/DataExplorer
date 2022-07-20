@@ -533,8 +533,8 @@ void ZoomableChartView::setLogY(bool log)
     QAbstractAxis *axs=nullptr;
     if(log){
         auto *logaxs=new QLogValueAxis;
-        //logaxs->setBase(8.0);
         logaxs->setMinorTickCount(-1);
+        logaxs->setLabelFormat("%g");
         axs=logaxs;
 
     }else{
@@ -561,6 +561,7 @@ void ZoomableChartView::setLogX(bool log)
         auto *logaxs=new QLogValueAxis;
         //logaxs->setBase(8.0);
         logaxs->setMinorTickCount(-1);
+        logaxs->setLabelFormat("%g");
         axs=logaxs;
 
     }else{

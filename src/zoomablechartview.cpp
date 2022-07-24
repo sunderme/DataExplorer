@@ -639,14 +639,15 @@ void ZoomableChartView::zoomReset()
             }
         }
     }
-    QValueAxis *axis=qobject_cast<QValueAxis*>(m_chart->axes(Qt::Horizontal).value(0));
+    QAbstractAxis *axis=qobject_cast<QAbstractAxis*>(m_chart->axes(Qt::Horizontal).value(0));
     if(axis){
         axis->setRange(xmin,xmax);
     }
-    axis=qobject_cast<QValueAxis*>(m_chart->axes(Qt::Vertical).value(0));
+    axis=qobject_cast<QAbstractAxis*>(m_chart->axes(Qt::Vertical).value(0));
     if(axis){
         axis->setRange(ymin,ymax);
     }
+
     updateMarker();
 }
 

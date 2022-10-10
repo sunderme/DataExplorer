@@ -237,12 +237,12 @@ void MainWindow::setupMenus()
 
     m_logyAct=new QAction(tr("Log Y"),this);
     //act->setIcon(QIcon(":/icons/zoom-select-x.svg"));
-    act->setShortcut(Qt::Key_L);
+    m_logyAct->setShortcut(Qt::Key_L);
     connect(m_logyAct,&QAction::triggered,this,&MainWindow::setLinLogY);
     m_plotMenu->addAction(m_logyAct);
     m_logxAct=new QAction(tr("Log X"),this);
     //act->setIcon(QIcon(":/icons/zoom-select-x.svg"));
-    act->setShortcut(Qt::ShiftModifier | Qt::Key_L);
+    m_logxAct->setShortcut(Qt::ShiftModifier | Qt::Key_L);
     connect(m_logxAct,&QAction::triggered,this,&MainWindow::setLinLogX);
     m_plotMenu->addAction(m_logxAct);
 

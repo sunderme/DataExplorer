@@ -551,7 +551,7 @@ bool MainWindow::readInCSV(const QString &fileName)
                 continue;
             }
             if(fileName.endsWith(".vcsv")) break; // special treatment for VCSV
-            m_columns=line.split(',');
+            m_columns=splitAtComma(line);
             if(m_columns.size()>1){
                 found=true;
                 break;

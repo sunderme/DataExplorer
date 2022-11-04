@@ -84,10 +84,16 @@ protected:
     void copyPlotToClipboard();
     void exportPlotImage();
     bool isIntOnlyData(int column);
+    bool isFloatOnlyData(int column);
+    bool isPosFloatOnlyData(int column);
     int getIntegerWidth(int column);
     void showDecimal();
     void showBinary();
     void showHex();
+    void convertDB20Float();
+    void convertDB10Float();
+    void convertFloatDB20();
+    void convertFloatDB10();
     qulonglong convertStringToLong(QString text,bool &ok);
     int getIndex(const QString &name);
     bool hasColumnFilter(int column) const;

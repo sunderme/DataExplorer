@@ -814,6 +814,7 @@ void MainWindow::headerMenuRequested(QPoint pt)
     connect(act,&QAction::triggered,this,&MainWindow::addPlotVar);
     menu->addAction(act);
     menu->addSeparator();
+    bool addSeparator=false;
     if(isIntOnlyData(column)){
         act=new QAction(tr("show as hex"), this);
         act->setData(column);
@@ -827,6 +828,31 @@ void MainWindow::headerMenuRequested(QPoint pt)
         act->setData(column);
         connect(act,&QAction::triggered,this,&MainWindow::showDecimal);
         menu->addAction(act);
+        addSeparator=true;
+    }
+    if(isPosFloatOnlyData(column)){
+        act=new QAction(tr("float -> dB20"), this);
+        act->setData(column);
+        connect(act,&QAction::triggered,this,&MainWindow::convertFloatDB20);
+        menu->addAction(act);
+        act=new QAction(tr("float -> dB10"), this);
+        act->setData(column);
+        connect(act,&QAction::triggered,this,&MainWindow::convertFloatDB10);
+        menu->addAction(act);
+        addSeparator=true;
+    }
+    if(isFloatOnlyData(column)){
+        act=new QAction(tr("dB20 -> float"), this);
+        act->setData(column);
+        connect(act,&QAction::triggered,this,&MainWindow::convertDB20Float);
+        menu->addAction(act);
+        act=new QAction(tr("dB10 -> float"), this);
+        act->setData(column);
+        connect(act,&QAction::triggered,this,&MainWindow::convertDB10Float);
+        menu->addAction(act);
+        addSeparator=true;
+    }
+    if(addSeparator){
         menu->addSeparator();
     }
     act=new QAction(tr("copy header"), this);
@@ -1392,6 +1418,41 @@ bool MainWindow::isIntOnlyData(int column)
     return ok;
 }
 /*!
+ * \brief check if data consists only of floats
+ * Determined by numbers containing [-]\d.\d[E[-]\d]
+ * \param column
+ * \return
+ */
+bool MainWindow::isFloatOnlyData(int column)
+{
+    bool ok=true;
+    QRegularExpression re("^\\s*[-]?\\d+(\\.\\d+)?(E[-]?\\d+)?");
+    for(qsizetype row=0;row<m_csv[column].count();++row){
+        QString cell=m_csv[column].value(row);
+        QRegularExpressionMatch match = re.match(cell);
+        ok = match.hasMatch();
+        if(!ok) break;
+    }
+    return ok;
+}
+/*!
+ * \brief check if data consists only of positive floats
+ * \param column
+ * \return
+ */
+bool MainWindow::isPosFloatOnlyData(int column)
+{
+    bool ok=true;
+    QRegularExpression re("^\\d+(\\.\\d+)?(E[-]?\\d+)?");
+    for(qsizetype row=0;row<m_csv[column].count();++row){
+        QString cell=m_csv[column].value(row);
+        QRegularExpressionMatch match = re.match(cell);
+        ok = match.hasMatch();
+        if(!ok) break;
+    }
+    return ok;
+}
+/*!
  * \brief get maximum number of bits on all integer number in column
  * Maybe fail for negative numbers !!!!
  * \param column
@@ -1478,6 +1539,86 @@ void MainWindow::showHex()
         }
         QTableWidgetItem *item=tableWidget->item(row,column);
         item->setText(QString("0x%1").arg(value,digits,16,QChar('0')));
+    }
+    tableWidget->resizeColumnToContents(column);
+}
+/*!
+ * \brief convert column in table as float from dB20
+ */
+void MainWindow::convertDB20Float()
+{
+    QAction *act=qobject_cast<QAction*>(sender());
+    int column=act->data().toInt();
+    bool ok;
+    for(qsizetype row=0;row<m_csv[column].count();++row){
+        QString cell=m_csv[column].value(row);
+        double value=cell.toDouble(&ok);
+        if(!ok) break;
+        value=pow(10,value/20);
+        QTableWidgetItem *item=tableWidget->item(row,column);
+        cell=QString("%1").arg(value);
+        m_csv[column][row]=cell;
+        item->setText(cell);
+    }
+    tableWidget->resizeColumnToContents(column);
+}
+/*!
+ * \brief convert column in table as float from dB10
+ */
+void MainWindow::convertDB10Float()
+{
+    QAction *act=qobject_cast<QAction*>(sender());
+    int column=act->data().toInt();
+    bool ok;
+    for(qsizetype row=0;row<m_csv[column].count();++row){
+        QString cell=m_csv[column].value(row);
+        double value=cell.toDouble(&ok);
+        if(!ok) break;
+        value=pow(10,value/10);
+        QTableWidgetItem *item=tableWidget->item(row,column);
+        cell=QString("%1").arg(value);
+        m_csv[column][row]=cell;
+        item->setText(cell);
+    }
+    tableWidget->resizeColumnToContents(column);
+}
+/*!
+ * \brief convert column in table as dB20 from pos. float
+ */
+void MainWindow::convertFloatDB20()
+{
+    QAction *act=qobject_cast<QAction*>(sender());
+    int column=act->data().toInt();
+    bool ok;
+    for(qsizetype row=0;row<m_csv[column].count();++row){
+        QString cell=m_csv[column].value(row);
+        double value=cell.toDouble(&ok);
+        if(!ok) break;
+        value=log10(value)*20;
+        QTableWidgetItem *item=tableWidget->item(row,column);
+        cell=QString("%1").arg(value);
+        m_csv[column][row]=cell;
+        item->setText(cell);
+    }
+    tableWidget->resizeColumnToContents(column);
+}
+/*!
+ * \brief convert column in table as dB10 from pos. float
+ */
+void MainWindow::convertFloatDB10()
+{
+    QAction *act=qobject_cast<QAction*>(sender());
+    int column=act->data().toInt();
+    bool ok;
+    for(qsizetype row=0;row<m_csv[column].count();++row){
+        QString cell=m_csv[column].value(row);
+        double value=cell.toDouble(&ok);
+        if(!ok) break;
+        value=log10(value)*10;
+        QTableWidgetItem *item=tableWidget->item(row,column);
+        cell=QString("%1").arg(value);
+        m_csv[column][row]=cell;
+        item->setText(cell);
     }
     tableWidget->resizeColumnToContents(column);
 }

@@ -310,6 +310,12 @@ void MainWindow::setupGUI()
     leFilterText = new QLineEdit;
     connect(leFilterText,&QLineEdit::textEdited,this,&MainWindow::filterTextChanged);
     hLayout2->addWidget(leFilterText);
+    btRegExp=new QToolButton;
+    btRegExp->setCheckable(true);
+    btRegExp->setText(".*");
+    //btRegExp->setIcon(QIcon(":/icons/view-filter.svg"));
+    connect(btRegExp,&QAbstractButton::toggled,this,&MainWindow::regexToggled);
+    hLayout2->addWidget(btRegExp);
     hLayout2->addSpacing(1);
     mainLayout->addLayout(hLayout2);
     mainLayout->addWidget(tableWidget,3);
@@ -1093,6 +1099,15 @@ void MainWindow::filterToggled(bool checked)
     }
 }
 /*!
+ * \brief use regexp as filter text
+ * \param checked
+ */
+void MainWindow::regexToggled(bool )
+{
+    // filter columns
+    filterTextChanged(leFilterText->text());
+}
+/*!
  * \brief filter to only columns which are checked on header
  * \param checked
  */
@@ -1133,9 +1148,16 @@ void MainWindow::filterTextChanged(const QString &text)
     if(!btFilter->isChecked()){
         btFilter->setChecked(true);
     }
+    bool useRegex=btRegExp->isChecked();
     if(btFilter->isChecked()){
         for(int i=0;i<m_columns.size();++i){
-            if(m_columns.value(i).contains(text, Qt::CaseInsensitive)){
+            bool show=false;
+            if(useRegex){
+                show=m_columns.value(i).contains(QRegularExpression(text));
+            }else{
+                show=m_columns.value(i).contains(text, Qt::CaseInsensitive);
+            }
+            if(show){
                 tableWidget->showColumn(i);
             }else{
                 tableWidget->hideColumn(i);

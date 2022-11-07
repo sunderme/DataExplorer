@@ -69,6 +69,7 @@ protected:
     void populateRecentFiles();
     void populateRecentTemplates();
     void filterToggled(bool checked);
+    void regexToggled(bool checked);
     void filterCheckedToggled(bool checked);
     void filterPlotToggled(bool checked);
     void filterTextChanged(const QString &text);
@@ -122,7 +123,7 @@ private:
     QListWidget *lstSweeps;
     QListWidget *lstData;
 
-    QToolButton *btFilter,*btFilterPlot,*btFilterChecked;
+    QToolButton *btFilter,*btFilterPlot,*btFilterChecked,*btRegExp;
     QLineEdit *leFilterText;
 
     QString m_fileName;

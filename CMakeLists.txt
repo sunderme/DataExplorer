@@ -41,6 +41,7 @@ set(PROJECT_SOURCES
         src/callout.h src/callout.cpp
         resources/icons.qrc
         ${APP_ICON_RESOURCE_WINDOWS}
+        resources/DataExplorer.icns
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -68,10 +69,12 @@ endif()
 
 target_link_libraries(DataExplorer PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Charts)
 
+set_source_files_properties(resources/DataExplorer.icns PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
 set_target_properties(DataExplorer PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER DataExplorer
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    MACOSX_BUNDLE_ICON_FILE DataExplorer.icns
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )

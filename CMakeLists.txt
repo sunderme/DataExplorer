@@ -23,6 +23,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Charts)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Charts)
 
+set(APP_ICON_RESOURCE_WINDOWS "${CMAKE_CURRENT_SOURCE_DIR}/resources/win.rc")
+
 set(PROJECT_SOURCES
         src/main.cpp
         src/mainwindow.cpp
@@ -38,6 +40,7 @@ set(PROJECT_SOURCES
         src/abmarker.h src/abmarker.cpp
         src/callout.h src/callout.cpp
         resources/icons.qrc
+        ${APP_ICON_RESOURCE_WINDOWS}
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

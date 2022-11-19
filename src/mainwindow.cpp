@@ -578,7 +578,7 @@ bool MainWindow::readInCSV(const QString &fileName)
             if(!found){
                 // special treatment single column
                 data[0]<<QString("%1").arg(l++);
-                data[1]<<line;
+                data[1]<<unquote(line);
                 continue;
             }
             if(elements.size()!=m_columns.size() ){ //
@@ -593,7 +593,8 @@ bool MainWindow::readInCSV(const QString &fileName)
                 break;
             }
             for(int i=0;i<elements.size();++i){
-                data[i].append(elements[i]);
+
+                data[i].append(unquote(elements[i]));
             }
         }
         if(errorOccured){
@@ -1766,6 +1767,19 @@ QStringList MainWindow::splitAtComma(const QString &line) const
     }else{
         return line.split(",");
     }
+}
+/*!
+ * \brief remove quotes (") around text
+ * \param text
+ * \return text without quotes
+ */
+QString MainWindow::unquote(const QString &text) const
+{
+    QString result=text;
+    if(text.startsWith("\"") and text.endsWith("\"")){
+        result=text.mid(1,text.length()-2);
+    }
+    return result;
 }
 /*!
  * \brief like groupBy in pandas.

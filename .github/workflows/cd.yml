@@ -144,21 +144,21 @@ jobs:
 
     - name: Install Dependencies
       run: |
-        wget https://github.com/sunderme/homebrew-qt6/releases/download/6.4.0-1/QtBase-6.4.0-Darwin.tar.xz
-        sudo tar xvf ./QtBase-6.4.0-Darwin.tar.xz -C /usr/local
-        rm QtBase-6.4.0-Darwin.tar.xz
-        wget https://github.com/sunderme/homebrew-qt6-modules/releases/download/6.4.0-1/QtSvg-6.4.0-Darwin.tar.xz
-        sudo tar xvf ./QtSvg-6.4.0-Darwin.tar.xz -C /usr/local/QtBase-6.4.0-Darwin --strip-components=1
-        rm QtSvg-6.4.0-Darwin.tar.xz
-        wget https://github.com/sunderme/homebrew-qt6-modules/releases/download/6.4.0-1/QtCharts-6.4.0-Darwin.tar.xz
-        sudo tar xvf ./QtCharts-6.4.0-Darwin.tar.xz -C /usr/local/QtBase-6.4.0-Darwin --strip-components=1
-        rm QtCharts-6.4.0-Darwin.tar.xz
+        wget https://github.com/sunderme/homebrew-qt6/releases/download/6.4.1/QtBase-6.4.1-Darwin.tar.xz
+        sudo tar xvf ./QtBase-6.4.1-Darwin.tar.xz -C /usr/local
+        rm QtBase-6.4.1-Darwin.tar.xz
+        wget https://github.com/sunderme/homebrew-qt6-modules/releases/download/6.4.1/QtSvg-6.4.1-Darwin.tar.xz
+        sudo tar xvf ./QtSvg-6.4.1-Darwin.tar.xz -C /usr/local/QtBase-6.4.1-Darwin --strip-components=1
+        rm QtSvg-6.4.1-Darwin.tar.xz
+        wget https://github.com/sunderme/homebrew-qt6-modules/releases/download/6.4.1/QtCharts-6.4.1-Darwin.tar.xz
+        sudo tar xvf ./QtCharts-6.4.1-Darwin.tar.xz -C /usr/local/QtBase-6.4.1-Darwin --strip-components=1
+        rm QtCharts-6.4.1-Darwin.tar.xz
 
     - name: Configure
       run: |
         mkdir build
         cd build
-        /usr/local/QtBase-6.4.0-Darwin/bin/qt-cmake ..
+        /usr/local/QtBase-6.4.1-Darwin/bin/qt-cmake ..
 
     - name: Build
       run: cmake --build build
@@ -172,7 +172,7 @@ jobs:
       id: package
       run: |
         cd build
-        /usr/local/QtBase-6.4.0-Darwin/bin/macdeployqt dataexplorer.app -dmg
+        /usr/local/QtBase-6.4.1-Darwin/bin/macdeployqt dataexplorer.app -dmg
         VERSION_NAME=`git describe`
         cp dataexplorer.dmg dataexplorer-osx-${VERSION_NAME}.dmg
         echo "VERSION_NAME=${VERSION_NAME}">> $GITHUB_OUTPUT

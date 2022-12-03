@@ -108,7 +108,7 @@ void ZoomableChartView::mousePressEvent(QMouseEvent *event)
         drag->setPixmap(QIcon(":/icons/labplot-xy-curve-segments.svg").pixmap(32));
         drag->exec();
     }
-    QGraphicsView::mousePressEvent(event);
+    QChartView::mousePressEvent(event);
 }
 
 void ZoomableChartView::mouseMoveEvent(QMouseEvent *event)
@@ -130,7 +130,7 @@ void ZoomableChartView::mouseMoveEvent(QMouseEvent *event)
 
     if (!m_isTouching){
         m_lastMousePos = event->pos();
-        QGraphicsView::mouseMoveEvent(event);
+        QChartView::mouseMoveEvent(event);
         return;
     }
 
@@ -245,7 +245,7 @@ void ZoomableChartView::mouseMoveEvent(QMouseEvent *event)
     }
     m_lastMousePos = event->pos();
 
-    QGraphicsView::mouseMoveEvent(event);
+    QChartView::mouseMoveEvent(event);
 }
 
 void ZoomableChartView::wheelEvent(QWheelEvent *event)
@@ -377,9 +377,11 @@ void ZoomableChartView::setZoomMode(const ZoomMode &zoomMode)
         setDragMode(QGraphicsView::RubberBandDrag);
         break;
     case HorizontalZoom:
+        setRubberBand(QChartView::HorizontalRubberBand);
+        break;
     case VerticalZoom:
-        //setRubberBand(QChartView::HorizontalRubberBand);
-        setDragMode(QGraphicsView::RubberBandDrag);
+        setRubberBand(QChartView::VerticalRubberBand);
+        //setDragMode(QGraphicsView::RubberBandDrag);
         break;
     }
 }
@@ -734,7 +736,7 @@ void ZoomableChartView::resizeEvent(QResizeEvent *event)
          for (Callout *callout : callouts)
              callout->updateGeometry();*/
     }
-    QGraphicsView::resizeEvent(event);
+    QChartView::resizeEvent(event);
 }
 /*!
  * \brief drop event to accept series from other dataexplorer instance
@@ -843,7 +845,7 @@ void ZoomableChartView::mouseReleaseEvent(QMouseEvent *event)
         updateMarker();
     }
     m_isTouching = false;
-    QGraphicsView::mouseReleaseEvent(event);
+    QChartView::mouseReleaseEvent(event);
 }
 
 /*!
@@ -873,7 +875,7 @@ void ZoomableChartView::keyPressEvent(QKeyEvent *event)
         scrollWithinPlot(0, -10);
         break;
     default:
-        QGraphicsView::keyPressEvent(event);
+        QChartView::keyPressEvent(event);
         break;
     }
 }

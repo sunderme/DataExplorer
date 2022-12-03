@@ -17,7 +17,7 @@
 #include <QLogValueAxis>
 
 ZoomableChartView::ZoomableChartView(QWidget *parent) :
-    QGraphicsView(new QGraphicsScene, parent),m_chart(nullptr),m_tooltip(nullptr)
+    QChartView(parent),m_chart(nullptr),m_tooltip(nullptr)
 {
     setDragMode(QGraphicsView::NoDrag);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

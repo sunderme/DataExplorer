@@ -10,7 +10,7 @@
 #include "callout.h"
 
 
-class ZoomableChartView : public QGraphicsView
+class ZoomableChartView : public QChartView
 {
    Q_OBJECT
 public:

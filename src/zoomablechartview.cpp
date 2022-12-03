@@ -818,7 +818,8 @@ void ZoomableChartView::mouseReleaseEvent(QMouseEvent *event)
         chart()->zoomIn(rect.normalized());
         updateMarker();
     }
-    if(!rubberBandRect().isNull() && m_zoomMode==HorizontalZoom){
+    qDebug()<<rubberBandRect();
+    if(m_zoomMode==HorizontalZoom){
 #if  QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         m_lastMousePos = event->position();
 #else
@@ -831,7 +832,7 @@ void ZoomableChartView::mouseReleaseEvent(QMouseEvent *event)
         chart()->zoomIn(rect.normalized());
         updateMarker();
     }
-    if(!rubberBandRect().isNull() && m_zoomMode==VerticalZoom){
+    if(m_zoomMode==VerticalZoom){
 #if  QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         m_lastMousePos = event->position();
 #else

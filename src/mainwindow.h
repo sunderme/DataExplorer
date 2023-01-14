@@ -16,6 +16,7 @@ struct LoopIteration{
 struct ColumnFilter{
     int column;
     QStringList allowedValues;
+    QString query;
 };
 
 class MainWindow : public QMainWindow
@@ -75,10 +76,12 @@ protected:
     void filterTextChanged(const QString &text);
     void columnShowAll();
     void columnShowNone();
+    void columnFilter();
     void updateFilteredTable();
     void updateColBackground(int col,bool filtered=false);
     void filterRowsForColumnValues(ColumnFilter cf);
     void filterElementChanged(bool checked);
+    bool parseQuery(const QString &text,const QString &data);
     void test();
     void copyCell();
     void copyHeader();

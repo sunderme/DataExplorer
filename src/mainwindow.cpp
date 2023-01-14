@@ -876,6 +876,10 @@ void MainWindow::headerMenuRequested(QPoint pt)
     act->setData(column);
     connect(act,&QAction::triggered,this,&MainWindow::columnShowNone);
     menu->addAction(act);
+    act=new QAction(tr("filter"), this);
+    act->setData(column);
+    connect(act,&QAction::triggered,this,&MainWindow::columnFilter);
+    menu->addAction(act);
     QStringList lst=m_csv[column];
     lst.removeDuplicates();
     if(lst.size()<20){
@@ -1216,6 +1220,43 @@ void MainWindow::columnShowNone()
     }
     updateFilteredTable();
 }
+/*!
+ * \brief filter row which meet column condition
+ * Condition is provided as simple query (>,<,= &/|)
+ */
+void MainWindow::columnFilter()
+{
+    // ask for filter as text
+    bool ok;
+    QString text=tr("use ><=&|,");
+
+    QAction *act=qobject_cast<QAction*>(sender());
+    int column=act->data().toInt();
+    int cfi=getColumnFilter(column);
+    if(cfi>=0){
+        ColumnFilter &cf=m_columnFilters[cfi];
+        text=cf.query;
+        if(text.isEmpty())
+            text=tr("use ><=&|,");
+    }
+    text = QInputDialog::getText(this, tr("Column filter"),
+                                             tr("Query:"), QLineEdit::Normal,
+                                             text, &ok);
+    if (!ok)
+        return; // no filter set
+
+    if(cfi>=0){
+        ColumnFilter &cf=m_columnFilters[cfi];
+        cf.query=text;
+    }else{
+        ColumnFilter cf;
+        cf.column=column;
+        cf.query=text;
+        m_columnFilters.append(cf);
+        updateColBackground(column,true);
+    }
+    updateFilteredTable();
+}
 
 void MainWindow::updateFilteredTable()
 {
@@ -1241,8 +1282,12 @@ void MainWindow::filterRowsForColumnValues(ColumnFilter cf)
     QStringList &colVals=m_csv[column];
     for(int i=0;i<colVals.size();++i){
         if(m_visibleRows[i]){
-            if(!cf.allowedValues.contains(colVals[i])){
-                m_visibleRows[i]=false;
+            if(cf.query.isEmpty()){
+                if(!cf.allowedValues.contains(colVals[i])){
+                    m_visibleRows[i]=false;
+                }
+            }else{
+                m_visibleRows[i]=parseQuery(cf.query,colVals[i]);
             }
         }
     }
@@ -1278,6 +1323,46 @@ void MainWindow::filterElementChanged(bool checked)
         m_columnFilters[cfi].allowedValues.removeOne(value);
     }
     updateFilteredTable();
+}
+/*!
+ * \brief interpret query to check if data is valid or not
+ * \param text
+ * \param data
+ * \return
+ */
+bool MainWindow::parseQuery(const QString &text, const QString &data)
+{
+    QStringList queries=text.split('&');
+    for(auto &q:queries){
+        if(q.startsWith(">=")){
+            if(data<q.mid(2)){
+                return false;
+            }
+        }else{
+            if(q.startsWith('>')){
+                if(data<=q.mid(1)){
+                    return false;
+                }
+            }
+        }
+        if(q.startsWith("<=")){
+            if(data>q.mid(2)){
+                return false;
+            }
+        }else{
+            if(q.startsWith('<')){
+                if(data>=q.mid(1)){
+                    return false;
+                }
+            }
+        }
+        if(q.startsWith('=')){
+            if(data!=q.mid(1)){
+                return false;
+            }
+        }
+    }
+    return true;
 }
 /*!
  * \brief operator << for debug QList<loopIteration>

@@ -601,6 +601,7 @@ bool MainWindow::readInCSV(const QString &fileName)
             return false;
         }
         m_csv=data;
+        m_columnType=QVector<ColumnType>(data.size(),COL_UNKNOWN);
         m_columnFilters.clear();
         return true;
     }
@@ -672,6 +673,7 @@ bool MainWindow::readInSNP(const QString &fileName,int nrPorts)
             return false;
         }
         m_csv=data;
+        m_columnType=QVector<ColumnType>(data.size(),COL_FLOAT); // assuming normal SP-file
         m_columnFilters.clear();
         return true;
     }
@@ -1540,27 +1542,58 @@ void MainWindow::exportPlotImage()
     }
 }
 /*!
+ * \brief check what data type one column consists of
+ * String, int or float.
+ * Result is cached as it does not change.
+ * \param column
+ * \return
+ */
+MainWindow::ColumnType MainWindow::getDataType(int column)
+{
+    bool ok=true;
+    if(m_columnType[column]==COL_UNKNOWN){
+        ColumnType result=COL_INT; // int -> float -> string
+        QRegularExpression reFloat("^\\s*[+-]?\\d+(\\.\\d+)?(e[+-]?\\d+)?$");
+        QRegularExpression reInt("^[+-]?\\d+$");
+        for(qsizetype row=0;row<m_csv[column].count();++row){
+            QString cell=m_csv[column].value(row).simplified().toLower();
+            if(cell.startsWith("0x")){
+                cell.mid(2).toULongLong(&ok);
+                if(ok) continue;
+                result=COL_STRING;
+                break;
+            }
+            if(cell.startsWith("0b")){
+                cell.mid(2).toULongLong(&ok);
+                if(ok) continue;
+                result=COL_STRING;
+                break;
+            }
+            if(result==COL_INT){
+                QRegularExpressionMatch match = reInt.match(cell);
+                ok = match.hasMatch();
+                if(ok) continue;
+                result=COL_FLOAT;
+            }
+            QRegularExpressionMatch match = reFloat.match(cell);
+            ok = match.hasMatch();
+            if(ok) continue;
+            result=COL_STRING;
+            break;
+        }
+        m_columnType[column]=result;
+    }
+    return m_columnType[column];
+}
+/*!
  * \brief check if data consists only of ints
  * \param column
  * \return
  */
 bool MainWindow::isIntOnlyData(int column)
 {
-    bool ok=true;
-    for(qsizetype row=0;row<m_csv[column].count();++row){
-        QString cell=m_csv[column].value(row);
-        if(cell.startsWith("0b")){
-            cell.mid(2).toULongLong(&ok,2);
-        }else{
-            if(cell.startsWith("0x")){
-                cell.mid(2).toULongLong(&ok);
-            }else{
-                cell.toULongLong(&ok);
-            }
-        }
-        if(!ok) break;
-    }
-    return ok;
+    ColumnType colType=getDataType(column);
+    return colType==COL_INT;
 }
 /*!
  * \brief check if data consists only of floats
@@ -1570,15 +1603,8 @@ bool MainWindow::isIntOnlyData(int column)
  */
 bool MainWindow::isFloatOnlyData(int column)
 {
-    bool ok=true;
-    QRegularExpression re("^\\s*[-]?\\d+(\\.\\d+)?(E[-]?\\d+)?");
-    for(qsizetype row=0;row<m_csv[column].count();++row){
-        QString cell=m_csv[column].value(row);
-        QRegularExpressionMatch match = re.match(cell);
-        ok = match.hasMatch();
-        if(!ok) break;
-    }
-    return ok;
+    ColumnType colType=getDataType(column);
+    return colType==COL_FLOAT || colType==COL_INT;
 }
 /*!
  * \brief check if data consists only of positive floats

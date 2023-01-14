@@ -28,7 +28,7 @@ public:
     ~MainWindow();
 
 protected:
-    enum ColumnType {COL_STRING,COL_FLOAT,COL_INT};
+    enum ColumnType {COL_UNKNOWN,COL_STRING,COL_FLOAT,COL_INT};
     void setupMenus();
     void setupGUI();
     void closeEvent(QCloseEvent *event);
@@ -88,6 +88,7 @@ protected:
     void copyHeader();
     void copyPlotToClipboard();
     void exportPlotImage();
+    ColumnType getDataType(int column);
     bool isIntOnlyData(int column);
     bool isFloatOnlyData(int column);
     bool isPosFloatOnlyData(int column);
@@ -138,6 +139,7 @@ private:
 
     QStringList m_columns;
     QVector<QStringList> m_csv;
+    QVector<ColumnType> m_columnType;
     QStringList m_sweeps,m_plotValues;
 
     QList<ColumnFilter> m_columnFilters;

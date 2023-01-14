@@ -1369,36 +1369,72 @@ bool MainWindow::parseQuery(const QString &text, const QString &data,const Colum
                 }
             }
         }else{
-            double number=data.toDouble();
-            double ref=q.mid(2).toDouble();
-            if(q.startsWith(">=")){
-                if(number<ref){
-                    return false;
+            if(col_type==COL_FLOAT){
+                double number=data.toDouble();
+                double ref=q.mid(2).toDouble();
+                if(q.startsWith(">=")){
+                    if(number<ref){
+                        return false;
+                    }
+                    continue;
                 }
-                continue;
-            }
-            if(q.startsWith("<=")){
-                if(number>ref){
-                    return false;
+                if(q.startsWith("<=")){
+                    if(number>ref){
+                        return false;
+                    }
+                    continue;
                 }
-                continue;
-            }
-            ref=q.mid(1).toDouble();
-            if(q.startsWith('>')){
-                if(number<=ref){
-                    return false;
+                ref=q.mid(1).toDouble();
+                if(q.startsWith('>')){
+                    if(number<=ref){
+                        return false;
+                    }
                 }
-            }
 
-            if(q.startsWith('<')){
-                if(number>=ref){
-                    return false;
+                if(q.startsWith('<')){
+                    if(number>=ref){
+                        return false;
+                    }
                 }
-            }
-            if(q.startsWith('=')){
-                if(number!=ref){
-                    return false;
+                if(q.startsWith('=')){
+                    if(number!=ref){
+                        return false;
+                    }
                 }
+            }else{
+                bool ok;
+                qulonglong number=convertStringToLong(data,ok);
+                qulonglong ref=convertStringToLong(q.mid(2),ok);
+                if(q.startsWith(">=")){
+                    if(number<ref){
+                        return false;
+                    }
+                    continue;
+                }
+                if(q.startsWith("<=")){
+                    if(number>ref){
+                        return false;
+                    }
+                    continue;
+                }
+                ref=convertStringToLong(q.mid(1),ok);
+                if(q.startsWith('>')){
+                    if(number<=ref){
+                        return false;
+                    }
+                }
+
+                if(q.startsWith('<')){
+                    if(number>=ref){
+                        return false;
+                    }
+                }
+                if(q.startsWith('=')){
+                    if(number!=ref){
+                        return false;
+                    }
+                }
+
             }
         }
     }

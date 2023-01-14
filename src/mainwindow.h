@@ -28,6 +28,7 @@ public:
     ~MainWindow();
 
 protected:
+    enum ColumnType {COL_STRING,COL_FLOAT,COL_INT};
     void setupMenus();
     void setupGUI();
     void closeEvent(QCloseEvent *event);
@@ -81,7 +82,7 @@ protected:
     void updateColBackground(int col,bool filtered=false);
     void filterRowsForColumnValues(ColumnFilter cf);
     void filterElementChanged(bool checked);
-    bool parseQuery(const QString &text,const QString &data);
+    bool parseQuery(const QString &text,const QString &data,const ColumnType col_type=COL_STRING);
     void test();
     void copyCell();
     void copyHeader();

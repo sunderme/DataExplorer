@@ -1279,6 +1279,9 @@ void MainWindow::updateFilteredTable()
 void MainWindow::filterRowsForColumnValues(ColumnFilter cf)
 {
     int column=cf.column;
+    ColumnType col_type=COL_STRING;
+    if(!cf.query.isEmpty() && isIntOnlyData(column)) col_type=COL_INT;
+    if(!cf.query.isEmpty() && isFloatOnlyData(column)) col_type=COL_FLOAT;
     QStringList &colVals=m_csv[column];
     for(int i=0;i<colVals.size();++i){
         if(m_visibleRows[i]){
@@ -1287,7 +1290,7 @@ void MainWindow::filterRowsForColumnValues(ColumnFilter cf)
                     m_visibleRows[i]=false;
                 }
             }else{
-                m_visibleRows[i]=parseQuery(cf.query,colVals[i]);
+                m_visibleRows[i]=parseQuery(cf.query,colVals[i],col_type);
             }
         }
     }
@@ -1330,35 +1333,69 @@ void MainWindow::filterElementChanged(bool checked)
  * \param data
  * \return
  */
-bool MainWindow::parseQuery(const QString &text, const QString &data)
+bool MainWindow::parseQuery(const QString &text, const QString &data,const ColumnType col_type)
 {
     QStringList queries=text.split('&');
     for(auto &q:queries){
-        if(q.startsWith(">=")){
-            if(data<q.mid(2)){
-                return false;
+        if(col_type==COL_STRING){
+            if(q.startsWith(">=")){
+                if(data<q.mid(2)){
+                    return false;
+                }
+            }else{
+                if(q.startsWith('>')){
+                    if(data<=q.mid(1)){
+                        return false;
+                    }
+                }
+            }
+            if(q.startsWith("<=")){
+                if(data>q.mid(2)){
+                    return false;
+                }
+            }else{
+                if(q.startsWith('<')){
+                    if(data>=q.mid(1)){
+                        return false;
+                    }
+                }
+            }
+            if(q.startsWith('=')){
+                if(data!=q.mid(1)){
+                    return false;
+                }
             }
         }else{
+            double number=data.toDouble();
+            double ref=q.mid(2).toDouble();
+            if(q.startsWith(">=")){
+                if(number<ref){
+                    return false;
+                }
+                continue;
+            }
+            if(q.startsWith("<=")){
+                if(number>ref){
+                    return false;
+                }
+                continue;
+            }
+            ref=q.mid(1).toDouble();
             if(q.startsWith('>')){
-                if(data<=q.mid(1)){
+                if(number<=ref){
                     return false;
                 }
             }
-        }
-        if(q.startsWith("<=")){
-            if(data>q.mid(2)){
-                return false;
-            }
-        }else{
+
             if(q.startsWith('<')){
-                if(data>=q.mid(1)){
+                if(number>=ref){
                     return false;
                 }
             }
-        }
-        if(q.startsWith('=')){
-            if(data!=q.mid(1)){
-                return false;
+            if(q.startsWith('=')){
+                if(number!=ref){
+                    return false;
+                }
             }
         }
     }

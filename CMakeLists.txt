@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(DataExplorer VERSION 1.4 LANGUAGES CXX)
+project(DataExplorer VERSION 1.16 LANGUAGES CXX)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 

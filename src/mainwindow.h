@@ -100,7 +100,7 @@ protected:
     void convertDB10Float();
     void convertFloatDB20();
     void convertFloatDB10();
-    qulonglong convertStringToLong(QString text,bool &ok);
+    qlonglong convertStringToLong(QString text,bool &ok);
     int getIndex(const QString &name);
     bool hasColumnFilter(int column) const;
     int getColumnFilter(int column) const;

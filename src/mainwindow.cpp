@@ -1837,16 +1837,16 @@ void MainWindow::convertFloatDB10()
  * \param ok
  * \return
  */
-qulonglong MainWindow::convertStringToLong(QString text, bool &ok)
+qlonglong MainWindow::convertStringToLong(QString text, bool &ok)
 {
-    qulonglong value;
+    qlonglong value;
     if(text.startsWith("0b")){
-        value=text.mid(2).toULongLong(&ok,2);
+        value=text.mid(2).toLongLong(&ok,2);
     }else{
         if(text.startsWith("0x")){
-            value=text.mid(2).toULongLong(&ok,16);
+            value=text.mid(2).toLongLong(&ok,16);
         }else{
-            value=text.toULongLong(&ok);
+            value=text.toLongLong(&ok);
         }
     }
     return value;

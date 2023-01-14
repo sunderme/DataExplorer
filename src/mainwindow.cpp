@@ -1282,8 +1282,9 @@ void MainWindow::filterRowsForColumnValues(ColumnFilter cf)
 {
     int column=cf.column;
     ColumnType col_type=COL_STRING;
-    if(!cf.query.isEmpty() && isIntOnlyData(column)) col_type=COL_INT;
-    if(!cf.query.isEmpty() && isFloatOnlyData(column)) col_type=COL_FLOAT;
+    if(!cf.query.isEmpty()){
+        col_type=getDataType(column);
+    }
     QStringList &colVals=m_csv[column];
     for(int i=0;i<colVals.size();++i){
         if(m_visibleRows[i]){

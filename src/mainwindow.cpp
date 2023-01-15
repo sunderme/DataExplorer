@@ -18,6 +18,19 @@
 #include "zoomablechart.h"
 
 /*!
+ * \brief Max
+ * \param a
+ * \param b
+ * \return
+ */
+template <typename T>
+int compare (T const& a, T const& b) {
+    int result=0;
+    if(a>b) result=1;
+    if(a<b) result=-1;
+    return result;
+}
+/*!
  * \brief construct GUI
  * Read in settings, build menu&GUI
  * Interpret CLI options
@@ -1340,105 +1353,63 @@ bool MainWindow::parseQuery(const QString &text, const QString &data,const Colum
 {
     QStringList queries=text.split('&');
     for(auto &q:queries){
+        QString reference;
+        int operatorType=determineOperator(q,reference);
+        int result;
         if(col_type==COL_STRING){
-            if(q.startsWith(">=")){
-                if(data<q.mid(2)){
-                    return false;
-                }
-            }else{
-                if(q.startsWith('>')){
-                    if(data<=q.mid(1)){
-                        return false;
-                    }
-                }
-            }
-            if(q.startsWith("<=")){
-                if(data>q.mid(2)){
-                    return false;
-                }
-            }else{
-                if(q.startsWith('<')){
-                    if(data>=q.mid(1)){
-                        return false;
-                    }
-                }
-            }
-            if(q.startsWith('=')){
-                if(data!=q.mid(1)){
-                    return false;
-                }
+            result=compare(data,reference);
+        }
+        if(col_type==COL_FLOAT){
+            double number=data.toDouble();
+            double ref=reference.toDouble();
+            result=compare(number,ref);
+        }
+        if(col_type==COL_INT){
+            bool ok;
+            qulonglong number=convertStringToLong(data,ok);
+            qulonglong ref=convertStringToLong(reference,ok);
+            result=compare(number,ref);
+        }
+        // determine if compare was correct
+        // return false if not (& logic)
+        if(result==0){
+            if(abs(operatorType)>1){
+                return false; // equale but should be >/<
             }
         }else{
-            if(col_type==COL_FLOAT){
-                double number=data.toDouble();
-                double ref=q.mid(2).toDouble();
-                if(q.startsWith(">=")){
-                    if(number<ref){
-                        return false;
-                    }
-                    continue;
-                }
-                if(q.startsWith("<=")){
-                    if(number>ref){
-                        return false;
-                    }
-                    continue;
-                }
-                ref=q.mid(1).toDouble();
-                if(q.startsWith('>')){
-                    if(number<=ref){
-                        return false;
-                    }
-                }
-
-                if(q.startsWith('<')){
-                    if(number>=ref){
-                        return false;
-                    }
-                }
-                if(q.startsWith('=')){
-                    if(number!=ref){
-                        return false;
-                    }
-                }
-            }else{
-                bool ok;
-                qulonglong number=convertStringToLong(data,ok);
-                qulonglong ref=convertStringToLong(q.mid(2),ok);
-                if(q.startsWith(">=")){
-                    if(number<ref){
-                        return false;
-                    }
-                    continue;
-                }
-                if(q.startsWith("<=")){
-                    if(number>ref){
-                        return false;
-                    }
-                    continue;
-                }
-                ref=convertStringToLong(q.mid(1),ok);
-                if(q.startsWith('>')){
-                    if(number<=ref){
-                        return false;
-                    }
-                }
-
-                if(q.startsWith('<')){
-                    if(number>=ref){
-                        return false;
-                    }
-                }
-                if(q.startsWith('=')){
-                    if(number!=ref){
-                        return false;
-                    }
-                }
-
+            // result 1 or -1
+            if(operatorType/result<0){
+                return false; // opposite i.e. >/>= but compare less
             }
         }
     }
     return true;
+}
+/*!
+ * \brief detremine operator and the corresponding reference
+ * e.g. ">=0" -> ">="=2 , "0"
+ * \param text
+ * \param reference
+ * \return opType (2 >=,1 >,0 =,-1 <=, 2 <
+ */
+int MainWindow::determineOperator(const QString &text, QString &reference)
+{
+    if(text.startsWith(">=")){
+        reference=text.mid(2);
+        return 1;
+    }
+    if(text.startsWith("<=")){
+        reference=text.mid(2);
+        return -1;
+    }
+    reference=text.mid(1);
+    if(text.startsWith('>')){
+        return 2;
+    }
+    if(text.startsWith('<')){
+        return -2;
+    }
+    return 0;
 }
 /*!
  * \brief operator << for debug QList<loopIteration>

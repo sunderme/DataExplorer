@@ -83,6 +83,7 @@ protected:
     void filterRowsForColumnValues(ColumnFilter cf);
     void filterElementChanged(bool checked);
     bool parseQuery(const QString &text,const QString &data,const ColumnType col_type=COL_STRING);
+    int determineOperator(const QString &text,QString &reference);
     void test();
     void copyCell();
     void copyHeader();

@@ -1378,7 +1378,7 @@ bool MainWindow::parseQuery(const QString &text, const QString &data,const Colum
             }
         }else{
             // result 1 or -1
-            if(operatorType/result<0){
+            if(operatorType==0 || (operatorType/result)<0){
                 return false; // opposite i.e. >/>= but compare less
             }
         }

@@ -1351,8 +1351,30 @@ void MainWindow::filterElementChanged(bool checked)
  */
 bool MainWindow::parseQuery(const QString &text, const QString &data,const ColumnType col_type)
 {
-    QStringList queries=text.split('&');
-    for(auto &q:queries){
+    QList<Query> queries;
+    for(int start=0;start<text.length();){
+        int end=text.indexOf('&',start);
+        int end_=text.indexOf('|',start);
+        bool andOperator=true;
+        if(end_>=0 && (end_<end || end<0) ){
+            end=end_;
+            andOperator=false;
+        }
+        if(end>=0){
+            Query q{text.mid(start,end-start),andOperator};
+            queries<<q;
+            start=end+1;
+            continue;
+        }
+        Query q{text.mid(start),andOperator};
+        queries<<q;
+        break;
+    }
+
+    bool res=true;
+    bool useAnd=true;
+    for(auto &qu:queries){
+        QString q=qu.query;
         QString reference;
         int operatorType=determineOperator(q,reference);
         int result;
@@ -1372,18 +1394,25 @@ bool MainWindow::parseQuery(const QString &text, const QString &data,const Colum
         }
         // determine if compare was correct
         // return false if not (& logic)
+        bool res_query=true;
         if(result==0){
             if(abs(operatorType)>1){
-                return false; // equale but should be >/<
+                res_query=false; // equale but should be >/<
             }
         }else{
             // result 1 or -1
             if(operatorType==0 || (operatorType/result)<0){
-                return false; // opposite i.e. >/>= but compare less
+                res_query=false; // opposite i.e. >/>= but compare less
             }
         }
+        if(useAnd){
+            res=res&res_query;
+        }else{
+            res=res|res_query;
+        }
+        useAnd=qu.connectAnd;
     }
-    return true;
+    return res;
 }
 /*!
  * \brief detremine operator and the corresponding reference

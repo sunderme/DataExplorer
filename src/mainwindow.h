@@ -19,6 +19,11 @@ struct ColumnFilter{
     QString query;
 };
 
+struct Query{
+    QString query;
+    bool connectAnd=true;
+};
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT

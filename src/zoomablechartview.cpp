@@ -825,10 +825,11 @@ void ZoomableChartView::mouseReleaseEvent(QMouseEvent *event)
 #else
         m_lastMousePos = event->localPos();
 #endif
-        const QRectF ro=m_chart->plotArea();
-        QRectF rect(m_startMousePos,m_lastMousePos);
-        rect=rect.normalized();
-        rect.setHeight(ro.height());
+        QRectF rect=m_chart->plotArea();
+        QRectF ro(m_startMousePos,m_lastMousePos);
+        ro=ro.normalized();
+        rect.setLeft(ro.left());
+        rect.setRight(ro.right());
         chart()->zoomIn(rect.normalized());
         updateMarker();
     }
@@ -838,10 +839,11 @@ void ZoomableChartView::mouseReleaseEvent(QMouseEvent *event)
 #else
         m_lastMousePos = event->localPos();
 #endif
-        const QRectF ro=m_chart->plotArea();
-        QRectF rect(m_startMousePos,m_lastMousePos);
-        rect=rect.normalized();
-        rect.setWidth(ro.width());
+        QRectF rect=m_chart->plotArea();
+        QRectF ro(m_startMousePos,m_lastMousePos);
+        ro=ro.normalized();
+        rect.setBottom(ro.bottom());
+        rect.setTop(ro.top());
         chart()->zoomIn(rect.normalized());
         updateMarker();
     }

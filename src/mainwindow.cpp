@@ -1252,7 +1252,7 @@ void MainWindow::columnFilter()
         ColumnFilter &cf=m_columnFilters[cfi];
         text=cf.query;
         if(text.isEmpty())
-            text=tr("use ><=&|,");
+            text=tr("use ><=&|contains");
     }
     text = QInputDialog::getText(this, tr("Column filter"),
                                              tr("Query:"), QLineEdit::Normal,
@@ -1377,32 +1377,37 @@ bool MainWindow::parseQuery(const QString &text, const QString &data,const Colum
         QString q=qu.query;
         QString reference;
         int operatorType=determineOperator(q,reference);
-        int result;
-        if(col_type==COL_STRING){
-            result=compare(data,reference);
-        }
-        if(col_type==COL_FLOAT){
-            double number=data.toDouble();
-            double ref=reference.toDouble();
-            result=compare(number,ref);
-        }
-        if(col_type==COL_INT){
-            bool ok;
-            qulonglong number=convertStringToLong(data,ok);
-            qulonglong ref=convertStringToLong(reference,ok);
-            result=compare(number,ref);
-        }
-        // determine if compare was correct
-        // return false if not (& logic)
+        if(operatorType<-10) continue; // unknown operator
         bool res_query=true;
-        if(result==0){
-            if(abs(operatorType)>1){
-                res_query=false; // equale but should be >/<
-            }
+        if(operatorType==10){
+            // contains ...
+            res_query=data.contains(reference);
         }else{
-            // result 1 or -1
-            if(operatorType==0 || (operatorType/result)<0){
-                res_query=false; // opposite i.e. >/>= but compare less
+            int result;
+            if(col_type==COL_STRING){
+                result=compare(data,reference);
+            }
+            if(col_type==COL_FLOAT){
+                double number=data.toDouble();
+                double ref=reference.toDouble();
+                result=compare(number,ref);
+            }
+            if(col_type==COL_INT){
+                bool ok;
+                qulonglong number=convertStringToLong(data,ok);
+                qulonglong ref=convertStringToLong(reference,ok);
+                result=compare(number,ref);
+            }
+            // determine if compare was correct
+            if(result==0){
+                if(abs(operatorType)>1){
+                    res_query=false; // equale but should be >/<
+                }
+            }else{
+                // result 1 or -1
+                if(operatorType==0 || (operatorType/result)<0){
+                    res_query=false; // opposite i.e. >/>= but compare less
+                }
             }
         }
         if(useAnd){
@@ -1419,7 +1424,7 @@ bool MainWindow::parseQuery(const QString &text, const QString &data,const Colum
  * e.g. ">=0" -> ">="=2 , "0"
  * \param text
  * \param reference
- * \return opType (2 >=,1 >,0 =,-1 <=, 2 <
+ * \return opType (2 >=,1 >,0 =,-1 <=, 2 <, -1000 uknown, 10 contains)
  */
 int MainWindow::determineOperator(const QString &text, QString &reference)
 {
@@ -1438,7 +1443,14 @@ int MainWindow::determineOperator(const QString &text, QString &reference)
     if(text.startsWith('<')){
         return -2;
     }
-    return 0;
+    if(text.startsWith('=')){
+        return 0;
+    }
+    if(text.startsWith("contains ")){
+        reference=text.mid(9);
+        return 10;
+    }
+    return -1000; // unknown
 }
 /*!
  * \brief operator << for debug QList<loopIteration>

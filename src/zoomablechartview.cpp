@@ -370,17 +370,18 @@ void ZoomableChartView::setZoomMode(const ZoomMode &zoomMode)
     m_zoomMode = zoomMode;
     switch (zoomMode) {
     case Pan:
-        //setRubberBand(QChartView::NoRubberBand);
+        setRubberBand(QChartView::NoRubberBand);
         setDragMode(QGraphicsView::ScrollHandDrag);
         break;
     case RectangleZoom:
         setDragMode(QGraphicsView::RubberBandDrag);
+        setRubberBand(QFlags<RubberBand>(QChartView::RectangleRubberBand | QChartView::ClickThroughRubberBand));
         break;
     case HorizontalZoom:
-        setRubberBand(QChartView::HorizontalRubberBand);
+        setRubberBand(QFlags<RubberBand>(QChartView::HorizontalRubberBand|QChartView::ClickThroughRubberBand));
         break;
     case VerticalZoom:
-        setRubberBand(QChartView::VerticalRubberBand);
+        setRubberBand(QFlags<RubberBand>(QChartView::VerticalRubberBand|QChartView::ClickThroughRubberBand));
         //setDragMode(QGraphicsView::RubberBandDrag);
         break;
     }
@@ -808,7 +809,7 @@ void ZoomableChartView::contextMenuEvent(QContextMenuEvent *event)
  */
 void ZoomableChartView::mouseReleaseEvent(QMouseEvent *event)
 {
-    if(!rubberBandRect().isNull() && m_zoomMode==RectangleZoom){
+    if(m_zoomMode==RectangleZoom){
 #if  QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         m_lastMousePos = event->position();
 #else
@@ -818,7 +819,6 @@ void ZoomableChartView::mouseReleaseEvent(QMouseEvent *event)
         chart()->zoomIn(rect.normalized());
         updateMarker();
     }
-    qDebug()<<rubberBandRect();
     if(m_zoomMode==HorizontalZoom){
 #if  QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         m_lastMousePos = event->position();

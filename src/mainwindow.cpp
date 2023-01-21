@@ -1389,6 +1389,14 @@ bool MainWindow::parseQuery(const QString &text, const QString &data,const Colum
                 // !contains ...
                 res_query=!data.contains(reference);
             }
+            if(operatorType==12){
+                // regex ...
+                res_query=data.contains(QRegularExpression(reference));
+            }
+            if(operatorType==13){
+                // !regex ...
+                res_query=!data.contains(QRegularExpression(reference));
+            }
         }else{
             int result;
             if(col_type==COL_STRING){
@@ -1466,6 +1474,14 @@ int MainWindow::determineOperator(const QString &text, QString &reference)
     if(text.startsWith("!contains ")){
         reference=text.mid(10);
         return 11;
+    }
+    if(text.startsWith("regex ")){
+        reference=text.mid(6);
+        return 12;
+    }
+    if(text.startsWith("!regex ")){
+        reference=text.mid(7);
+        return 13;
     }
     return -1000; // unknown
 }

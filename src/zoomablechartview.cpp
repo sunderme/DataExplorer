@@ -74,7 +74,6 @@ QChart *ZoomableChartView::chart() const
 
 void ZoomableChartView::mousePressEvent(QMouseEvent *event)
 {
-    m_isTouching = true;
 #if  QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     m_lastMousePos = event->position();
 #else
@@ -109,6 +108,7 @@ void ZoomableChartView::mousePressEvent(QMouseEvent *event)
         drag->exec();
     }
     QChartView::mousePressEvent(event);
+    m_isTouching=(scene()->mouseGrabberItem() == nullptr);
 }
 
 void ZoomableChartView::mouseMoveEvent(QMouseEvent *event)
@@ -809,43 +809,46 @@ void ZoomableChartView::contextMenuEvent(QContextMenuEvent *event)
  */
 void ZoomableChartView::mouseReleaseEvent(QMouseEvent *event)
 {
-    if(m_zoomMode==RectangleZoom){
+    if(m_isTouching){
+        // filter marker drag
+        if(m_zoomMode==RectangleZoom){
 #if  QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        m_lastMousePos = event->position();
+            m_lastMousePos = event->position();
 #else
-        m_lastMousePos = event->localPos();
+            m_lastMousePos = event->localPos();
 #endif
-        QRectF rect(m_startMousePos,m_lastMousePos);
-        chart()->zoomIn(rect.normalized());
-        updateMarker();
-    }
-    if(m_zoomMode==HorizontalZoom){
+            QRectF rect(m_startMousePos,m_lastMousePos);
+            chart()->zoomIn(rect.normalized());
+            updateMarker();
+        }
+        if(m_zoomMode==HorizontalZoom){
 #if  QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        m_lastMousePos = event->position();
+            m_lastMousePos = event->position();
 #else
-        m_lastMousePos = event->localPos();
+            m_lastMousePos = event->localPos();
 #endif
-        QRectF rect=m_chart->plotArea();
-        QRectF ro(m_startMousePos,m_lastMousePos);
-        ro=ro.normalized();
-        rect.setLeft(ro.left());
-        rect.setRight(ro.right());
-        chart()->zoomIn(rect.normalized());
-        updateMarker();
-    }
-    if(m_zoomMode==VerticalZoom){
+            QRectF rect=m_chart->plotArea();
+            QRectF ro(m_startMousePos,m_lastMousePos);
+            ro=ro.normalized();
+            rect.setLeft(ro.left());
+            rect.setRight(ro.right());
+            chart()->zoomIn(rect.normalized());
+            updateMarker();
+        }
+        if(m_zoomMode==VerticalZoom){
 #if  QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        m_lastMousePos = event->position();
+            m_lastMousePos = event->position();
 #else
-        m_lastMousePos = event->localPos();
+            m_lastMousePos = event->localPos();
 #endif
-        QRectF rect=m_chart->plotArea();
-        QRectF ro(m_startMousePos,m_lastMousePos);
-        ro=ro.normalized();
-        rect.setBottom(ro.bottom());
-        rect.setTop(ro.top());
-        chart()->zoomIn(rect.normalized());
-        updateMarker();
+            QRectF rect=m_chart->plotArea();
+            QRectF ro(m_startMousePos,m_lastMousePos);
+            ro=ro.normalized();
+            rect.setBottom(ro.bottom());
+            rect.setTop(ro.top());
+            chart()->zoomIn(rect.normalized());
+            updateMarker();
+        }
     }
     m_isTouching = false;
     QChartView::mouseReleaseEvent(event);

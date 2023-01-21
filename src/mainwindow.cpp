@@ -1379,9 +1379,16 @@ bool MainWindow::parseQuery(const QString &text, const QString &data,const Colum
         int operatorType=determineOperator(q,reference);
         if(operatorType<-10) continue; // unknown operator
         bool res_query=true;
-        if(operatorType==10){
-            // contains ...
-            res_query=data.contains(reference);
+        bool handled=false;
+        if(operatorType>=10){
+            if(operatorType==10){
+                // contains ...
+                res_query=data.contains(reference);
+            }
+            if(operatorType==11){
+                // !contains ...
+                res_query=!data.contains(reference);
+            }
         }else{
             int result;
             if(col_type==COL_STRING){
@@ -1405,7 +1412,7 @@ bool MainWindow::parseQuery(const QString &text, const QString &data,const Colum
                 }
             }else{
                 // result 1 or -1
-                if(operatorType==0 || (operatorType/result)<0){
+                if(operatorType!=-3 && (operatorType==0 || (operatorType/result)<0)){
                     res_query=false; // opposite i.e. >/>= but compare less
                 }
             }
@@ -1424,7 +1431,7 @@ bool MainWindow::parseQuery(const QString &text, const QString &data,const Colum
  * e.g. ">=0" -> ">="=2 , "0"
  * \param text
  * \param reference
- * \return opType (2 >=,1 >,0 =,-1 <=, 2 <, -1000 uknown, 10 contains)
+ * \return opType (2 >=,1 >,0 =,-1 <=, -2 <,-3 !=, -1000 uknown, 10 contains,11 !contains)
  */
 int MainWindow::determineOperator(const QString &text, QString &reference)
 {
@@ -1436,19 +1443,29 @@ int MainWindow::determineOperator(const QString &text, QString &reference)
         reference=text.mid(2);
         return -1;
     }
-    reference=text.mid(1);
+    if(text.startsWith("!=")){
+        reference=text.mid(2);
+        return -3;
+    }
     if(text.startsWith('>')){
+        reference=text.mid(1);
         return 2;
     }
     if(text.startsWith('<')){
+        reference=text.mid(1);
         return -2;
     }
     if(text.startsWith('=')){
+        reference=text.mid(1);
         return 0;
     }
     if(text.startsWith("contains ")){
         reference=text.mid(9);
         return 10;
+    }
+    if(text.startsWith("!contains ")){
+        reference=text.mid(10);
+        return 11;
     }
     return -1000; // unknown
 }

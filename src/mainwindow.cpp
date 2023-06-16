@@ -1361,12 +1361,12 @@ bool MainWindow::parseQuery(const QString &text, const QString &data,const Colum
             andOperator=false;
         }
         if(end>=0){
-            Query q{text.mid(start,end-start),andOperator};
+            Query q{text.mid(start,end-start).trimmed(),andOperator};
             queries<<q;
             start=end+1;
             continue;
         }
-        Query q{text.mid(start),andOperator};
+        Query q{text.mid(start).trimmed(),andOperator};
         queries<<q;
         break;
     }

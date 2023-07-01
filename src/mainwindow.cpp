@@ -375,7 +375,14 @@ void MainWindow::openFile()
 void MainWindow::reloadFile()
 {
     if(m_fileName.isEmpty()) return;
+    const QList<ColumnFilter> store_columnFilters=m_columnFilters;
     readFile();
+    m_columnFilters=store_columnFilters;
+    for(const ColumnFilter &cf:m_columnFilters){
+        const int column=cf.column;
+        updateColBackground(column,true);
+    }
+    updateFilteredTable();
 }
 /*!
  * \brief open file via recent menu

@@ -38,6 +38,7 @@ protected:
     void setupGUI();
     void closeEvent(QCloseEvent *event);
     void openFile();
+    void reloadFile();
     void openRecentFile();
     void readFile();
     void openTemplate();
@@ -124,6 +125,7 @@ private:
     QMenu *m_recentFilesMenu,*m_recentTemplatesMenu;
 
     QAction *m_openAct;
+    QAction *m_reloadAct;
     QAction *m_exitAct;
     QAction *m_plotAct;
     QAction *m_logxAct,*m_logyAct;

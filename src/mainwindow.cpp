@@ -92,6 +92,10 @@ void MainWindow::setupMenus()
     m_openAct = new QAction(tr("&Open"), this);
     connect(m_openAct, &QAction::triggered, this, &MainWindow::openFile);
     m_fileMenu->addAction(m_openAct);
+    m_reloadAct = new QAction(tr("&Reload"), this);
+    m_reloadAct->setShortcut(Qt::Key_F5);
+    connect(m_reloadAct, &QAction::triggered, this, &MainWindow::reloadFile);
+    m_fileMenu->addAction(m_reloadAct);
     populateRecentFiles();
     m_fileMenu->addMenu(m_recentFilesMenu);
     QAction *loadTemplateAct=new QAction(tr("&Open Template"), this);
@@ -364,6 +368,14 @@ void MainWindow::openFile()
     m_recentFiles.removeOne(m_fileName);
     m_recentFiles.prepend(m_fileName);
     populateRecentFiles();
+}
+/*!
+ * \brief reload previously opened file from disk
+ */
+void MainWindow::reloadFile()
+{
+    if(m_fileName.isEmpty()) return;
+    readFile();
 }
 /*!
  * \brief open file via recent menu
@@ -2048,11 +2060,9 @@ QList<LoopIteration> MainWindow::groupBy(QStringList sweepVar,std::vector<bool> 
 }
 
 /* TODO
+improve display a/b numbers (eng format, covering)
 Unit tests
 chart style in config
-touchstone
-log axis
-import vcsv
 edit trace name/title
 */
 

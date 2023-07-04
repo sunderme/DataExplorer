@@ -376,6 +376,8 @@ void MainWindow::reloadFile()
 {
     if(m_fileName.isEmpty()) return;
     const QList<ColumnFilter> store_columnFilters=m_columnFilters;
+    const auto store_sweeps=m_sweeps;
+    const auto store_plotValues=m_plotValues;
     readFile();
     m_columnFilters=store_columnFilters;
     for(const ColumnFilter &cf:m_columnFilters){
@@ -383,6 +385,9 @@ void MainWindow::reloadFile()
         updateColBackground(column,true);
     }
     updateFilteredTable();
+    m_sweeps=store_sweeps;
+    m_plotValues=store_plotValues;
+    updateSweepGUI();
 }
 /*!
  * \brief open file via recent menu

@@ -270,6 +270,22 @@ void MainWindow::setupMenus()
     plotToolBar->addAction(act);
     connect(act,&QAction::triggered,this,&MainWindow::deleteVar);
 
+    m_plotTypeMenu=new QMenu(tr("plot type"));
+    m_plotTypeActionGroup=new QActionGroup(this);
+    m_plotTypeActionGroup->setExclusive(true);
+    act=new QAction(tr("line series"),this);
+    act->setCheckable(true);
+    act->setChecked(true);
+    connect(act,&QAction::triggered,this,&MainWindow::plotStyleChanged);
+    m_plotTypeMenu->addAction(act);
+    m_plotTypeActionGroup->addAction(act);
+    m_lineSeriesAveragedAct=new QAction(tr("line series averaged"),this);
+    m_lineSeriesAveragedAct->setCheckable(true);
+    connect(m_lineSeriesAveragedAct,&QAction::triggered,this,&MainWindow::plotStyleChanged);
+    m_plotTypeActionGroup->addAction(m_lineSeriesAveragedAct);
+    m_plotTypeMenu->addAction(m_lineSeriesAveragedAct);
+    m_plotMenu->addMenu(m_plotTypeMenu);
+
     QAction *testAction=new QAction("test",this);
     connect(testAction, &QAction::triggered, this, &MainWindow::test);
     m_plotMenu->addAction(testAction);
@@ -806,10 +822,35 @@ void MainWindow::plotSelected()
     }
     chartView->updateMarker();
 }
-
+/*!
+ * \brief plot series
+ * if x values contain strings, use a bar instead of a line chart
+ * \param index_x
+ * \param vars
+ * \param yn
+ * \param multiPlot
+ */
 void MainWindow::addSeriesToChart(const int index_x,const QStringList &vars,const QString &yn,bool multiPlot){
+    bool discretePoints=false; //(m_columnType[index_x]!=COL_INT) && (m_columnType[index_x]!=COL_FLOAT); for now, detection not done generally
+    if(discretePoints){
+        addBarSeriesToChart(index_x,vars,yn,multiPlot);
+    }else{
+        addLineSeriesToChart(index_x,vars,yn,multiPlot);
+    }
+}
+/*!
+ * \brief add LineSeries To Chart
+ * Assume x is number
+ * \param index_x column of x (sweep) value
+ * \param vars group vars
+ * \param yn plot value
+ * \param multiPlot if multiple values will be plotted
+ */
+void MainWindow::addLineSeriesToChart(const int index_x, const QStringList &vars, const QString &yn, bool multiPlot)
+{
     int index_y=getIndex(yn);
     if(index_y<0) return;
+    bool averaging=m_lineSeriesAveragedAct->isChecked();
     QList<LoopIteration> lits=groupBy(vars,m_visibleRows);
     foreach(LoopIteration lit,lits){
         QLineSeries *series = new QLineSeries();
@@ -821,19 +862,63 @@ void MainWindow::addSeriesToChart(const int index_x,const QStringList &vars,cons
         }else{
             series->setName(yn);
         }
-        for(std::size_t i=0;i<lit.indices.size();++i){
-            if(lit.indices[i]){
-                bool ok_x,ok_y;
-                qreal x=m_csv[index_x].value(i).toDouble(&ok_x);
-                qreal y=m_csv[index_y].value(i).toDouble(&ok_y);
-                if(ok_x && ok_y){
-                    QPointF pt(x,y);
-                    series->append(pt);
-                }
-            }
+        QList<QPointF> points=getPoints(index_x,index_y,lit);
+        if(averaging){
+            points=averagePointSeries(points);
         }
+        series->append(points);
         chartView->addSeries(series);
     }
+}
+
+QList<QPointF> MainWindow::getPoints(const int index_x,const int index_y,const LoopIteration &lit)
+{
+    QList<QPointF> series;
+    for(std::size_t i=0;i<lit.indices.size();++i){
+        if(lit.indices[i]){
+            bool ok_x,ok_y;
+            qreal x=m_csv[index_x].value(i).toDouble(&ok_x);
+            qreal y=m_csv[index_y].value(i).toDouble(&ok_y);
+            if(ok_x && ok_y){
+                QPointF pt(x,y);
+                series.append(pt);
+            }
+        }
+    }
+    return series;
+}
+/*!
+ * \brief calculate average of y values with same x values
+ * Series need to be sorted
+ * \param points
+ */
+QList<QPointF> MainWindow::averagePointSeries(const QList<QPointF> &points)
+{
+    QList<QPointF> avg;
+    int n=0;
+    QPointF resultingPoint;
+    for(const auto &pt:points){
+        if(n==0){
+            resultingPoint=pt;
+            ++n;
+        }else{
+            if(pt.x()==resultingPoint.x()){
+                resultingPoint.setY(resultingPoint.y()+pt.y());
+                ++n;
+            }else{
+                resultingPoint.setY(resultingPoint.y()/n);
+                avg<<resultingPoint;
+                n=0;
+            }
+        }
+    }
+    return avg;
+}
+
+void MainWindow::addBarSeriesToChart(const int index_x, const QStringList &vars, const QString &yn, bool multiPlot)
+{
+    // TO BE IMPLEMENTED
+    return;
 }
 /*!
  * \brief plot if changed to plot tab
@@ -1522,6 +1607,16 @@ int MainWindow::determineOperator(const QString &text, QString &reference)
     return -1000; // unknown
 }
 /*!
+ * \brief called when plot style is changed
+ * replot if plot is visible
+ */
+void MainWindow::plotStyleChanged()
+{
+    if(tabWidget->currentIndex()==1){
+        plotSelected();
+    }
+}
+/*!
  * \brief operator << for debug QList<loopIteration>
  * \param d
  * \param dt
@@ -2082,6 +2177,8 @@ QList<LoopIteration> MainWindow::groupBy(QStringList sweepVar,std::vector<bool> 
     }
     return result;
 }
+
+
 
 /* TODO
 avg plot

@@ -52,6 +52,8 @@ protected:
     void updateSweeps(bool filterChecked=true);
     void plotSelected();
     void addSeriesToChart(const int index_x, const QStringList &vars, const QString &yn, bool multiPlot);
+    void addLineSeriesToChart(const int index_x, const QStringList &vars, const QString &yn, bool multiPlot);
+    void addBarSeriesToChart(const int index_x, const QStringList &vars, const QString &yn, bool multiPlot);
     void tabChanged(int index);
     void headerMenuRequested(QPoint pt);
     void addSweepVar();
@@ -92,6 +94,7 @@ protected:
     void filterElementChanged(bool checked);
     bool parseQuery(const QString &text,const QString &data,const ColumnType col_type=COL_STRING);
     int determineOperator(const QString &text,QString &reference);
+    void plotStyleChanged();
     void test();
     void copyCell();
     void copyHeader();
@@ -119,18 +122,24 @@ protected:
     QString unquote(const QString &text) const;
 
     QList<LoopIteration> groupBy(QStringList sweepVar,std::vector<bool> providedIndices=std::vector<bool>() );
+    QList<QPointF> getPoints(const int index_x,const int index_y,const LoopIteration &lit);
+    QList<QPointF> averagePointSeries(const QList<QPointF> &points);
 
 private:
     QMenu *m_fileMenu;
     QMenu *m_plotMenu;
     QMenu *m_editMenu;
     QMenu *m_recentFilesMenu,*m_recentTemplatesMenu;
+    QMenu *m_plotTypeMenu;
 
     QAction *m_openAct;
     QAction *m_reloadAct;
     QAction *m_exitAct;
     QAction *m_plotAct;
     QAction *m_logxAct,*m_logyAct;
+    QAction *m_lineSeriesAveragedAct;
+
+    QActionGroup *m_plotTypeActionGroup;
 
     QTabWidget *tabWidget;
     QTableWidget *tableWidget;

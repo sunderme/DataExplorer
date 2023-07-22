@@ -1243,6 +1243,10 @@ void MainWindow::updateColBackground(int col,bool filtered){
         item->setBackground(color);
     }
 }
+void MainWindow::updateColBackgroundOff(int col){
+    QTableWidgetItem *item=tableWidget->horizontalHeaderItem(col);
+    item->setBackground(Qt::red);
+}
 
 void MainWindow::columnShowNone()
 {
@@ -1255,8 +1259,8 @@ void MainWindow::columnShowNone()
         ColumnFilter cf;
         cf.column=column;
         m_columnFilters.append(cf);
-        updateColBackground(column,true);
     }
+    updateColBackgroundOff(column);
     updateFilteredTable();
 }
 /*!
@@ -1362,8 +1366,14 @@ void MainWindow::filterElementChanged(bool checked)
             updateColBackground(column,false);
             m_columnFilters.takeAt(cfi);
         }
+        if(m_columnFilters[cfi].allowedValues.size()==1){
+            updateColBackground(column,true);
+        }
     }else{
         m_columnFilters[cfi].allowedValues.removeOne(value);
+    }
+    if(m_columnFilters[cfi].allowedValues.isEmpty()){
+        updateColBackgroundOff(column);
     }
     updateFilteredTable();
 }
@@ -2072,6 +2082,9 @@ QList<LoopIteration> MainWindow::groupBy(QStringList sweepVar,std::vector<bool> 
 }
 
 /* TODO
+avg plot
+histogram
+fix marker position after replot
 improve display a/b numbers (eng format, covering)
 Unit tests
 chart style in config

@@ -86,6 +86,7 @@ protected:
     void columnFilter();
     void updateFilteredTable();
     void updateColBackground(int col,bool filtered=false);
+    void updateColBackgroundOff(int col);
     void filterRowsForColumnValues(ColumnFilter cf);
     void filterElementChanged(bool checked);
     bool parseQuery(const QString &text,const QString &data,const ColumnType col_type=COL_STRING);

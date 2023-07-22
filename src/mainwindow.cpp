@@ -831,6 +831,7 @@ void MainWindow::plotSelected()
     if(m_logy){
         chartView->setLogY(true);
     }
+    chartView->updateMarker();
 }
 /*!
  * \brief plot if changed to plot tab
@@ -1413,7 +1414,6 @@ bool MainWindow::parseQuery(const QString &text, const QString &data,const Colum
         int operatorType=determineOperator(q,reference);
         if(operatorType<-10) continue; // unknown operator
         bool res_query=true;
-        bool handled=false;
         if(operatorType>=10){
             if(operatorType==10){
                 // contains ...

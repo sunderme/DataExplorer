@@ -51,6 +51,7 @@ public:
     void addVerticalMarker();
     void addHorizontalMarker();
     void addMarker(bool markerB=false);
+    void updateMarker();
 
     bool deleteSelectedMarker();
     bool deleteSelectedSeries();
@@ -67,7 +68,6 @@ protected slots:
     void legendMarkerHovered(bool hover);
     void seriesClicked(const QPointF &point);
     void seriesHovered(const QPointF &point,bool state);
-    void updateMarker();
     void keepCallout();
     void tooltip(QPointF point, bool state);
 

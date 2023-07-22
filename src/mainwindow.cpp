@@ -790,35 +790,8 @@ void MainWindow::plotSelected()
     bool multiPlot=m_plotValues.size()>1;
     chartView->clear();
     for(const QString &yn:m_plotValues){
-        int index_y=getIndex(yn);
-        if(index_y<0) continue;
-
-        QList<LoopIteration> lits=groupBy(vars,m_visibleRows);
-        foreach(LoopIteration lit,lits){
-            QLineSeries *series = new QLineSeries();
-            if(!lit.value.isEmpty()){
-                QString name=lit.value.left(lit.value.size()-1);
-                if(multiPlot)
-                    name=yn+":"+name;
-                series->setName(name);
-            }else{
-                series->setName(yn);
-            }
-            for(std::size_t i=0;i<lit.indices.size();++i){
-                if(lit.indices[i]){
-                    bool ok_x,ok_y;
-                    qreal x=m_csv[index_x].value(i).toDouble(&ok_x);
-                    qreal y=m_csv[index_y].value(i).toDouble(&ok_y);
-                    if(ok_x && ok_y){
-                        QPointF pt(x,y);
-                        series->append(pt);
-                    }
-                }
-            }
-            chartView->addSeries(series);
-        }
+        addSeriesToChart(index_x,vars,yn,multiPlot);
     }
-
 
     chartView->setTitle("Line chart");
     if(tabWidget->currentIndex()!=1){
@@ -832,6 +805,35 @@ void MainWindow::plotSelected()
         chartView->setLogY(true);
     }
     chartView->updateMarker();
+}
+
+void MainWindow::addSeriesToChart(const int index_x,const QStringList &vars,const QString &yn,bool multiPlot){
+    int index_y=getIndex(yn);
+    if(index_y<0) return;
+    QList<LoopIteration> lits=groupBy(vars,m_visibleRows);
+    foreach(LoopIteration lit,lits){
+        QLineSeries *series = new QLineSeries();
+        if(!lit.value.isEmpty()){
+            QString name=lit.value.left(lit.value.size()-1);
+            if(multiPlot)
+                name=yn+":"+name;
+            series->setName(name);
+        }else{
+            series->setName(yn);
+        }
+        for(std::size_t i=0;i<lit.indices.size();++i){
+            if(lit.indices[i]){
+                bool ok_x,ok_y;
+                qreal x=m_csv[index_x].value(i).toDouble(&ok_x);
+                qreal y=m_csv[index_y].value(i).toDouble(&ok_y);
+                if(ok_x && ok_y){
+                    QPointF pt(x,y);
+                    series->append(pt);
+                }
+            }
+        }
+        chartView->addSeries(series);
+    }
 }
 /*!
  * \brief plot if changed to plot tab

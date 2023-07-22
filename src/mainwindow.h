@@ -51,6 +51,7 @@ protected:
     void updateSweepGUI();
     void updateSweeps(bool filterChecked=true);
     void plotSelected();
+    void addSeriesToChart(const int index_x, const QStringList &vars, const QString &yn, bool multiPlot);
     void tabChanged(int index);
     void headerMenuRequested(QPoint pt);
     void addSweepVar();

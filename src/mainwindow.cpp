@@ -798,11 +798,13 @@ void MainWindow::plotSelected()
 {
     updateSweeps();
     if(m_plotValues.isEmpty()) return;
-    if(m_sweeps.isEmpty()) return;
     QStringList vars=m_sweeps;
-    QString xn=vars.takeLast();
+    QString xn;
+    if(!vars.isEmpty()){
+        xn=vars.takeLast();
+    }
     int index_x=getIndex(xn);
-    if(index_x<0) return;
+
     bool multiPlot=m_plotValues.size()>1;
     chartView->clear();
     for(const QString &yn:m_plotValues){
@@ -874,10 +876,19 @@ void MainWindow::addLineSeriesToChart(const int index_x, const QStringList &vars
 QList<QPointF> MainWindow::getPoints(const int index_x,const int index_y,const LoopIteration &lit)
 {
     QList<QPointF> series;
+    qreal cnt=0;
     for(std::size_t i=0;i<lit.indices.size();++i){
         if(lit.indices[i]){
             bool ok_x,ok_y;
-            qreal x=m_csv[index_x].value(i).toDouble(&ok_x);
+            qreal x;
+            if(index_x<0){
+                x=cnt;
+                cnt+=1;
+                ok_x=true;
+            }else{
+                x=m_csv[index_x].value(i).toDouble(&ok_x);
+            }
+
             qreal y=m_csv[index_y].value(i).toDouble(&ok_y);
             if(ok_x && ok_y){
                 QPointF pt(x,y);

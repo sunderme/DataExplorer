@@ -518,6 +518,11 @@ void MainWindow::saveTemplate()
 
     QJsonDocument saveDoc(jo);
     saveFile.write(saveDoc.toJson());
+
+    // add new template to recent templates
+    m_recentTemplates.removeOne(fileName);
+    m_recentTemplates.prepend(fileName);
+    populateRecentTemplates();
 }
 /*!
  * \brief read in template

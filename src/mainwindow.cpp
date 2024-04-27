@@ -1682,7 +1682,23 @@ void MainWindow::copyCell()
 {
     auto items=tableWidget->selectedItems();
     if(!items.isEmpty()){
-        QString txt=items[0]->text();
+        QString txt;
+        int row=-1;
+        for(auto item:items){
+            if(txt.isEmpty()){
+                txt=item->text();
+            }else{
+                if(row!=item->row()){
+                    txt.append("\n");
+                    txt.append(item->text());
+                }else{
+                    txt.append("\t");
+                    txt.append(item->text());
+                }
+            }
+            row=item->row();
+        }
+
         QClipboard *clipboard = QGuiApplication::clipboard();
         clipboard->setText(txt);
     }

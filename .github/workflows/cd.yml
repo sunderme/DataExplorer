@@ -15,7 +15,7 @@ jobs:
       run:
         shell: msys2 {0}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -48,14 +48,14 @@ jobs:
 
       - name: Upload zip to GitHub Artifacts
         if: github.event_name == 'push'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dataexplorer-win-qt6-zip
           path: ./build/package-zip/DataExplorer-win-qt6-${{ steps.package.outputs.VERSION_NAME }}.zip
           
       - name: Upload to GitHub Artifacts
         if: github.event_name == 'push'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dataexplorer-win-qt6-exe
           path: ./build/DataExplorer-win-qt6-${{ steps.package.outputs.VERSION_NAME }}.exe
@@ -79,7 +79,7 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
@@ -113,7 +113,7 @@ jobs:
         
     - name: Upload to Github Artifacts
       if: github.event_name == 'push'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: dataexplorer-linux
         path: DataExplorer-linux-${{ steps.package.outputs.VERSION_NAME }}-x86_64.AppImage
@@ -138,7 +138,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
@@ -182,7 +182,7 @@ jobs:
         
     - name: Upload to Github artifacts
       if: github.event_name == 'push'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: dataexplorer-osx
         path: build/dataexplorer-osx-${{ steps.package.outputs.VERSION_NAME }}.dmg
@@ -203,7 +203,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
@@ -247,7 +247,7 @@ jobs:
         
     - name: Upload to Github artifacts
       if: github.event_name == 'push'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: dataexplorer-osx-m1
         path: app

@@ -238,12 +238,11 @@ jobs:
         # /usr/local/QtBase-${{ env.OSX_QT_VERSION }}-Darwin/bin/macdeployqt dataexplorer.app -dmg
         /usr/local/QtBase-${{ env.OSX_QT_VERSION }}-Darwin/bin/macdeployqt dataexplorer.app
         codesign --force --deep --sign - dataexplorer.app
-        . ../.github/scripts/get-version.sh
-        cp -r dataexplorer.app ../dataexplorer-${GIT_VERSION}-osx-m1.app
+        VERSION_NAME=`git describe`
         mkdir ../app
         mv dataexplorer.app ../app/dataexplorer-osx-m1-${VERSION_NAME}.app
         cd ..
-        zip -r dataexplorer-${GIT_VERSION}-osx-m1.zip dataexplorer-${GIT_VERSION}-osx-m1.app
+        zip -r dataexplorer-osx-m1-${VERSION_NAME}.zip dataexplorer-osx-m1-${VERSION_NAME}.app
         echo "VERSION_NAME=${VERSION_NAME}" >> $GITHUB_OUTPUT
         
     - name: Upload to Github artifacts
@@ -258,7 +257,7 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       with:
         prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') }}
-        files: app/dataexplorer-osx-m1-${{ steps.package.outputs.VERSION_NAME }}.dmg
+        files: app/dataexplorer-osx-m1-${{ steps.package.outputs.VERSION_NAME }}.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUBTOKEN }}
         

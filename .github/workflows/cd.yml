@@ -242,7 +242,7 @@ jobs:
         mkdir ../app
         mv dataexplorer.app ../app/dataexplorer-osx-m1-${VERSION_NAME}.app
         cd ..
-        zip -r dataexplorer-osx-m1-${VERSION_NAME}.zip dataexplorer-osx-m1-${VERSION_NAME}.app
+        zip -r dataexplorer-osx-m1-${VERSION_NAME}.zip app/dataexplorer-osx-m1-${VERSION_NAME}.app
         echo "VERSION_NAME=${VERSION_NAME}" >> $GITHUB_OUTPUT
         
     - name: Upload to Github artifacts
@@ -257,7 +257,7 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       with:
         prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') }}
-        files: app/dataexplorer-osx-m1-${{ steps.package.outputs.VERSION_NAME }}.zip
+        files: dataexplorer-osx-m1-${{ steps.package.outputs.VERSION_NAME }}.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUBTOKEN }}
         

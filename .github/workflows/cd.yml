@@ -214,10 +214,10 @@ jobs:
       run: |
         wget https://github.com/sunderme/homebrew-qt6-modules/releases/download/${{ env.OSX_QT_VERSION }}/QtBase-${{ env.OSX_QT_VERSION }}-Darwin-M1.tar.xz
         sudo tar xvf ./QtBase-${{ env.OSX_QT_VERSION }}-Darwin-M1.tar.xz -C /usr/local
-        rm QtBase-${{ env.OSX_QT_VERSION }}-Darwin.tar.xz
+        rm QtBase-${{ env.OSX_QT_VERSION }}-Darwin-M1.tar.xz
         wget https://github.com/sunderme/homebrew-qt6-modules/releases/download/${{ env.OSX_QT_VERSION }}/QtSvg-${{ env.OSX_QT_VERSION }}-Darwin-M1.tar.xz
         sudo tar xvf ./QtSvg-${{ env.OSX_QT_VERSION }}-Darwin-M1.tar.xz -C /usr/local/QtBase-${{ env.OSX_QT_VERSION }}-Darwin --strip-components=1
-        rm QtSvg-${{ env.OSX_QT_VERSION }}-Darwin.tar.xz
+        rm QtSvg-${{ env.OSX_QT_VERSION }}-Darwin-M1.tar.xz
         wget https://github.com/sunderme/homebrew-qt6-modules/releases/download/${{ env.OSX_QT_VERSION }}/QtCharts-${{ env.OSX_QT_VERSION }}-Darwin-M1.tar.xz
         sudo tar xvf ./QtCharts-${{ env.OSX_QT_VERSION }}-Darwin-M1.tar.xz -C /usr/local/QtBase-${{ env.OSX_QT_VERSION }}-Darwin --strip-components=1
         rm QtCharts-${{ env.OSX_QT_VERSION }}-Darwin-M1.tar.xz
